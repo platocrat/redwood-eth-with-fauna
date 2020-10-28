@@ -65,7 +65,7 @@ contract Emanafte is ERC721, IERC721Receiver, DSMath {
       return bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
   }
 
-  function firstAuction() external payable returns (uint256) {
+  function firstAuction() external returns (uint256) {
     require(msg.sender == creator, "only the creator can start the first auction");
     require(totalAuctions < 1, "this function can only be called once");
     totalAuctions = 0;
