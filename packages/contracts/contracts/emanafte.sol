@@ -1720,7 +1720,7 @@ struct Auction {
     uint256[] bids;
     address payable owner;
     address payable highBidder;
-    address[] bidders; 
+    address[] bidders;
     address payable prevHighBidder;
 }
 
@@ -1754,19 +1754,19 @@ constructor(ISuperFluid host, IConstantFlowAgreementV1 cfa, IInstantDistribution
     revShareRecipients.push(creator);
     ownerRevShares.push(1000000);
     setApprovalForAll(address(this), true);
-    
+
 }
     function onERC721Received(address, address, uint256, bytes calldata) external override returns (bytes4) {
-        return bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));   
+        return bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
     }
-    
+
     function firstAuction() external payable returns (uint256) {
       require(msg.sender == creator, "only the creator can start the first auction");
       require(totalAuctions < 1, "this function can only be called once");
       totalAuctions = 0;
       ERC721._safeMint(msg.sender, totalAuctions);
       totalShares = ownerRevShares[0];
-      
+
       Auction storage _auction = tokenIdToAuction[totalAuctions];
       _auction.generation = 0;
       _auction.startTime = now;
@@ -1774,13 +1774,13 @@ constructor(ISuperFluid host, IConstantFlowAgreementV1 cfa, IInstantDistribution
       _auction.highBid = 0;
       _auction.highBidder = address(0);
       _auction.prevHighBidder = address(0);
-      
+
       // creating the first auction creates an income distribution agreement index
       _host.callAgreement(_ida.address, _ida.contract.methods.createIndex
          (_acceptedToken.address, 1, "0x").encodeABI(), { from: address(this) })
-        
-      
-      // creating the first auction adds the creator to the income distribution agreement subscribers 
+
+
+      // creating the first auction adds the creator to the income distribution agreement subscribers
       _host.callAgreement(_ida.address, _ida.contract.methods.updateSubscription
          (_acceptedToken.address, 1, msg.sender, ownerRevShares[0], "0x").encodeABI(), { from: address(this) })
 
@@ -1788,17 +1788,17 @@ constructor(ISuperFluid host, IConstantFlowAgreementV1 cfa, IInstantDistribution
 
       return _auction.generation;
     }
-    
+
     function checkTimeRemaining() public view returns (uint) {
         Auction storage _auction = tokenIdToAuction[totalAuctions];
         require(_auction.bids.length >= 1, "no one has bid yet");
         uint timeLeft = _auction.endTime - now;
         return timeLeft;
     }
-    
+
     function _nextAuction(uint tokenId) private returns (uint256) {
       totalAuctions++;
-      
+
       Auction storage _auction = tokenIdToAuction[tokenId];
       _auction.generation = totalAuctions;
       _auction.startTime = now;
@@ -1814,100 +1814,100 @@ constructor(ISuperFluid host, IConstantFlowAgreementV1 cfa, IInstantDistribution
 
     function bid() public payable returns (uint256, uint256, address) {
         Auction storage _auction = tokenIdToAuction[totalAuctions];
-       
+
         require((now < _auction.endTime), "this auction is already over");
         require(msg.value > _auction.highBid, "you must bid more than the current high bid");
-        
+
         // highBidder creates new SuperFluid constant flow agreement
         _host.callAgreement(_cfa.address, _cfa.contract.methods.createFlow
            (_acceptedToken.address, address(this), msg.value, "0x").encodeABI(), { from: msg.sender })
-        
+
          _auction.prevHighBidder = _auction.highBidder;
-         
+
          // new highBidder should stop previous highBidder's SuperFluid constant flow agreement
         if (_auction.generation>0){
               _host.callAgreement(_cfa.address, _cfa.contract.methods.deleteFlow
                   (_acceptedToken.address, _auction.prevHighBidder, address(this), _auction.highBid, "0x").encodeABI(), { from: address(this) }
         }
-           
+
         _auction.highBid = msg.value;
         _auction.bids.push(msg.value);
         _auction.highBidder = msg.sender;
         _auction.bidders.push(msg.sender);
         _auction.lastBidTime = now;
         _auction.endTime = _auction.lastBidTime + winLength;
-        
+
         return (_auction.highBid, _auction.lastBidTime, _auction.highBidder);
     }
-    
+
     function claimNFT() public payable returns (uint) {
         Auction storage _auction = tokenIdToAuction[totalAuctions];
-       
+
         require(msg.sender == _auction.highBidder, "only the auction winner can claim");
         require(now > _auction.endTime, "this auction isn't over yet");
-        
-        // claiming NFT deletes the winner's SuperFluid constant flow agreement    
+
+        // claiming NFT deletes the winner's SuperFluid constant flow agreement
         _host.callAgreement(_cfa.address, _cfa.contract.methods.deleteFlow
              (_acceptedToken.address, msg.sender, address(this), msg.value, "0x").encodeABI(), { from: msg.sender })
-        
+
         // auction winner mints the new childNFT
         uint childNFT = _mintChildNFT(totalAuctions);
         childNFTs.push(childNFT);
-        
+
         // claiming the NFT distributes the auction's accumulated funds to the revenue share owners
         _host.callAgreement(_ida.address, _ida.contract.methods.updateIndex
            (_acceptedToken.address, 1, balanceOf(address(this)), "0x").encodeABI(), { from: address(this) })
-        
-        
+
+
         // Upon claiming, the contract distributes the auction funds to the prior owners according to their proportion of totalShares
         // uint amt = address(this).balance;
         // uint perShare = rdiv(amt, totalShares);
-        
+
         // for (uint i = 0; i < revShareRecipients.length; i++) {
         //     uint distro = rmul(ownerRevShares[i], perShare);
         //     revShareRecipients[i].transfer(distro);
         // }
-        
+
         // claiming an NFT automatically updates the revenue shares array
         revShareRecipients.push(msg.sender);
         uint position = ownerRevShares.length - 1;
         uint newShares = ownerRevShares[position].mul(9).div(10);
         totalShares = totalShares + newShares;
         ownerRevShares.push(newShares);
-        
-        // claiming the NFT adds the new owner to the income distribution agreement subscribers 
+
+        // claiming the NFT adds the new owner to the income distribution agreement subscribers
         _host.callAgreement(_ida.address, _ida.contract.methods.updateSubscription
              (_acceptedToken.address, 1, msg.sender, newShares, "0x").encodeABI(), { from: address(this) })
-        
-        
+
+
         // claiming the NFT approves the subscription
         _host.callAgreement(_ida.address, _ida.contract.methods.approveSubscription
              (_acceptedToken.address, address(this), 1, "0x").encodeABI(), { from: msg.sender })
-            
-        
+
+
         // claiming an NFT automatically starts a new auction
         _nextAuction(childNFT);
-        
+
         emit auctionWon(totalAuctions, msg.sender);
         emit newAuction(creator, childNFT, now);
         return childNFT;
     }
-    
+
     function getAuctionInfo() public view returns (uint, uint, address, uint, uint){
         Auction storage _auction = tokenIdToAuction[totalAuctions];
         return (_auction.generation, _auction.highBid, _auction.highBidder, _auction.startTime, _auction.lastBidTime);
     }
-    
+
     function getRevShareRecipLength() public view returns (uint){
         return revShareRecipients.length;
     }
-    
+
     function getAuctionBalance() public view returns (uint) {
-        return address(this).balance;    
+        return address(this).balance;
     }
-    
+
     function _mintChildNFT(uint tokenId) private returns (uint) {
-        uint childTokenId = tokenId + 1; 
+        uint childTokenId = tokenId + 1;
         childNFTs.push(childTokenId);
         ERC721._safeMint(msg.sender, childTokenId);
         return childTokenId;
