@@ -68,11 +68,6 @@ contract Emanafte is ERC721, IERC721Receiver, DSMath {
     // Create the first auction
     currentGeneration = 1;
     Auction storage _auction = auctionByGeneration[1];
-    _auction.endTime = block.timestamp * 2;
-    // _auction.generation = 0;
-    // _auction.highBid = 0;
-    // _auction.highBidder = address(0);
-    // _auction.prevHighBidder = address(0);
 
     // creating the first auction creates an income distribution agreement index
     // host.callAgreement(ida.address, ida.contract.methods.createIndex
@@ -87,7 +82,8 @@ contract Emanafte is ERC721, IERC721Receiver, DSMath {
   // Submit a higher bid and increase the length of the auction
   function bid(uint bidAmount) public returns (uint256 highBid, uint256 lastBidTime, address highBidder) {
       Auction storage _auction = auctionByGeneration[currentGeneration];
-      require((block.timestamp < _auction.endTime), "The current auction has ended. Please start a new one.");
+      uint256 endTime = _auction.lastBidTime + winLength;
+      require(block.timestamp > endTime, "The current auction has ended. Please start a new one.");
       // TODO: Add a minimum bid increase threshold
       require(bidAmount > _auction.highBid, "you must bid more than the current high bid");
 
@@ -115,7 +111,7 @@ contract Emanafte is ERC721, IERC721Receiver, DSMath {
   function settleAndBeginAuction() public {
       Auction storage _auction = auctionByGeneration[currentGeneration];
 
-      // TODO:  add check that the auction has started (has a minimum bid)
+      require(_auction.highBid > 0, "The auction has not started yet");
       uint256 endTime = _auction.lastBidTime + winLength;
       require(block.timestamp > endTime, "The auction is not over yet");
 
@@ -167,8 +163,7 @@ contract Emanafte is ERC721, IERC721Receiver, DSMath {
 
   function checkTimeRemaining() public view returns (uint) {
       Auction storage _auction = auctionByGeneration[currentGeneration];
-      require(_auction.bids.length >= 1, "no one has bid yet");
-      uint timeLeft = _auction.endTime - block.timestamp;
+      uint timeLeft = _auction.lastBidTime + winLength - block.timestamp;
       return timeLeft;
   }
 
