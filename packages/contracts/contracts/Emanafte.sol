@@ -163,12 +163,14 @@ contract Emanafte is ERC721, IERC721Receiver, DSMath {
 
   function checkTimeRemaining() public view returns (uint) {
       Auction storage _auction = auctionByGeneration[currentGeneration];
+      require(_auction.highBid > 0, "The auction has not started yet");
       uint timeLeft = _auction.lastBidTime + winLength - block.timestamp;
       return timeLeft;
   }
 
   function checkEndTime() public view returns (uint) {
       Auction storage _auction = auctionByGeneration[currentGeneration];
+      require(_auction.highBid > 0, "The auction has not started yet");
       uint endTime = _auction.lastBidTime + winLength;
       return endTime;
   }
@@ -178,13 +180,9 @@ contract Emanafte is ERC721, IERC721Receiver, DSMath {
       return ( _auction.highBid, _auction.highBidder, _auction.lastBidTime);
   }
 
-  function getCurrentAuctionInfo(uint id) public view returns ( uint highBid, address highBidder, uint lastBidTime){
+  function getAuctionInfo(uint id) public view returns ( uint highBid, address highBidder, uint lastBidTime){
       Auction storage _auction = auctionByGeneration[id];
       return ( _auction.highBid, _auction.highBidder, _auction.lastBidTime);
-  }
-
-  function getRevShareRecipLength() public view returns (uint){
-      return revShareRecipients.length;
   }
 
   function getAuctionBalance() public view returns (uint balanceOf) {

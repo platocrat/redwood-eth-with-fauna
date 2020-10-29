@@ -13,6 +13,7 @@ contract("Emanafte", (accounts) => {
 
   const ZERO_ADDRESS = "0x" + "0".repeat(40);
   const MINIMUM_GAME_FLOW_RATE = toWad(10).div(toBN(3600 * 24 * 30));
+  const WIN_LENGTH = 10; // seconds
 
   accounts = accounts.slice(0, 4);
   const [admin, bob, carol, dan] = accounts;
@@ -50,7 +51,8 @@ contract("Emanafte", (accounts) => {
       sf.host.address,
       sf.agreements.cfa.address,
       sf.agreements.ida.address,
-      daix.address
+      daix.address,
+      WIN_LENGTH
     );
 
     for (let i = 1; i < accounts.length; ++i) {

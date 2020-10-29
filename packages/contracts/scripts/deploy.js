@@ -2,6 +2,8 @@ const { web3tx } = require("@decentral.ee/web3-helpers");
 const SuperfluidSDK = require("@superfluid-finance/ethereum-contracts");
 const Emanafte = artifacts.require("Emanafte");
 
+const WIN_LENGTH = 10; // seconds
+
 module.exports = async function (callback, argv) {
   const errorHandler = (err) => {
     if (err) throw err;
@@ -29,7 +31,8 @@ module.exports = async function (callback, argv) {
       sf.host.address,
       sf.agreements.cfa.address,
       sf.agreements.ida.address,
-      daix.address
+      daix.address,
+      WIN_LENGTH
     );
     console.log("App deployed at", app.address);
     callback();
