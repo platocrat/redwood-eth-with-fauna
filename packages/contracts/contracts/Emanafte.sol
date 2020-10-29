@@ -35,25 +35,25 @@ contract Emanafte is ERC721, IERC721Receiver, DSMath {
 
   uint256 public totalAuctions;
 
-  ISuperfluid private _host;
-  IConstantFlowAgreementV1 private _cfa;
-  IInstantDistributionAgreementV1 private _ida;
-  ISuperToken private _acceptedToken;
+  ISuperfluid private host;
+  IConstantFlowAgreementV1 private cfa;
+  IInstantDistributionAgreementV1 private ida;
+  ISuperToken private tokenX;
 
   mapping (uint256 => Auction) public tokenIdToAuction;
 
   event newAuction(address creator, uint256 id, uint256 startTime);
   event auctionWon(uint256 id, address indexed winner);
 
-  constructor(ISuperfluid host, IConstantFlowAgreementV1 cfa, IInstantDistributionAgreementV1 ida, ISuperToken acceptedToken) public ERC721 ("emaNaFTe", "emNFT") {
+  constructor(ISuperfluid _host, IConstantFlowAgreementV1 _cfa, IInstantDistributionAgreementV1 _ida, ISuperToken _tokenX) public ERC721 ("emaNaFTe", "emNFT") {
       assert(address(host) != address(0));
       assert(address(cfa) != address(0));
       assert(address(ida) != address(0));
-      assert(address(acceptedToken) != address(0));
-      _host = host;
-      _cfa = cfa;
-      _ida = ida;
-      _acceptedToken = acceptedToken;
+      assert(address(_tokenX) != address(0));
+      host = _host;
+      cfa = _cfa;
+      ida = _ida;
+      tokenX = _tokenX;
       creator = msg.sender;
       winLength = 10 seconds;
       revShareRecipients.push(creator);
@@ -65,7 +65,7 @@ contract Emanafte is ERC721, IERC721Receiver, DSMath {
       return bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
   }
 
-  function firstAuction() external returns (uint256) {
+  function firstAuction() external returns (uint256 generation) {
     require(msg.sender == creator, "only the creator can start the first auction");
     require(totalAuctions < 1, "this function can only be called once");
     totalAuctions = 0;
@@ -81,13 +81,13 @@ contract Emanafte is ERC721, IERC721Receiver, DSMath {
     _auction.prevHighBidder = address(0);
 
     // creating the first auction creates an income distribution agreement index
-    // _host.callAgreement(_ida.address, _ida.contract.methods.createIndex
-    //    (_acceptedToken.address, 1, "0x").encodeABI(), { from: address(this) })
+    // host.callAgreement(ida.address, ida.contract.methods.createIndex
+    //    (tokenX.address, 1, "0x").encodeABI(), { from: address(this) })
     //
     //
     // // creating the first auction adds the creator to the income distribution agreement subscribers
-    // _host.callAgreement(_ida.address, _ida.contract.methods.updateSubscription
-    //    (_acceptedToken.address, 1, msg.sender, ownerRevShares[0], "0x").encodeABI(), { from: address(this) })
+    // host.callAgreement(ida.address, ida.contract.methods.updateSubscription
+    //    (tokenX.address, 1, msg.sender, ownerRevShares[0], "0x").encodeABI(), { from: address(this) })
 
     emit newAuction(creator, totalAuctions, _auction.startTime);
 
@@ -117,26 +117,26 @@ contract Emanafte is ERC721, IERC721Receiver, DSMath {
     return _auction.generation;
   }
 
-  function bid() public payable returns (uint256, uint256, address) {
+  function bid(uint bidAmount) public returns (uint256 highBid, uint256 lastBidTime, address highBidder) {
       Auction storage _auction = tokenIdToAuction[totalAuctions];
-
       require((block.timestamp < _auction.endTime), "this auction is already over");
-      require(msg.value > _auction.highBid, "you must bid more than the current high bid");
+      require(bidAmount > _auction.highBid, "you must bid more than the current high bid");
 
+      tokenX.transferFrom(msg.sender, address(this), bidAmount );
       // highBidder creates new SuperFluid constant flow agreement
-      // _host.callAgreement(_cfa.address, _cfa.contract.methods.createFlow
-         // (_acceptedToken.address, address(this), msg.value, "0x").encodeABI(), { from: msg.sender })
+      // host.callAgreement(cfa.address, cfa.contract.methods.createFlow
+         // (tokenX.address, address(this), msg.value, "0x").encodeABI(), { from: msg.sender })
 
        _auction.prevHighBidder = _auction.highBidder;
 
        // new highBidder should stop previous highBidder's SuperFluid constant flow agreement
       if (_auction.generation>0){
-            // _host.callAgreement(_cfa.address, _cfa.contract.methods.deleteFlow
-                // (_acceptedToken.address, _auction.prevHighBidder, address(this), _auction.highBid, "0x").encodeABI(), { from: address(this) }
+            // host.callAgreement(cfa.address, cfa.contract.methods.deleteFlow
+                // (tokenX.address, _auction.prevHighBidder, address(this), _auction.highBid, "0x").encodeABI(), { from: address(this) }
       }
 
-      _auction.highBid = msg.value;
-      _auction.bids.push(msg.value);
+      _auction.highBid = bidAmount;
+      _auction.bids.push(bidAmount);
       _auction.highBidder = msg.sender;
       _auction.bidders.push(msg.sender);
       _auction.lastBidTime = block.timestamp;
@@ -145,23 +145,23 @@ contract Emanafte is ERC721, IERC721Receiver, DSMath {
       return (_auction.highBid, _auction.lastBidTime, _auction.highBidder);
   }
 
-  function claimNFT() public payable returns (uint) {
+  function claimNFT() public returns (uint) {
       Auction storage _auction = tokenIdToAuction[totalAuctions];
 
       require(msg.sender == _auction.highBidder, "only the auction winner can claim");
       require(block.timestamp > _auction.endTime, "this auction isn't over yet");
 
       // claiming NFT deletes the winner's SuperFluid constant flow agreement
-      // _host.callAgreement(_cfa.address, _cfa.contract.methods.deleteFlow
-           // (_acceptedToken.address, msg.sender, address(this), msg.value, "0x").encodeABI(), { from: msg.sender })
+      // host.callAgreement(cfa.address, cfa.contract.methods.deleteFlow
+           // (tokenX.address, msg.sender, address(this), msg.value, "0x").encodeABI(), { from: msg.sender })
 
       // auction winner mints the new childNFT
       uint childNFT = _mintChildNFT(totalAuctions);
       childNFTs.push(childNFT);
 
       // claiming the NFT distributes the auction's accumulated funds to the revenue share owners
-      // _host.callAgreement(_ida.address, _ida.contract.methods.updateIndex
-         // (_acceptedToken.address, 1, balanceOf(address(this)), "0x").encodeABI(), { from: address(this) })
+      // host.callAgreement(ida.address, ida.contract.methods.updateIndex
+         // (tokenX.address, 1, balanceOf(address(this)), "0x").encodeABI(), { from: address(this) })
 
 
       // Upon claiming, the contract distributes the auction funds to the prior owners according to their proportion of totalShares
@@ -170,7 +170,7 @@ contract Emanafte is ERC721, IERC721Receiver, DSMath {
 
       // for (uint i = 0; i < revShareRecipients.length; i++) {
       //     uint distro = rmul(ownerRevShares[i], perShare);
-      //     revShareRecipients[i].transfer(distro);
+      //     revShareRecipients[i].tranhoster(distro);
       // }
 
       // claiming an NFT automatically updates the revenue shares array
@@ -181,13 +181,13 @@ contract Emanafte is ERC721, IERC721Receiver, DSMath {
       ownerRevShares.push(newShares);
 
       // claiming the NFT adds the new owner to the income distribution agreement subscribers
-      // _host.callAgreement(_ida.address, _ida.contract.methods.updateSubscription
-           // (_acceptedToken.address, 1, msg.sender, newShares, "0x").encodeABI(), { from: address(this) })
+      // host.callAgreement(ida.address, ida.contract.methods.updateSubscription
+           // (tokenX.address, 1, msg.sender, newShares, "0x").encodeABI(), { from: address(this) })
 
 
       // claiming the NFT approves the subscription
-      // _host.callAgreement(_ida.address, _ida.contract.methods.approveSubscription
-           // (_acceptedToken.address, address(this), 1, "0x").encodeABI(), { from: msg.sender })
+      // host.callAgreement(ida.address, ida.contract.methods.approveSubscription
+           // (tokenX.address, address(this), 1, "0x").encodeABI(), { from: msg.sender })
 
 
       // claiming an NFT automatically starts a new auction
@@ -198,7 +198,14 @@ contract Emanafte is ERC721, IERC721Receiver, DSMath {
       return childNFT;
   }
 
-  function getAuctionInfo() public view returns (uint, uint, address, uint, uint){
+  function _mintChildNFT(uint tokenId) private returns (uint) {
+      uint childTokenId = tokenId + 1;
+      childNFTs.push(childTokenId);
+      ERC721._safeMint(msg.sender, childTokenId);
+      return childTokenId;
+  }
+
+  function getAuctionInfo() public view returns (uint generation, uint highBid, address highBidder, uint startTime, uint lastBidTime){
       Auction storage _auction = tokenIdToAuction[totalAuctions];
       return (_auction.generation, _auction.highBid, _auction.highBidder, _auction.startTime, _auction.lastBidTime);
   }
@@ -211,10 +218,4 @@ contract Emanafte is ERC721, IERC721Receiver, DSMath {
       return address(this).balance;
   }
 
-  function _mintChildNFT(uint tokenId) private returns (uint) {
-      uint childTokenId = tokenId + 1;
-      childNFTs.push(childTokenId);
-      ERC721._safeMint(msg.sender, childTokenId);
-      return childTokenId;
-  }
  }
