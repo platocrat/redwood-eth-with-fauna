@@ -167,6 +167,12 @@ contract Emanafte is ERC721, IERC721Receiver, DSMath {
       return timeLeft;
   }
 
+  function checkEndTime() public view returns (uint) {
+      Auction storage _auction = auctionByGeneration[currentGeneration];
+      uint endTime = _auction.lastBidTime + winLength;
+      return endTime;
+  }
+
   function getCurrentAuctionInfo() public view returns ( uint highBid, address highBidder, uint lastBidTime){
       Auction storage _auction = auctionByGeneration[currentGeneration];
       return ( _auction.highBid, _auction.highBidder, _auction.lastBidTime);
