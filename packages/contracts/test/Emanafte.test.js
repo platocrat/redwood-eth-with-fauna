@@ -112,7 +112,7 @@ contract("Emanafte", (accounts) => {
   }
 
   it("Deploys the contract", async () => {
-    assert.equal((await app.getAuctionInfo.call()).highBidder, ZERO_ADDRESS);
+    assert.equal(await app.getAuctionBalance.call(), 0);
   });
 
   // OLD from LotterySuperApp
