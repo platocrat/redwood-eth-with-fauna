@@ -1,29 +1,6 @@
 import { Web3Provider } from '@ethersproject/providers'
 
-export const getErrorResponse = (error, functionName) => {
-  const errorText = typeof error === 'string' ? error : error.message
-  const res = {
-    /* eslint-disable-nextline i18next/no-literal-string */
-    message: `Error web3.${functionName}(): ${errorText}`,
-  }
-  const ABORTED = 'aborted'
-  const EXCEPTION = 'exception'
-  const UNKOWN = 'unknown error type'
-  if (error.code) {
-    res.code = error.code
-    switch (error.code) {
-      case 4001:
-        res.txErrorType = ABORTED
-        break
-      case -32016:
-        res.txErrorType = EXCEPTION
-        break
-      default:
-        res.txErrorType = UNKOWN
-    }
-  }
-  return { error: res }
-}
+import { getErrorResponse } from './general'
 
 export const isWeb3EnabledBrowser = () =>
   typeof window !== 'undefined' && typeof window.ethereum !== 'undefined'
