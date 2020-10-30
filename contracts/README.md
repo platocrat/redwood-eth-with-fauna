@@ -1,5 +1,4 @@
-Flow Lottery Game
-=================
+# Flow Lottery Game
 
 A game of chance built on Superfluid. Users join the game by sending a stream to our contract.
 All incoming streams are summed and the resulting reward stream is sent to the winner, until a new one is chosen!
@@ -8,8 +7,7 @@ Read more about how to build this game from [this medium article](https://medium
 
 A version works for the goerli testnet is also deployed to [https://flowlottery.eth.link/](https://flowlottery.eth.link/).
 
-Development
-===========
+# Development
 
 ## Build contracts
 
@@ -40,3 +38,7 @@ $ npm start
 - `contracts/LotterySuperApp.sol`: The flow lottery SuperApp.
 - `test/LotterySuperApp.test.js`: The test cases.
 - `ui`: The flow lottery dapp UI.
+
+## Notes:
+
+You may need to modify the "pretest" command depending on the location of your node_modules
