@@ -20,5 +20,8 @@
     "@truffle/hdwallet-provider": "^1.1.0",
     "dotenv": "^8.2.0",
     "truffle": "^5.1.48"
+  },
+  "dependencies": {
+    "@superfluid-finance/ethereum-contracts": "^0.1.2-preview-20201014-fix5"
   }
 }
