@@ -1,5 +1,5 @@
 const { web3tx, toWad, toBN } = require('@decentral.ee/web3-helpers')
-const { expectRevert } = require('@openzeppelin/test-helpers')
+const { time, expectRevert } = require('@openzeppelin/test-helpers')
 const deployFramework = require('@superfluid-finance/ethereum-contracts/scripts/deploy-framework')
 const deployTestToken = require('@superfluid-finance/ethereum-contracts/scripts/deploy-test-token')
 const deploySuperToken = require('@superfluid-finance/ethereum-contracts/scripts/deploy-super-token')
@@ -58,12 +58,17 @@ contract('Emanator', (accounts) => {
     for (let i = 1; i < accounts.length; ++i) {
       await web3tx(dai.approve, `Account ${i} approves daix`)(
         daix.address,
-        toWad(100),
+        toWad(100000000),
         { from: accounts[i] }
       )
       await web3tx(daix.upgrade, `Account ${i} upgrades dai`)(toWad(100), {
         from: accounts[i],
       })
+      await web3tx(daix.approve, `Account ${i} approves Emanator contract`)(
+        app.address,
+        toWad(100000000), 
+        { from: accounts[i] }
+      )
     }
   })
 
@@ -118,10 +123,6 @@ contract('Emanator', (accounts) => {
 
   it('Deploys the contract', async () => {
     assert.equal(await app.getAuctionBalance.call(), 0)
-    await web3tx(
-      daix.approve,
-      `Account ${bob} approves Auction to spend daix`
-    )(app.address, toWad(10), { from: bob })
     await web3tx(app.bid, `Account ${bob} bids 100`)(toWad(10), { from: bob })
     assert.equal(
       (await app.getAuctionBalance.call()).toString(),
@@ -131,14 +132,10 @@ contract('Emanator', (accounts) => {
 
   it('sets Bob as the high bidder', async () => {
     assert.equal(await app.getAuctionBalance.call(), 0)
-    await web3tx(
-      daix.approve,
-      `Account ${bob} approves Auction to spend daix`
-    )(app.address, toWad(10), { from: bob })
     await web3tx(app.bid, `Account ${bob} bids 100`)(toWad(10), { from: bob })
-    console.log(`High bidder: ${app.getAuctionInfo.call(_auction.highBidder)}`)
+    console.log(`High bidder: ${app.getAuctionInfo.call()}`)
     assert.equal(
-      (app.getAuctionInfo.call(_auction.highBidder)).toString(),
+      (app.getAuctionInfo.call('2')).toString(),
       bob.toString()
     )
   })
