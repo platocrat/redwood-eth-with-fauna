@@ -7,6 +7,8 @@ import { Web3ReactProvider } from '@web3-react/core'
 
 import Routes from 'src/Routes'
 
+import DefaultLayout from 'src/layouts/DefaultLayout'
+
 import './scaffold.css'
 import './index.css'
 
@@ -18,7 +20,9 @@ ReactDOM.render(
   <FatalErrorBoundary page={FatalErrorPage}>
     <RedwoodProvider>
       <Web3ReactProvider getLibrary={getLibrary}>
-        <Routes />
+        <DefaultLayout>
+          <Routes />
+        </DefaultLayout>
       </Web3ReactProvider>
     </RedwoodProvider>
   </FatalErrorBoundary>,
