@@ -61,6 +61,9 @@ contract('Emanator', (accounts) => {
         toWad(100),
         { from: accounts[i] }
       )
+      await web3Tx(daix.upgrade, `Account ${i} upgrades dai`)(toWad(100), {
+        from: accounts[i],
+      })
     }
   })
 
@@ -115,15 +118,12 @@ contract('Emanator', (accounts) => {
 
   it('Deploys the contract', async () => {
     assert.equal(await app.getAuctionBalance.call(), 0)
-  })
-  it('Bids on the first auction', async () => {
-    await web3tx(dai.approve, `Account ${bob} approves daix`)(
-      app.address,
-      toWad(100),
-      { from: bob }
-    )
-    await web3tx(app.bid, `Account ${bob} bids 100`)(toWad(100), { from: bob })
-    assert.equal(await app.getAuctionBalance.call(), toWad(100))
+    await web3tx(
+      daix.approve,
+      `Account ${i} approves Auction to spend daix`
+    )(app.address, toWad(10), { from: bob })
+    await web3tx(app.bid, `Account ${bob} bids 100`)(toWad(10), { from: bob })
+    assert.equal(await app.getAuctionBalance.call(), toWad(10))
   })
 
   // OLD from LotterySuperApp
