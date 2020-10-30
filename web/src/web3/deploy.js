@@ -32,14 +32,13 @@ export const deployAuction = async ({ winLength }) => {
       Emanator.bytecode,
       walletProvider.getSigner()
     )
-    const deployTransaction = factory.getDeployTransaction(
-      sf.host.address,
-      sf.agreements.cfa.address,
-      sf.agreements.ida.address,
-      daix.address,
-      winLength
-    )
-    console.log(/0xfe/.test(deployTransaction))
+    // const deployTransaction = factory.getDeployTransaction(
+    //   sf.host.address,
+    //   sf.agreements.cfa.address,
+    //   sf.agreements.ida.address,
+    //   daix.address,
+    //   winLength
+    // )
     // console.log(deployTransaction)
     const contract = await factory.deploy(
       sf.host.address,
