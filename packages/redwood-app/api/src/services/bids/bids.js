@@ -5,5 +5,6 @@ export const bids = () => {
 }
 
 export const Bid = {
-  owner: (_obj, { root }) => db.bid.findOne({ where: { id: root.id } }).owner(),
+  auction: (_obj, { root }) =>
+    db.bid.findOne({ where: { id: root.id } }).auction(),
 }

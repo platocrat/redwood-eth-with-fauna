@@ -3,14 +3,13 @@ export const schema = gql`
     id: Int!
     address: String!
     name: String!
+    winLength: Int!
     description: String
     createdAt: DateTime!
     status: String!
     highBid: Int!
     generation: Int!
     revenue: Int!
-    owner: User!
-    ownerAddress: String!
     bids: [Bid]!
   }
 
@@ -22,28 +21,26 @@ export const schema = gql`
   input CreateAuctionInput {
     address: String!
     name: String!
-    description: String
-    status: String!
-    highBid: Int!
-    generation: Int!
-    revenue: Int!
-    ownerAddress: String!
+    winLength: Int!
+    description: String!
+    status: String
+    highBid: Int
+    generation: Int
+    revenue: Int
   }
 
   input UpdateAuctionInput {
     address: String
     name: String
+    winLength: Int
     description: String
     status: String
     highBid: Int
     generation: Int
     revenue: Int
-    ownerAddress: String
   }
 
   type Mutation {
-    createAuction(input: CreateAuctionInput!): Auction!
-    updateAuction(id: Int!, input: UpdateAuctionInput!): Auction!
-    deleteAuction(id: Int!): Auction!
+    createAuction(input: CreateAuctionInput!): Auction
   }
 `

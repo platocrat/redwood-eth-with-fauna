@@ -1,8 +1,9 @@
 export const schema = gql`
   type Bid {
     id: Int!
-    owner: User!
-    ownerAddress: String!
+    amount: Int!
+    auction: Auction!
+    auctionAddress: String!
   }
 
   type Query {
@@ -10,10 +11,12 @@ export const schema = gql`
   }
 
   input CreateBidInput {
-    ownerAddress: String!
+    amount: Int!
+    auctionAddress: String!
   }
 
   input UpdateBidInput {
-    ownerAddress: String
+    amount: Int
+    auctionAddress: String
   }
 `

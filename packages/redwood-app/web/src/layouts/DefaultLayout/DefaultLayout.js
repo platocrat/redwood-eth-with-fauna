@@ -5,14 +5,23 @@ const DefaultLayout = ({ children }) => {
     const { walletAddress } = unlockBrowser({
       debug: true,
     })
-    console.log(walletAddress)
   }
   return (
     <>
-      <div className="rw-button-group">
-        <button onClick={onConnect} className="rw-button rw-button-blue">
-          Connect
-        </button>
+      <div
+        style={{
+          display: 'flex',
+          alignContent: 'space-between',
+          width: '100%',
+        }}
+      >
+        <h3>Emanator</h3>
+
+        <div className="rw-button-group">
+          <button onClick={onConnect} className="rw-button rw-button-blue">
+            Connect
+          </button>
+        </div>
       </div>
       {children}
     </>

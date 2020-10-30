@@ -9,7 +9,7 @@ import {
 } from '@redwoodjs/forms'
 
 const AuctionForm = (props) => {
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     props.onSave(data, props?.auction?.id)
   }
 
@@ -22,22 +22,6 @@ const AuctionForm = (props) => {
           titleClassName="rw-form-error-title"
           listClassName="rw-form-error-list"
         />
-
-        <Label
-          name="address"
-          className="rw-label"
-          errorClassName="rw-label rw-label-error"
-        >
-          Address
-        </Label>
-        <TextField
-          name="address"
-          defaultValue={props.auction?.address}
-          className="rw-input"
-          errorClassName="rw-input rw-input-error"
-          validation={{ required: true }}
-        />
-        <FieldError name="address" className="rw-field-error" />
 
         <Label
           name="name"
@@ -72,88 +56,24 @@ const AuctionForm = (props) => {
         <FieldError name="description" className="rw-field-error" />
 
         <Label
-          name="status"
+          name="winLength"
           className="rw-label"
           errorClassName="rw-label rw-label-error"
         >
-          Status
-        </Label>
-        <TextField
-          name="status"
-          defaultValue={props.auction?.status}
-          className="rw-input"
-          errorClassName="rw-input rw-input-error"
-          validation={{ required: true }}
-        />
-        <FieldError name="status" className="rw-field-error" />
-
-        <Label
-          name="highBid"
-          className="rw-label"
-          errorClassName="rw-label rw-label-error"
-        >
-          High bid
+          Win Time (seconds)
         </Label>
         <NumberField
-          name="highBid"
-          defaultValue={props.auction?.highBid}
+          name="winLength"
+          defaultValue={props.auction?.winLength}
           className="rw-input"
           errorClassName="rw-input rw-input-error"
           validation={{ required: true }}
         />
-        <FieldError name="highBid" className="rw-field-error" />
-
-        <Label
-          name="generation"
-          className="rw-label"
-          errorClassName="rw-label rw-label-error"
-        >
-          Generation
-        </Label>
-        <NumberField
-          name="generation"
-          defaultValue={props.auction?.generation}
-          className="rw-input"
-          errorClassName="rw-input rw-input-error"
-          validation={{ required: true }}
-        />
-        <FieldError name="generation" className="rw-field-error" />
-
-        <Label
-          name="revenue"
-          className="rw-label"
-          errorClassName="rw-label rw-label-error"
-        >
-          Revenue
-        </Label>
-        <NumberField
-          name="revenue"
-          defaultValue={props.auction?.revenue}
-          className="rw-input"
-          errorClassName="rw-input rw-input-error"
-          validation={{ required: true }}
-        />
-        <FieldError name="revenue" className="rw-field-error" />
-
-        <Label
-          name="ownerAddress"
-          className="rw-label"
-          errorClassName="rw-label rw-label-error"
-        >
-          Owner address
-        </Label>
-        <TextField
-          name="ownerAddress"
-          defaultValue={props.auction?.ownerAddress}
-          className="rw-input"
-          errorClassName="rw-input rw-input-error"
-          validation={{ required: true }}
-        />
-        <FieldError name="ownerAddress" className="rw-field-error" />
+        <FieldError name="winLength" className="rw-field-error" />
 
         <div className="rw-button-group">
           <Submit disabled={props.loading} className="rw-button rw-button-blue">
-            Save
+            Mint your NFT
           </Submit>
         </div>
       </Form>

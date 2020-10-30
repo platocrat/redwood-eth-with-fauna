@@ -12,7 +12,6 @@ export const QUERY = gql`
       highBid
       generation
       revenue
-      ownerAddress
     }
   }
 `

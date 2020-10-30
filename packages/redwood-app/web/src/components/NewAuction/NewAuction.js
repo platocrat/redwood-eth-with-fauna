@@ -2,6 +2,8 @@ import { useMutation, useFlash } from '@redwoodjs/web'
 import { navigate, routes } from '@redwoodjs/router'
 import AuctionForm from 'src/components/AuctionForm'
 
+import { deployAuction } from 'src/web3/auction'
+
 import { QUERY } from 'src/components/AuctionsCell'
 
 const CREATE_AUCTION_MUTATION = gql`
@@ -14,6 +16,7 @@ const CREATE_AUCTION_MUTATION = gql`
 
 const NewAuction = () => {
   const { addMessage } = useFlash()
+
   const [createAuction, { loading, error }] = useMutation(
     CREATE_AUCTION_MUTATION,
     {
@@ -29,8 +32,9 @@ const NewAuction = () => {
     }
   )
 
-  const onSave = (input) => {
-    createAuction({ variables: { input } })
+  const onSave = async (input) => {
+    const { address } = await deployAuction(input)
+    createAuction({ variables: { input: { ...input, address } } })
   }
 
   return (
@@ -39,7 +43,16 @@ const NewAuction = () => {
         <h2 className="rw-heading rw-heading-secondary">New Auction</h2>
       </header>
       <div className="rw-segment-main">
-        <AuctionForm onSave={onSave} loading={loading} error={error} />
+        <AuctionForm
+          onSave={onSave}
+          loading={loading}
+          error={error}
+          auction={{
+            description: 'The coolest NFT in town',
+            name: 'My NFT',
+            winLength: 30,
+          }}
+        />
       </div>
     </div>
   )

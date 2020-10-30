@@ -48,7 +48,7 @@ export const unlockBrowser = async ({
         /* eslint-disable-next-line no-console */
         console.log(getErrorResponse(error, 'unlockBrowser').error.message)
     }
-    walletAddress = await window.ethereum.request({
+    const walletAddress = await window.ethereum.request({
       method: 'eth_requestAccounts',
       params: [
         {
@@ -56,24 +56,6 @@ export const unlockBrowser = async ({
         },
       ],
     })
-    //
-    // if (!isReturningUser) {
-    //   // Note: not supported in MetaMask Mobile, so we must not throw an error
-    //   try {
-    //     await window.ethereum.request({
-    //       method: 'wallet_requestPermissions',
-    //       params: [
-    //         {
-    //           eth_accounts: {},
-    //         },
-    //       ],
-    //     })
-    //   } catch (error) {
-    //     if (debug)
-    //       /* eslint-disable-next-line no-console */
-    //       console.log(getErrorResponse(error, 'unlockBrowser').error.message)
-    //   }
-    // }
 
     const walletProvider = new Web3Provider(window.ethereum)
 

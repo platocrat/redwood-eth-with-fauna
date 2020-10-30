@@ -97,28 +97,10 @@ const Auction = ({ auction }) => {
               <th>Revenue</th>
               <td>{auction.revenue}</td>
             </tr>
-            <tr>
-              <th>Owner address</th>
-              <td>{auction.ownerAddress}</td>
-            </tr>
           </tbody>
         </table>
       </div>
-      <nav className="rw-button-group">
-        <Link
-          to={routes.editAuction({ id: auction.id })}
-          className="rw-button rw-button-blue"
-        >
-          Edit
-        </Link>
-        <a
-          href="#"
-          className="rw-button rw-button-red"
-          onClick={() => onDeleteClick(auction.id)}
-        >
-          Delete
-        </a>
-      </nav>
+      <nav className="rw-button-group"></nav>
     </>
   )
 }

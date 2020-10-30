@@ -70,7 +70,6 @@ const AuctionsList = ({ auctions }) => {
             <th>High bid</th>
             <th>Generation</th>
             <th>Revenue</th>
-            <th>Owner address</th>
             <th>&nbsp;</th>
           </tr>
         </thead>
@@ -86,7 +85,6 @@ const AuctionsList = ({ auctions }) => {
               <td>{truncate(auction.highBid)}</td>
               <td>{truncate(auction.generation)}</td>
               <td>{truncate(auction.revenue)}</td>
-              <td>{truncate(auction.ownerAddress)}</td>
               <td>
                 <nav className="rw-table-actions">
                   <Link
@@ -96,21 +94,6 @@ const AuctionsList = ({ auctions }) => {
                   >
                     Show
                   </Link>
-                  <Link
-                    to={routes.editAuction({ id: auction.id })}
-                    title={'Edit auction ' + auction.id}
-                    className="rw-button rw-button-small rw-button-blue"
-                  >
-                    Edit
-                  </Link>
-                  <a
-                    href="#"
-                    title={'Delete auction ' + auction.id}
-                    className="rw-button rw-button-small rw-button-red"
-                    onClick={() => onDeleteClick(auction.id)}
-                  >
-                    Delete
-                  </a>
                 </nav>
               </td>
             </tr>
