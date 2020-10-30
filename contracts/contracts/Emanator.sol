@@ -93,7 +93,7 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       address highBidder;
   }
 
-  address payable[] public revShareRecipients;
+  address[] public revShareRecipients;
   uint256[] public ownerRevShares;
   uint256 public totalShares;
 
@@ -110,11 +110,11 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
   event auctionWon(uint256 id, address indexed winner);
 
   constructor(ISuperfluid _host, IConstantFlowAgreementV1 _cfa, IInstantDistributionAgreementV1 _ida, ISuperToken _tokenX, uint256 _winLength) public ERC721 ("emaNaFTe", "emNFT") {
-      assert(address(_host) != address(0));
-      assert(address(_cfa) != address(0));
-      assert(address(_ida) != address(0));
-      assert(address(_tokenX) != address(0));
-      assert(winLength >= 15);
+      // assert(address(_host) != address(0));
+      // assert(address(_cfa) != address(0));
+      // assert(address(_ida) != address(0));
+      // assert(address(_tokenX) != address(0));
+      // assert(winLength >= 15);
       host = _host;
       cfa = _cfa;
       ida = _ida;

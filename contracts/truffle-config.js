@@ -1,6 +1,6 @@
 const HDWalletProvider = require('@truffle/hdwallet-provider')
 require('dotenv').config()
-const GAS_LIMIT = 8e7
+const GAS_LIMIT = 8e6
 
 module.exports = {
   networks: {
