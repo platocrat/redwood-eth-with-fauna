@@ -1,5 +1,6 @@
 import { useMutation, useFlash } from '@redwoodjs/web'
 import { Link, routes, navigate } from '@redwoodjs/router'
+import NewAuction from 'src/components/NewAuction'
 
 import styled from 'styled-components'
 
@@ -50,8 +51,9 @@ const getProgressBar = (status, winLength) => {
   )
 }
 
-const getPromptBox = (status, isHighBidder, highBid) => {
-  let promptText = `Stream ${highBid + 5} DAI/s`
+const getPromptBox = (status, isHighBidder, highBid, winLength) => {
+  let estTotal = (winLength)
+  let promptText = `Become the high bidder by streaming ${highBid + 1} DAI per second - est. total to win auction ${winLength} DAI`
   let buttonText = 'Bid'
   if (status === 'ended') {
     promptText = 'After settlement, a new auction will begin immediately'
@@ -79,7 +81,7 @@ const Auction = ({ auction }) => {
           Auction for <i>{auction.name}</i>
         </h1>
         {getProgressBar(auction.status, auction.winLength)}
-        {getPromptBox(auction.status, false, auction.highBid)}
+        {getPromptBox(auction.status, false, auction.highBid, auction.winLength)}
         <header className="rw-segment-header">
           <h2 className="rw-heading rw-heading-secondary">Details</h2>
         </header>

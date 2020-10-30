@@ -37,7 +37,7 @@ const Header = () => {
 
   return (
     <Wrapper>
-      <StyledLink to="/">Emanafte</StyledLink>
+      <StyledLink to="/">Emanator</StyledLink>
       <RightSection>
         <WalletContainer>
           <button className="rw-button" onClick={onConnect}>
