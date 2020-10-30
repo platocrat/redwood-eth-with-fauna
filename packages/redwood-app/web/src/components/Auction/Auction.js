@@ -37,18 +37,35 @@ const checkboxInputTag = (checked) => {
 const getProgressBar = (status, winLength) => {
   let barText = '<TIME LEFT / PROGRESS BAR>'
   let subText = `Auction win time: ${winLength} seconds`
-
   if (status === 'created') barText = 'Waiting for first Bid'
   if (status === 'ended') {
     barText = '🔨 Auction ended ⏳'
     subText = 'Waiting to start the next one'
   }
-
   return (
     <>
       <h3>{barText}</h3>
       {subText}
     </>
+  )
+}
+
+const getPromptBox = (status, isHighBidder, highBid) => {
+  let promptText = `Stream ${highBid + 5} DAI/s`
+  let buttonText = 'Bid'
+  if (status === 'ended') {
+    promptText = 'After settlement, a new auction will begin immediately'
+    buttonText = 'Settle Auction'
+  }
+  if (isHighBidder) promptText = 'You are the highest bidder!'
+
+  return (
+    <div>
+      {promptText}
+      <button className="rw-button" disabled={isHighBidder}>
+        {buttonText}
+      </button>
+    </div>
   )
 }
 
@@ -62,6 +79,7 @@ const Auction = ({ auction }) => {
           Auction for <i>{auction.name}</i>
         </h1>
         {getProgressBar(auction.status, auction.winLength)}
+        {getPromptBox(auction.status, false, auction.highBid)}
         <header className="rw-segment-header">
           <h2 className="rw-heading rw-heading-secondary">Details</h2>
         </header>
