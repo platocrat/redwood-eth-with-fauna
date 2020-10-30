@@ -1,5 +1,4 @@
 import { Contract, ContractFactory } from '@ethersproject/contracts'
-import { web3tx } from '@decentral.ee/web3-helpers'
 import SuperfluidSDK from '@superfluid-finance/ethereum-contracts'
 
 import Emanator from 'emanator-contracts/build/contracts/Emanator.json'
@@ -9,17 +8,17 @@ import { unlockBrowser } from './connect'
 
 export const deployAuction = async ({ winLength }) => {
   try {
-    const { walletAddress, error } = await unlockBrowser({
+    const { walletAddress, error, walletProvider } = await unlockBrowser({
       debug: true,
     })
-
+    console.log({ walletAddress })
     const version = process.env.RELEASE_VERSION || 'test'
     console.log('release version:', version)
-
+    console.log(walletProvider)
     const sf = new SuperfluidSDK.Framework({
       chainId: 5,
       version: version,
-      web3Provider: web3.currentProvider,
+      web3Provider: walletProvider.provider,
     })
     await sf.initialize()
 

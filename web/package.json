@@ -13,7 +13,6 @@
     ]
   },
   "dependencies": {
-    "@decentral.ee/web3-helpers": "^0.3.2",
     "@ethersproject/contracts": "^5.0.5",
     "@ethersproject/providers": "^5.0.6",
     "@redwoodjs/forms": "^0.20.0",
