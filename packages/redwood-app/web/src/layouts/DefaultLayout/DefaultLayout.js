@@ -1,33 +1,50 @@
-import { unlockBrowser } from 'src/web3/connect'
 import { Link } from '@redwoodjs/router'
+import { themeGet } from '@styled-system/theme-get'
+
+import styled from 'styled-components'
+
+import Header from './Header'
+
+const Background = styled.div`
+  width: 100%;
+  background-size: cover;
+  background-position: 50% 100%;
+
+  @media (max-width: 720px) {
+    background-position: 0% 0%;
+  }
+`
+
+const Wrapper = styled.header`
+  position: relative;
+  width: 100%;
+  padding-top: ${themeGet('space.4')};
+  background-color: ${themeGet('colors.bg')};
+`
+
+const MainWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  max-width: 1280px;
+  height: 100%;
+  padding: 0 1.5rem;
+  @media (min-width: 768px) {
+    padding: 0;
+  }
+`
+
+const Main = styled.main`
+  flex: 1;
+`
 
 const DefaultLayout = ({ children }) => {
-  const onConnect = () => {
-    const { walletAddress } = unlockBrowser({
-      debug: true,
-    })
-  }
   return (
-    <>
-      <div
-        style={{
-          display: 'flex',
-          alignContent: 'space-between',
-          width: '100%',
-        }}
-      >
-        <Link to="/">
-          <h3>Emanator</h3>
-        </Link>
-
-        <div className="rw-button-group">
-          <button onClick={onConnect} className="rw-button rw-button-blue">
-            Connect
-          </button>
-        </div>
-      </div>
-      {children}
-    </>
+    <MainWrapper>
+      <Background />
+      <Header />
+      <Main>{children}</Main>
+    </MainWrapper>
   )
 }
 
