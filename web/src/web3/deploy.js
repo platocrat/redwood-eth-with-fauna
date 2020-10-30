@@ -5,9 +5,14 @@ import SuperfluidSDK from '@superfluid-finance/ethereum-contracts'
 import Emanator from 'emanator-contracts/build/contracts/Emanator.json'
 
 import { getErrorResponse } from './general'
+import { unlockBrowser } from './connect'
 
-const deploy = async ({ winLength, walletProvider }) => {
+export const deployAuction = async ({ winLength }) => {
   try {
+    const { walletAddress, error } = await unlockBrowser({
+      debug: true,
+    })
+
     const version = process.env.RELEASE_VERSION || 'test'
     console.log('release version:', version)
 
@@ -41,7 +46,7 @@ const deploy = async ({ winLength, walletProvider }) => {
 
     const { address } = contract
     console.log('App deployed at', address)
-    return { address }
+    return { address, owner: walletAddress }
   } catch (err) {
     return {
       ...getErrorResponse(err, 'deploy'),

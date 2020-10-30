@@ -2,7 +2,7 @@ import { useMutation, useFlash } from '@redwoodjs/web'
 import { navigate, routes } from '@redwoodjs/router'
 import AuctionForm from 'src/components/AuctionForm'
 
-import { deployAuction } from 'src/web3/auction'
+import { deployAuction } from 'src/web3/deploy'
 
 import { QUERY } from 'src/components/AuctionsCell'
 
