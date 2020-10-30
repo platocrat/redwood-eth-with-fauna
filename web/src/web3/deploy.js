@@ -11,6 +11,7 @@ export const deployAuction = async ({ winLength }) => {
     const { walletAddress, error, walletProvider } = await unlockBrowser({
       debug: true,
     })
+    console.log(process.env.RELEASE_VERSION)
     console.log({ walletAddress })
     const version = process.env.RELEASE_VERSION || 'test'
     console.log('release version:', version)

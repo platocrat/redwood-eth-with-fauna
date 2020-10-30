@@ -1,5 +1,17 @@
 # Emanator
 
+# Install
+
+```bash
+yarn
+
+cd contracts && yarn build
+
+cd .. cp .env.example .env
+
+yarn rw dev
+```
+
 ### Getting set up with Superfluid SDK
 
 in `/packages/contracts` add your MNEMONIC to the `.env` file.
