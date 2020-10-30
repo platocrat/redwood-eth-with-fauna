@@ -1,18 +1,11 @@
-import { Link, routes } from '@redwoodjs/router'
+import AuctionsLayout from 'src/layouts/AuctionsLayout'
+import AuctionCell from 'src/components/AuctionCell'
 
-const AuctionPage = ({ auctionAddress }) => {
+const AuctionPage = ({ id }) => {
   return (
-    <>
-      <h1>AuctionPage</h1>
-      <p>
-        Find me in <code>./web/src/pages/AuctionPage/AuctionPage.js</code>
-      </p>
-      <p>
-        My default route is named <code>auction</code>, link to me with `
-        <Link to={routes.auction({ auctionAddress: '42' })}>Auction 42</Link>`
-      </p>
-      <p>The parameter passed to me is {auctionAddress}</p>
-    </>
+    <AuctionsLayout>
+      <AuctionCell id={id} />
+    </AuctionsLayout>
   )
 }
 
