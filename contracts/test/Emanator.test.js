@@ -116,6 +116,15 @@ contract('Emanator', (accounts) => {
   it('Deploys the contract', async () => {
     assert.equal(await app.getAuctionBalance.call(), 0)
   })
+  it('Bids on the first auction', async () => {
+    await web3tx(dai.approve, `Account ${bob} approves daix`)(
+      app.address,
+      toWad(100),
+      { from: bob }
+    )
+    await web3tx(app.bid, `Account ${bob} bids 100`)(toWad(100), { from: bob })
+    assert.equal(await app.getAuctionBalance.call(), toWad(100))
+  })
 
   // OLD from LotterySuperApp
   // it("Lonely game case", async () => {
