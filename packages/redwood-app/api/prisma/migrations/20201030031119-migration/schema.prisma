@@ -17,6 +17,7 @@ model User {
   id Int @id @default(autoincrement())
   address String @unique
   name  String?
+  createdAt  DateTime  @default(now())
   auctions Auction[]
   bids Bid[]
 }
