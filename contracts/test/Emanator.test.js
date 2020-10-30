@@ -129,6 +129,20 @@ contract('Emanator', (accounts) => {
     )
   })
 
+  it('sets Bob as the high bidder', async () => {
+    assert.equal(await app.getAuctionBalance.call(), 0)
+    await web3tx(
+      daix.approve,
+      `Account ${bob} approves Auction to spend daix`
+    )(app.address, toWad(10), { from: bob })
+    await web3tx(app.bid, `Account ${bob} bids 100`)(toWad(10), { from: bob })
+    console.log(`High bidder: ${app._auction.highBidder}`)
+    assert.equal(
+      (app._auction.highBidder).toString(),
+      bob.toString()
+    )
+  })
+
   // OLD from LotterySuperApp
   // it("Lonely game case", async () => {
   //   let appRealtimeBalance;
