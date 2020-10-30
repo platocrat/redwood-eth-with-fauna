@@ -136,8 +136,7 @@ contract('Emanator', (accounts) => {
     await web3tx(app.getAuctionInfo.call('1').then(function(res){highBidder = res[2]}), {from: bob })
     console.log(`High bidder: ${highBidder}`)
     assert.equal(
-      (highBidder.toString(), bob.toString()
-    )
+      highBidder.toString(), bob.toString())
   })
 
   // OLD from LotterySuperApp
