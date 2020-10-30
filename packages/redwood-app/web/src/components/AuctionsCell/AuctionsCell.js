@@ -13,6 +13,8 @@ export const QUERY = gql`
       status
       highBid
       generation
+      winLength
+      owner
       revenue
     }
   }

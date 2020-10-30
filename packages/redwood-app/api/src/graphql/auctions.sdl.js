@@ -1,6 +1,7 @@
 export const schema = gql`
   type Auction {
     id: Int!
+    owner: String!
     address: String!
     name: String!
     winLength: Int!
@@ -21,19 +22,9 @@ export const schema = gql`
   input CreateAuctionInput {
     address: String!
     name: String!
+    owner: String!
     winLength: Int!
     description: String!
-    status: String
-    highBid: Int
-    generation: Int
-    revenue: Int
-  }
-
-  input UpdateAuctionInput {
-    address: String
-    name: String
-    winLength: Int
-    description: String
     status: String
     highBid: Int
     generation: Int

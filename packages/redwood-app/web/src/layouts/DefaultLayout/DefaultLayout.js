@@ -1,4 +1,5 @@
 import { unlockBrowser } from 'src/web3/connect'
+import { Link } from '@redwoodjs/router'
 
 const DefaultLayout = ({ children }) => {
   const onConnect = () => {
@@ -15,7 +16,9 @@ const DefaultLayout = ({ children }) => {
           width: '100%',
         }}
       >
-        <h3>Emanator</h3>
+        <Link to="/">
+          <h3>Emanator</h3>
+        </Link>
 
         <div className="rw-button-group">
           <button onClick={onConnect} className="rw-button rw-button-blue">

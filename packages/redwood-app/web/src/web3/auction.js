@@ -8,5 +8,5 @@ export const deployAuction = async ({ name, description, winLength }) => {
 
   const address = '0xaaa'
 
-  return { address }
+  return { address, owner: walletAddress }
 }

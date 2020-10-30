@@ -33,8 +33,8 @@ const NewAuction = () => {
   )
 
   const onSave = async (input) => {
-    const { address } = await deployAuction(input)
-    createAuction({ variables: { input: { ...input, address } } })
+    const { address, owner } = await deployAuction(input)
+    createAuction({ variables: { input: { ...input, address, owner } } })
   }
 
   return (

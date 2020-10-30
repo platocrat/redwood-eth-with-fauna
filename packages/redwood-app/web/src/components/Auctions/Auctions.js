@@ -39,29 +39,12 @@ const checkboxInputTag = (checked) => {
 
 const AuctionsList = ({ auctions }) => {
   const { addMessage } = useFlash()
-  const [deleteAuction] = useMutation(DELETE_AUCTION_MUTATION, {
-    onCompleted: () => {
-      addMessage('Auction deleted.', { classes: 'rw-flash-success' })
-    },
-    // This refetches the query on the list page. Read more about other ways to
-    // update the cache over here:
-    // https://www.apollographql.com/docs/react/data/mutations/#making-all-other-cache-updates
-    refetchQueries: [{ query: QUERY }],
-    awaitRefetchQueries: true,
-  })
-
-  const onDeleteClick = (id) => {
-    if (confirm('Are you sure you want to delete auction ' + id + '?')) {
-      deleteAuction({ variables: { id } })
-    }
-  }
 
   return (
     <div className="rw-segment rw-table-wrapper-responsive">
       <table className="rw-table">
         <thead>
           <tr>
-            <th>Id</th>
             <th>Address</th>
             <th>Name</th>
             <th>Description</th>
@@ -76,7 +59,6 @@ const AuctionsList = ({ auctions }) => {
         <tbody>
           {auctions.map((auction) => (
             <tr key={auction.id}>
-              <td>{truncate(auction.id)}</td>
               <td>{truncate(auction.address)}</td>
               <td>{truncate(auction.name)}</td>
               <td>{truncate(auction.description)}</td>
