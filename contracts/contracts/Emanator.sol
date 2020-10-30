@@ -39,18 +39,17 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
   event auctionWon(uint256 id, address indexed winner);
 
   constructor(ISuperfluid _host, IConstantFlowAgreementV1 _cfa, IInstantDistributionAgreementV1 _ida, ISuperToken _tokenX, uint256 _winLength) public ERC721 ("emaNaFTe", "emNFT") {
-      // assert(address(host) != address(0));
-      // assert(address(cfa) != address(0));
-      // assert(address(ida) != address(0));
-      // assert(address(_tokenX) != address(0));
+      assert(address(_host) != address(0));
+      assert(address(_cfa) != address(0));
+      assert(address(_ida) != address(0));
+      assert(address(_tokenX) != address(0));
+      assert(winLength >= 15);
       host = _host;
       cfa = _cfa;
       ida = _ida;
       tokenX = _tokenX;
       winLength = _winLength;
       creator = msg.sender;
-      revShareRecipients.push(creator);
-      ownerRevShares.push(1000000);
       totalShares = ownerRevShares[0];
       setApprovalForAll(address(this), true);
       _firstAuction();
@@ -66,7 +65,6 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
 
     // Create the first auction
     currentGeneration = 1;
-    Auction storage _auction = auctionByGeneration[1];
 
     // creating the first auction creates an income distribution agreement index
     // host.callAgreement(ida.address, ida.contract.methods.createIndex
@@ -90,7 +88,6 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       // highBidder creates new SuperFluid constant flow agreement
       // host.callAgreement(cfa.address, cfa.contract.methods.createFlow
          // (tokenX.address, address(this), msg.value, "0x").encodeABI(), { from: msg.sender })
-
 
        // new highBidder should stop previous highBidder's SuperFluid constant flow agreement
       // if (_auction.generation>0){
@@ -122,26 +119,33 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       // (tokenX.address, msg.sender, address(this), msg.value, "0x").encodeABI(), { from: msg.sender })
 
       // Upon claiming, the contract distributes the auction funds to the prior owners according to their proportion of totalShares
-      uint amt = address(this).balance;
-      uint perShare = rdiv(amt, totalShares);
-
-      for (uint i = 0; i < revShareRecipients.length; i++) {
+      uint amt = tokenX.balanceOf(address(this));
+      uint creatorShare = rmul(amt, rdiv(7, 10));
+      
+      if(currentGeneration <= 1) {
+          tokenX.transferFrom(address(this), creator, amt);
+          revShareRecipients.push(_auction.highBidder);
+          ownerRevShares.push(1*10**18);
+          totalShares = 1*10**18;
+      } else {
+        creator.transfer(creatorShare);
+        uint remainder = address(this).balance;
+        uint perShare = rdiv(remainder, totalShares);
+        for (uint i = 0; i < revShareRecipients.length; i++) {
           uint distro = rmul(ownerRevShares[i], perShare);
-          revShareRecipients[i].transfer(distro);
+          tokenX.transferFrom(address(this), revShareRecipients[i], distro);
+        }
+          //Update the revenue shares array
+          revShareRecipients.push(_auction.highBidder);
+          uint position = ownerRevShares.length - 1;
+          uint newShares = rmul(ownerRevShares[position], rdiv(9, 10));
+          totalShares = totalShares + newShares;
+          ownerRevShares.push(newShares);
       }
-
-      //Update the revenue shares array
-      revShareRecipients.push(msg.sender);
-      uint position = ownerRevShares.length - 1;
-      uint newShares = ownerRevShares[position].mul(9).div(10);
-      totalShares = totalShares + newShares;
-      ownerRevShares.push(newShares);
 
       // claiming the NFT distributes the auction's accumulated funds to the revenue share owners
       // host.callAgreement(ida.address, ida.contract.methods.updateIndex
       // (tokenX.address, 1, balanceOf(address(this)), "0x").encodeABI(), { from: address(this) })
-
-
 
       // claiming the NFT adds the new owner to the income distribution agreement subscribers
       // host.callAgreement(ida.address, ida.contract.methods.updateSubscription
@@ -158,7 +162,6 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
 
   function _nextAuction() private {
     currentGeneration++;
-    Auction storage _auction = auctionByGeneration[currentGeneration];
     emit newAuction(currentGeneration);
   }
 
