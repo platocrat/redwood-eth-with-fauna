@@ -50,7 +50,8 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       tokenX = _tokenX;
       winLength = _winLength;
       creator = msg.sender;
-      totalShares = ownerRevShares[0];
+      ownerRevShares.push(1*10**18);
+      totalShares = 1*10**18;
       setApprovalForAll(address(this), true);
       _firstAuction();
 
@@ -121,12 +122,10 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       // Upon claiming, the contract distributes the auction funds to the prior owners according to their proportion of totalShares
       uint amt = tokenX.balanceOf(address(this));
       uint creatorShare = rmul(amt, rdiv(7, 10));
-      
+
       if(currentGeneration <= 1) {
           tokenX.transferFrom(address(this), creator, amt);
           revShareRecipients.push(_auction.highBidder);
-          ownerRevShares.push(1*10**18);
-          totalShares = 1*10**18;
       } else {
         creator.transfer(creatorShare);
         uint remainder = address(this).balance;
@@ -135,12 +134,12 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
           uint distro = rmul(ownerRevShares[i], perShare);
           tokenX.transferFrom(address(this), revShareRecipients[i], distro);
         }
-          //Update the revenue shares array
-          revShareRecipients.push(_auction.highBidder);
-          uint position = ownerRevShares.length - 1;
-          uint newShares = rmul(ownerRevShares[position], rdiv(9, 10));
-          totalShares = totalShares + newShares;
-          ownerRevShares.push(newShares);
+        //Update the revenue shares array
+        revShareRecipients.push(_auction.highBidder);
+        uint position = ownerRevShares.length - 1;
+        uint newShares = rmul(ownerRevShares[position], rdiv(9, 10));
+        totalShares = totalShares + newShares;
+        ownerRevShares.push(newShares);
       }
 
       // claiming the NFT distributes the auction's accumulated funds to the revenue share owners
@@ -155,14 +154,10 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       // host.callAgreement(ida.address, ida.contract.methods.approveSubscription
            // (tokenX.address, address(this), 1, "0x").encodeABI(), { from: msg.sender })
 
+
+      currentGeneration++;
       emit auctionWon(currentGeneration, _auction.highBidder);
-
-      _nextAuction();
-  }
-
-  function _nextAuction() private {
-    currentGeneration++;
-    emit newAuction(currentGeneration);
+      emit newAuction(currentGeneration);
   }
 
   function checkTimeRemaining() public view returns (uint) {

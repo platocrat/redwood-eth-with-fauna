@@ -13,7 +13,7 @@ contract('Emanator', (accounts) => {
 
   const ZERO_ADDRESS = '0x' + '0'.repeat(40)
   const MINIMUM_GAME_FLOW_RATE = toWad(10).div(toBN(3600 * 24 * 30))
-  const WIN_LENGTH = 10 // seconds
+  const WIN_LENGTH = 20 // seconds
 
   accounts = accounts.slice(0, 4)
   const [admin, bob, carol, dan] = accounts
