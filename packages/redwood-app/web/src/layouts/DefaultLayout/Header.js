@@ -40,7 +40,9 @@ const Header = () => {
       <StyledLink to="/">Emanafte</StyledLink>
       <RightSection>
         <WalletContainer>
-          <button onClick={onConnect}>Connect wallet</button>
+          <button className="rw-button" onClick={onConnect}>
+            Connect wallet
+          </button>
         </WalletContainer>
       </RightSection>
     </Wrapper>

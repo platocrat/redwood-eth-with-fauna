@@ -34,6 +34,24 @@ const checkboxInputTag = (checked) => {
   return <input type="checkbox" checked={checked} disabled />
 }
 
+const getProgressBar = (status, winLength) => {
+  let barText = '<TIME LEFT / PROGRESS BAR>'
+  let subText = `Auction win time: ${winLength} seconds`
+
+  if (status === 'created') barText = 'Waiting for first Bid'
+  if (status === 'ended') {
+    barText = '🔨 Auction ended ⏳'
+    subText = 'Waiting to start the next one'
+  }
+
+  return (
+    <>
+      <h3>{barText}</h3>
+      {subText}
+    </>
+  )
+}
+
 const Auction = ({ auction }) => {
   const { addMessage } = useFlash()
 
@@ -43,7 +61,7 @@ const Auction = ({ auction }) => {
         <h1>
           Auction for <i>{auction.name}</i>
         </h1>
-
+        {getProgressBar(auction.status, auction.winLength)}
         <header className="rw-segment-header">
           <h2 className="rw-heading rw-heading-secondary">Details</h2>
         </header>
@@ -52,10 +70,6 @@ const Auction = ({ auction }) => {
             <tr>
               <th>Description</th>
               <td>{auction.description}</td>
-            </tr>
-            <tr>
-              <th>Win Time (seconds)</th>
-              <td>{auction.winLength}</td>
             </tr>
             <tr>
               <th>Address</th>
