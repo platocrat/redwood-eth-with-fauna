@@ -61,7 +61,7 @@ contract('Emanator', (accounts) => {
         toWad(100),
         { from: accounts[i] }
       )
-      await web3Tx(daix.upgrade, `Account ${i} upgrades dai`)(toWad(100), {
+      await web3tx(daix.upgrade, `Account ${i} upgrades dai`)(toWad(100), {
         from: accounts[i],
       })
     }
@@ -120,7 +120,7 @@ contract('Emanator', (accounts) => {
     assert.equal(await app.getAuctionBalance.call(), 0)
     await web3tx(
       daix.approve,
-      `Account ${i} approves Auction to spend daix`
+      `Account ${bob} approves Auction to spend daix`
     )(app.address, toWad(10), { from: bob })
     await web3tx(app.bid, `Account ${bob} bids 100`)(toWad(10), { from: bob })
     assert.equal(await app.getAuctionBalance.call(), toWad(10))
