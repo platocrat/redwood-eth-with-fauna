@@ -26,7 +26,7 @@ module.exports = async function (callback, argv) {
     const dai = await sf.contracts.TestToken.at(daiAddress)
     const daixWrapper = await sf.getERC20Wrapper(dai)
     const daix = await sf.contracts.ISuperToken.at(daixWrapper.wrapperAddress)
-
+    console.log('DAIx ', daix.address)
     if (
       web3.utils
         .toBN(await daix.balanceOf(admin))
