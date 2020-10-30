@@ -11,11 +11,10 @@ export const deployAuction = async ({ winLength }) => {
     const { walletAddress, error, walletProvider } = await unlockBrowser({
       debug: true,
     })
-    console.log(process.env.RELEASE_VERSION)
-    console.log({ walletAddress })
+
     const version = process.env.RELEASE_VERSION || 'test'
     console.log('release version:', version)
-    console.log(walletProvider)
+
     const sf = new SuperfluidSDK.Framework({
       chainId: 5,
       version: version,
@@ -31,8 +30,17 @@ export const deployAuction = async ({ winLength }) => {
     const factory = new ContractFactory(
       Emanator.abi,
       Emanator.bytecode,
-      walletProvider.signer
+      walletProvider.getSigner()
     )
+    const deployTransaction = factory.getDeployTransaction(
+      sf.host.address,
+      sf.agreements.cfa.address,
+      sf.agreements.ida.address,
+      daix.address,
+      winLength
+    )
+    console.log(/0xfe/.test(deployTransaction))
+    // console.log(deployTransaction)
     const contract = await factory.deploy(
       sf.host.address,
       sf.agreements.cfa.address,
@@ -40,6 +48,7 @@ export const deployAuction = async ({ winLength }) => {
       daix.address,
       winLength
     )
+    console.log('contract address', contract.address)
     const receipt = await contract.deployTransaction.wait()
     console.log(receipt)
     if (receipt.status === 0) return { error: receipt }
