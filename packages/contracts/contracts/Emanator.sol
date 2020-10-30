@@ -8,7 +8,7 @@ import "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/I
 import "@superfluid-finance/ethereum-contracts/contracts/interfaces/agreements/IConstantFlowAgreementV1.sol";
 import "@superfluid-finance/ethereum-contracts/contracts/interfaces/agreements/IInstantDistributionAgreementV1.sol";
 
-contract Emanafte is ERC721, IERC721Receiver, DSMath {
+contract Emanator is ERC721, IERC721Receiver, DSMath {
   using SafeMath for uint256;
 
   address payable public creator;
@@ -124,7 +124,7 @@ contract Emanafte is ERC721, IERC721Receiver, DSMath {
       // Upon claiming, the contract distributes the auction funds to the prior owners according to their proportion of totalShares
       uint amt = address(this).balance;
       uint perShare = rdiv(amt, totalShares);
-      
+
       for (uint i = 0; i < revShareRecipients.length; i++) {
           uint distro = rmul(ownerRevShares[i], perShare);
           revShareRecipients[i].transfer(distro);
@@ -141,7 +141,7 @@ contract Emanafte is ERC721, IERC721Receiver, DSMath {
       // host.callAgreement(ida.address, ida.contract.methods.updateIndex
       // (tokenX.address, 1, balanceOf(address(this)), "0x").encodeABI(), { from: address(this) })
 
-      
+
 
       // claiming the NFT adds the new owner to the income distribution agreement subscribers
       // host.callAgreement(ida.address, ida.contract.methods.updateSubscription
