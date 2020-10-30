@@ -21,7 +21,7 @@ const NewAuction = () => {
     CREATE_AUCTION_MUTATION,
     {
       onCompleted: () => {
-        navigate(routes.auctions())
+        navigate('/')
         addMessage('Auction created.', { classes: 'rw-flash-success' })
       },
       // This refetches the query on the list page. Read more about other ways to
