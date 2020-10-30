@@ -123,7 +123,10 @@ contract('Emanator', (accounts) => {
       `Account ${bob} approves Auction to spend daix`
     )(app.address, toWad(10), { from: bob })
     await web3tx(app.bid, `Account ${bob} bids 100`)(toWad(10), { from: bob })
-    assert.equal(await app.getAuctionBalance.call(), toWad(10))
+    assert.equal(
+      (await app.getAuctionBalance.call()).toString(),
+      toWad(10).toString()
+    )
   })
 
   // OLD from LotterySuperApp
