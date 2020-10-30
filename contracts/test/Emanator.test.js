@@ -136,9 +136,9 @@ contract('Emanator', (accounts) => {
       `Account ${bob} approves Auction to spend daix`
     )(app.address, toWad(10), { from: bob })
     await web3tx(app.bid, `Account ${bob} bids 100`)(toWad(10), { from: bob })
-    console.log(`High bidder: ${app._auction.highBidder}`)
+    console.log(`High bidder: ${app.getAuctionInfo.call(_auction.highBidder)}`)
     assert.equal(
-      (app._auction.highBidder).toString(),
+      (app.getAuctionInfo.call(_auction.highBidder)).toString(),
       bob.toString()
     )
   })
