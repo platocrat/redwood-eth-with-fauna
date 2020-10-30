@@ -1,413 +1,192 @@
-const { web3tx, toWad, toBN } = require("@decentral.ee/web3-helpers");
-const { expectRevert } = require("@openzeppelin/test-helpers");
-const deployFramework = require("@superfluid-finance/ethereum-contracts/scripts/deploy-framework");
-const deployTestToken = require("@superfluid-finance/ethereum-contracts/scripts/deploy-test-token");
-const deploySuperToken = require("@superfluid-finance/ethereum-contracts/scripts/deploy-super-token");
-const SuperfluidSDK = require("@superfluid-finance/ethereum-contracts");
-const Emanafte = artifacts.require("Emanafte");
+pragma solidity ^0.7.0;
 
-contract("Emanafte", (accounts) => {
-  const errorHandler = (err) => {
-    if (err) throw err;
-  };
+import { DSMath } from "./DSMath.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
-  const ZERO_ADDRESS = "0x" + "0".repeat(40);
-  const MINIMUM_GAME_FLOW_RATE = toWad(10).div(toBN(3600 * 24 * 30));
-  const WIN_LENGTH = 10; // seconds
+import "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
+import "@superfluid-finance/ethereum-contracts/contracts/interfaces/agreements/IConstantFlowAgreementV1.sol";
+import "@superfluid-finance/ethereum-contracts/contracts/interfaces/agreements/IInstantDistributionAgreementV1.sol";
 
-  accounts = accounts.slice(0, 4);
-  const [admin, bob, carol, dan] = accounts;
+contract Emanafte is ERC721, IERC721Receiver, DSMath {
+  using SafeMath for uint256;
 
-  let sf;
-  let dai;
-  let daix;
-  let app;
+  address payable public creator;
+  // winLength is the number of seconds that a user must be the highBidder to win the auction;
+  uint256 public winLength;
 
-  beforeEach(async function () {
-    await deployFramework(errorHandler);
+  struct Auction {
+      uint256 lastBidTime;
+      uint256 highBid;
+      address owner;
+      address highBidder;
+  }
 
-    sf = new SuperfluidSDK.Framework({ web3Provider: web3.currentProvider });
-    await sf.initialize();
+  address payable[] public revShareRecipients;
+  uint256[] public ownerRevShares;
+  uint256 public totalShares;
 
-    if (!dai) {
-      await deployTestToken(errorHandler, [":", "fDAI"]);
-      const daiAddress = await sf.resolver.get("tokens.fDAI");
-      dai = await sf.contracts.TestToken.at(daiAddress);
-      for (let i = 0; i < accounts.length; ++i) {
-        await web3tx(dai.mint, `Account ${i} mints many dai`)(
-          accounts[i],
-          toWad(10000000),
-          { from: accounts[i] }
-        );
+  uint256 public currentGeneration;
+
+  ISuperfluid private host;
+  IConstantFlowAgreementV1 private cfa;
+  IInstantDistributionAgreementV1 private ida;
+  ISuperToken private tokenX;
+
+  mapping (uint256 => Auction) public auctionByGeneration;
+
+  event newAuction(uint256 id);
+  event auctionWon(uint256 id, address indexed winner);
+
+  constructor(ISuperfluid _host, IConstantFlowAgreementV1 _cfa, IInstantDistributionAgreementV1 _ida, ISuperToken _tokenX, uint256 _winLength) public ERC721 ("emaNaFTe", "emNFT") {
+      assert(address(host) != address(0));
+      assert(address(cfa) != address(0));
+      assert(address(ida) != address(0));
+      assert(address(_tokenX) != address(0));
+      host = _host;
+      cfa = _cfa;
+      ida = _ida;
+      tokenX = _tokenX;
+      winLength = _winLength;
+      creator = msg.sender;
+      revShareRecipients.push(creator);
+      ownerRevShares.push(1000000);
+      totalShares = ownerRevShares[0];
+      setApprovalForAll(address(this), true);
+      _firstAuction();
+
+  }
+
+  function onERC721Received(address, address, uint256, bytes calldata) external override returns (bytes4) {
+      return bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
+  }
+
+  function _firstAuction() private {
+    ERC721._safeMint(msg.sender, 0);
+
+    // Create the first auction
+    currentGeneration = 1;
+    Auction storage _auction = auctionByGeneration[1];
+
+    // creating the first auction creates an income distribution agreement index
+    // host.callAgreement(ida.address, ida.contract.methods.createIndex
+    //    (tokenX.address, 1, "0x").encodeABI(), { from: address(this) })
+    // // creating the first auction adds the creator to the income distribution agreement subscribers
+    // host.callAgreement(ida.address, ida.contract.methods.updateSubscription
+    //    (tokenX.address, 1, msg.sender, ownerRevShares[0], "0x").encodeABI(), { from: address(this) })
+
+    emit newAuction(currentGeneration);
+  }
+
+  // Submit a higher bid and increase the length of the auction
+  function bid(uint bidAmount) public returns (uint256 highBid, uint256 lastBidTime, address highBidder) {
+      Auction storage _auction = auctionByGeneration[currentGeneration];
+      uint256 endTime = _auction.lastBidTime + winLength;
+      require(block.timestamp > endTime, "The current auction has ended. Please start a new one.");
+      // TODO: Add a minimum bid increase threshold
+      require(bidAmount > _auction.highBid, "you must bid more than the current high bid");
+
+      tokenX.transferFrom(msg.sender, address(this), bidAmount);
+      // highBidder creates new SuperFluid constant flow agreement
+      // host.callAgreement(cfa.address, cfa.contract.methods.createFlow
+         // (tokenX.address, address(this), msg.value, "0x").encodeABI(), { from: msg.sender })
+
+
+       // new highBidder should stop previous highBidder's SuperFluid constant flow agreement
+      // if (_auction.generation>0){
+            // host.callAgreement(cfa.address, cfa.contract.methods.deleteFlow
+                // (tokenX.address, _auction.prevHighBidder, address(this), _auction.highBid, "0x").encodeABI(), { from: address(this) }
+      // }
+
+      _auction.highBid = bidAmount;
+      _auction.highBidder = msg.sender;
+      _auction.lastBidTime = block.timestamp;
+
+      return (_auction.highBid, _auction.lastBidTime, _auction.highBidder);
+  }
+
+  // End the auction and claim prize
+  // TODO: allow anyone to end the auction
+  function settleAndBeginAuction() public {
+      Auction storage _auction = auctionByGeneration[currentGeneration];
+
+      require(_auction.highBid > 0, "The auction has not started yet");
+      uint256 endTime = _auction.lastBidTime + winLength;
+      require(block.timestamp > endTime, "The auction is not over yet");
+
+      // Auction winner mints the new childNFT
+      ERC721._safeMint(_auction.highBidder, currentGeneration);
+
+      // claiming NFT deletes the winner's SuperFluid constant flow agreement
+      // host.callAgreement(cfa.address, cfa.contract.methods.deleteFlow
+      // (tokenX.address, msg.sender, address(this), msg.value, "0x").encodeABI(), { from: msg.sender })
+
+      // Upon claiming, the contract distributes the auction funds to the prior owners according to their proportion of totalShares
+      uint amt = address(this).balance;
+      uint perShare = rdiv(amt, totalShares);
+      
+      for (uint i = 0; i < revShareRecipients.length; i++) {
+          uint distro = rmul(ownerRevShares[i], perShare);
+          revShareRecipients[i].transfer(distro);
       }
-    }
 
-    await deploySuperToken(errorHandler, [":", "fDAI"]);
+      //Update the revenue shares array
+      revShareRecipients.push(msg.sender);
+      uint position = ownerRevShares.length - 1;
+      uint newShares = ownerRevShares[position].mul(9).div(10);
+      totalShares = totalShares + newShares;
+      ownerRevShares.push(newShares);
 
-    const daixWrapper = await sf.getERC20Wrapper(dai);
-    daix = await sf.contracts.ISuperToken.at(daixWrapper.wrapperAddress);
+      // claiming the NFT distributes the auction's accumulated funds to the revenue share owners
+      // host.callAgreement(ida.address, ida.contract.methods.updateIndex
+      // (tokenX.address, 1, balanceOf(address(this)), "0x").encodeABI(), { from: address(this) })
 
-    app = await web3tx(Emanafte.new, "Deploy Emanafte")(
-      sf.host.address,
-      sf.agreements.cfa.address,
-      sf.agreements.ida.address,
-      daix.address,
-      WIN_LENGTH
-    );
+      
 
-    for (let i = 1; i < accounts.length; ++i) {
-      await web3tx(dai.approve, `Account ${i} approves daix`)(
-        daix.address,
-        toWad(100),
-        { from: accounts[i] }
-      );
-    }
-  });
+      // claiming the NFT adds the new owner to the income distribution agreement subscribers
+      // host.callAgreement(ida.address, ida.contract.methods.updateSubscription
+           // (tokenX.address, 1, msg.sender, newShares, "0x").encodeABI(), { from: address(this) })
 
-  async function printRealtimeBalance(label, account) {
-    const b = await daix.realtimeBalanceOfNow.call(account);
-    console.log(
-      `${label} realtime balance`,
-      b.availableBalance.toString(),
-      b.deposit.toString(),
-      b.owedDeposit.toString()
-    );
-    return b;
+      // claiming the NFT approves the subscription
+      // host.callAgreement(ida.address, ida.contract.methods.approveSubscription
+           // (tokenX.address, address(this), 1, "0x").encodeABI(), { from: msg.sender })
+
+      emit auctionWon(currentGeneration, _auction.highBidder);
+
+      _nextAuction();
   }
 
-  function createBidBatchCall(upgradeAmount = 0) {
-    return [
-      [
-        2, // upgrade 100 daix to play the game
-        daix.address,
-        web3.eth.abi.encodeParameters(
-          ["uint256"],
-          [toWad(upgradeAmount).toString()]
-        ),
-      ],
-      [
-        0, // approve the ticket fee
-        daix.address,
-        web3.eth.abi.encodeParameters(
-          ["address", "uint256"],
-          [app.address, toWad("1").toString()]
-        ),
-      ],
-      [
-        5, // callAppAction to participate
-        app.address,
-        app.contract.methods.participate("0x").encodeABI(),
-      ],
-      [
-        4, // create constant flow (10/mo)
-        sf.agreements.cfa.address,
-        sf.agreements.cfa.contract.methods
-          .createFlow(
-            daix.address,
-            app.address,
-            MINIMUM_GAME_FLOW_RATE.toString(),
-            "0x"
-          )
-          .encodeABI(),
-      ],
-    ];
+  function _nextAuction() private {
+    currentGeneration++;
+    Auction storage _auction = auctionByGeneration[currentGeneration];
+    emit newAuction(currentGeneration);
   }
 
-  it("Deploys the contract", async () => {
-    assert.equal(await app.getAuctionBalance.call(), 0);
-  });
+  function checkTimeRemaining() public view returns (uint) {
+      Auction storage _auction = auctionByGeneration[currentGeneration];
+      require(_auction.highBid > 0, "The auction has not started yet");
+      uint timeLeft = _auction.lastBidTime + winLength - block.timestamp;
+      return timeLeft;
+  }
 
-  // OLD from LotterySuperApp
-  // it("Lonely game case", async () => {
-  //   let appRealtimeBalance;
-  //   // bob is the first player
-  //   await web3tx(sf.host.batchCall, "Bob joining the game")(
-  //     createPlayBatchCall(100),
-  //     { from: bob }
-  //   );
-  //   await expectRevert(
-  //     sf.host.batchCall(createPlayBatchCall(0), { from: bob }),
-  //     "Flow already exist"
-  //   );
-  //   assert.equal((await app.currentWinner.call()).player, bob);
-  //   assert.equal(
-  //     (
-  //       await sf.agreements.cfa.getNetFlow(daix.address, app.address)
-  //     ).toString(),
-  //     "0"
-  //   );
-  //   assert.equal(
-  //     (await sf.agreements.cfa.getNetFlow(daix.address, bob)).toString(),
-  //     "0"
-  //   );
-  //   appRealtimeBalance = await printRealtimeBalance("App", app.address);
-  //   await printRealtimeBalance("Bob", bob);
-  //   // bob quits the game
-  //   await web3tx(sf.host.callAgreement, "Bob quiting the game")(
-  //     sf.agreements.cfa.address,
-  //     sf.agreements.cfa.contract.methods
-  //       .deleteFlow(daix.address, bob, app.address, "0x")
-  //       .encodeABI(),
-  //     { from: bob }
-  //   );
-  //   assert.equal((await app.currentWinner.call()).player, ZERO_ADDRESS);
-  //   assert.equal(
-  //     (
-  //       await sf.agreements.cfa.getNetFlow(daix.address, app.address)
-  //     ).toString(),
-  //     "0"
-  //   );
-  //   assert.equal(
-  //     (await sf.agreements.cfa.getNetFlow(daix.address, bob)).toString(),
-  //     "0"
-  //   );
-  //   appRealtimeBalance = await printRealtimeBalance("App", app.address);
-  //   await printRealtimeBalance("Bob", bob);
-  //   await printRealtimeBalance("Carol", carol);
-  //   // bob is the only player again
-  //   await web3tx(
-  //     sf.host.batchCall,
-  //     "Bob joining the game again"
-  //   )(createPlayBatchCall(), { from: bob });
-  //   assert.equal((await app.currentWinner.call()).player, bob);
-  //   assert.equal(
-  //     (
-  //       await sf.agreements.cfa.getNetFlow(daix.address, app.address)
-  //     ).toString(),
-  //     "0"
-  //   );
-  //   assert.equal(
-  //     (await sf.agreements.cfa.getNetFlow(daix.address, bob)).toString(),
-  //     "0"
-  //   );
-  //   appRealtimeBalance = await printRealtimeBalance("App", app.address);
-  //   await printRealtimeBalance("Bob", bob);
-  // });
+  function checkEndTime() public view returns (uint) {
+      Auction storage _auction = auctionByGeneration[currentGeneration];
+      require(_auction.highBid > 0, "The auction has not started yet");
+      uint endTime = _auction.lastBidTime + winLength;
+      return endTime;
+  }
 
-  // it("Happy game case", async () => {
-  //   let appRealtimeBalance;
-  //
-  //   assert.equal((await app.currentWinner.call()).player, ZERO_ADDRESS);
-  //   //
-  //   // Round 1: +bob, +carol, -bob, - carol
-  //   //
-  //   await web3tx(sf.host.batchCall, "Bob joining the game")(
-  //     createPlayBatchCall(100),
-  //     { from: bob }
-  //   );
-  //   assert.equal((await app.currentWinner.call()).player, bob);
-  //   assert.equal(
-  //     (
-  //       await sf.agreements.cfa.getNetFlow(daix.address, app.address)
-  //     ).toString(),
-  //     "0"
-  //   );
-  //   assert.equal(
-  //     (await sf.agreements.cfa.getNetFlow(daix.address, bob)).toString(),
-  //     "0"
-  //   );
-  //   appRealtimeBalance = await printRealtimeBalance("App", app.address);
-  //   await printRealtimeBalance("Bob", bob);
-  //   // carol enters the game
-  //   await web3tx(
-  //     sf.host.batchCall,
-  //     "Carol joining the game too"
-  //   )(createPlayBatchCall(100), { from: carol });
-  //   let winner = (await app.currentWinner.call()).player;
-  //   console.log("Winner", winner);
-  //   assert.equal(
-  //     (
-  //       await sf.agreements.cfa.getNetFlow(daix.address, app.address)
-  //     ).toString(),
-  //     "0"
-  //   );
-  //   assert.equal(
-  //     (await sf.agreements.cfa.getNetFlow(daix.address, winner)).toString(),
-  //     MINIMUM_GAME_FLOW_RATE.toString()
-  //   );
-  //   appRealtimeBalance = await printRealtimeBalance("App", app.address);
-  //   await printRealtimeBalance("Bob", bob);
-  //   await printRealtimeBalance("Carol", carol);
-  //   // bob quits the game
-  //   await web3tx(sf.host.callAgreement, "Bob quiting the game")(
-  //     sf.agreements.cfa.address,
-  //     sf.agreements.cfa.contract.methods
-  //       .deleteFlow(daix.address, bob, app.address, "0x")
-  //       .encodeABI(),
-  //     { from: bob }
-  //   );
-  //   assert.equal((await app.currentWinner.call()).player, carol);
-  //   assert.equal(
-  //     (
-  //       await sf.agreements.cfa.getNetFlow(daix.address, app.address)
-  //     ).toString(),
-  //     "0"
-  //   );
-  //   assert.equal(
-  //     (await sf.agreements.cfa.getNetFlow(daix.address, bob)).toString(),
-  //     "0"
-  //   );
-  //   assert.equal(
-  //     (await sf.agreements.cfa.getNetFlow(daix.address, carol)).toString(),
-  //     "0"
-  //   );
-  //   appRealtimeBalance = await printRealtimeBalance("App", app.address);
-  //   await printRealtimeBalance("Bob", bob);
-  //   await printRealtimeBalance("Carol", carol);
-  //   // carol quits the game
-  //   await web3tx(sf.host.callAgreement, "Carol quiting the game too")(
-  //     sf.agreements.cfa.address,
-  //     sf.agreements.cfa.contract.methods
-  //       .deleteFlow(daix.address, carol, app.address, "0x")
-  //       .encodeABI(),
-  //     { from: carol }
-  //   );
-  //   assert.equal((await app.currentWinner.call()).player, ZERO_ADDRESS);
-  //   assert.equal(
-  //     (
-  //       await sf.agreements.cfa.getNetFlow(daix.address, app.address)
-  //     ).toString(),
-  //     "0"
-  //   );
-  //   assert.equal(
-  //     (await sf.agreements.cfa.getNetFlow(daix.address, bob)).toString(),
-  //     "0"
-  //   );
-  //   assert.equal(
-  //     (await sf.agreements.cfa.getNetFlow(daix.address, carol)).toString(),
-  //     "0"
-  //   );
-  //   appRealtimeBalance = await printRealtimeBalance("App", app.address);
-  //   await printRealtimeBalance("Bob", bob);
-  //   await printRealtimeBalance("Carol", carol);
-  //   //
-  //   // Round 2: +bob, +carol, -carol, -bob
-  //   //
-  //   // bob join the game again
-  //   await web3tx(
-  //     sf.host.batchCall,
-  //     "Bob joining the game again"
-  //   )(createPlayBatchCall(), { from: bob });
-  //   assert.equal((await app.currentWinner.call()).player, bob);
-  //   assert.equal(
-  //     (
-  //       await sf.agreements.cfa.getNetFlow(daix.address, app.address)
-  //     ).toString(),
-  //     "0"
-  //   );
-  //   assert.equal(
-  //     (await sf.agreements.cfa.getNetFlow(daix.address, bob)).toString(),
-  //     "0"
-  //   );
-  //   assert.equal(
-  //     (await sf.agreements.cfa.getNetFlow(daix.address, carol)).toString(),
-  //     "0"
-  //   );
-  //   appRealtimeBalance = await printRealtimeBalance("App", app.address);
-  //   await printRealtimeBalance("Bob", bob);
-  //   await printRealtimeBalance("Carol", carol);
-  //   // carol join the game again too
-  //   await web3tx(
-  //     sf.host.batchCall,
-  //     "Carol joining the game again too"
-  //   )(createPlayBatchCall(), { from: carol });
-  //   await web3tx(
-  //     sf.host.callAgreement,
-  //     "Carol quiting the game first this time"
-  //   )(
-  //     sf.agreements.cfa.address,
-  //     sf.agreements.cfa.contract.methods
-  //       .deleteFlow(daix.address, carol, app.address, "0x")
-  //       .encodeABI(),
-  //     { from: carol }
-  //   );
-  //   assert.equal((await app.currentWinner.call()).player, bob);
-  //   await web3tx(sf.host.callAgreement, "Bob quiting the game too")(
-  //     sf.agreements.cfa.address,
-  //     sf.agreements.cfa.contract.methods
-  //       .deleteFlow(daix.address, bob, app.address, "0x")
-  //       .encodeABI(),
-  //     { from: bob }
-  //   );
-  //   assert.equal((await app.currentWinner.call()).player, ZERO_ADDRESS);
-  //   assert.equal(
-  //     (
-  //       await sf.agreements.cfa.getNetFlow(daix.address, app.address)
-  //     ).toString(),
-  //     "0"
-  //   );
-  //   assert.equal(
-  //     (await sf.agreements.cfa.getNetFlow(daix.address, bob)).toString(),
-  //     "0"
-  //   );
-  //   assert.equal(
-  //     (await sf.agreements.cfa.getNetFlow(daix.address, carol)).toString(),
-  //     "0"
-  //   );
-  //   appRealtimeBalance = await printRealtimeBalance("App", app.address);
-  //   await printRealtimeBalance("Bob", bob);
-  //   await printRealtimeBalance("Carol", carol);
-  //   //
-  //   // Round 3: +carol, +bob, -bob, - carol
-  //   //
-  //   await web3tx(
-  //     sf.host.batchCall,
-  //     "Carol joining the game first"
-  //   )(createPlayBatchCall(), { from: carol });
-  //   await web3tx(
-  //     sf.host.batchCall,
-  //     "Bob joining the game again"
-  //   )(createPlayBatchCall(), { from: bob });
-  //   await web3tx(sf.host.callAgreement, "Bob quiting the game")(
-  //     sf.agreements.cfa.address,
-  //     sf.agreements.cfa.contract.methods
-  //       .deleteFlow(daix.address, bob, app.address, "0x")
-  //       .encodeABI(),
-  //     { from: bob }
-  //   );
-  //   await web3tx(sf.host.callAgreement, "Carol quiting the game")(
-  //     sf.agreements.cfa.address,
-  //     sf.agreements.cfa.contract.methods
-  //       .deleteFlow(daix.address, carol, app.address, "0x")
-  //       .encodeABI(),
-  //     { from: carol }
-  //   );
-  // });
-  //
-  // it("Test randomness", async () => {
-  //   const counters = {};
-  //   counters[carol] = { name: "carol", count: 0 };
-  //   counters[bob] = { name: "bob", count: 0 };
-  //   counters[dan] = { name: "dan", count: 0 };
-  //   await web3tx(
-  //     sf.host.batchCall,
-  //     "Carol joining the game"
-  //   )(createPlayBatchCall(100), { from: carol });
-  //   await web3tx(
-  //     sf.host.batchCall,
-  //     "Bob joining the game too"
-  //   )(createPlayBatchCall(100), { from: bob });
-  //   await web3tx(
-  //     sf.host.batchCall,
-  //     "Dan joining the game too"
-  //   )(createPlayBatchCall(100), { from: dan });
-  //   for (let i = 0; i < 20; ++i) {
-  //     counters[(await app.currentWinner.call()).player].count++;
-  //     await web3tx(sf.host.callAgreement, "Dan quiting the game")(
-  //       sf.agreements.cfa.address,
-  //       sf.agreements.cfa.contract.methods
-  //         .deleteFlow(daix.address, dan, app.address, "0x")
-  //         .encodeABI(),
-  //       { from: dan }
-  //     );
-  //     await web3tx(
-  //       sf.host.batchCall,
-  //       "Dan joining the game too"
-  //     )(createPlayBatchCall(), { from: dan });
-  //   }
-  //   console.log("Winning counters", counters);
-  //   assert.isTrue(counters[bob].count > 0);
-  //   assert.isTrue(counters[carol].count > 0);
-  //   assert.isTrue(counters[dan].count > 0);
-  // });
-});
+  function getCurrentAuctionInfo() public view returns ( uint highBid, address highBidder, uint lastBidTime){
+      Auction storage _auction = auctionByGeneration[currentGeneration];
+      return ( _auction.highBid, _auction.highBidder, _auction.lastBidTime);
+  }
+
+  function getAuctionInfo(uint id) public view returns ( uint highBid, address highBidder, uint lastBidTime){
+      Auction storage _auction = auctionByGeneration[id];
+      return ( _auction.highBid, _auction.highBidder, _auction.lastBidTime);
+  }
+
+  function getAuctionBalance() public view returns (uint balanceOf) {
+      return tokenX.balanceOf(address(this));
+  }
+ }
