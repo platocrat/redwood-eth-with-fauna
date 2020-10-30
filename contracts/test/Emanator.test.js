@@ -131,12 +131,12 @@ contract('Emanator', (accounts) => {
   })
 
   it('sets Bob as the high bidder', async () => {
-    assert.equal(await app.getAuctionBalance.call(), 0)
+    let highBidder
     await web3tx(app.bid, `Account ${bob} bids 100`)(toWad(10), { from: bob })
-    console.log(`High bidder: ${app.getAuctionInfo.call(1, {from: bob } ).c}`)
+    await web3tx(app.getAuctionInfo.call('1').then(function(res){highBidder = res[2]}), {from: bob })
+    console.log(`High bidder: ${highBidder}`)
     assert.equal(
-      (app.getAuctionInfo.call(1, {from: bob })).c.toString(),
-      bob.toString()
+      (highBidder.toString(), bob.toString()
     )
   })
 
