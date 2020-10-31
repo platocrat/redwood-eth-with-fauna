@@ -22,8 +22,6 @@ contract('Emanator', (accounts) => {
   let dai
   let daix
   let app
-  let current
-  let auction
 
   beforeEach(async function () {
     await deployFramework(errorHandler)
@@ -56,10 +54,6 @@ contract('Emanator', (accounts) => {
       daix.address,
       WIN_LENGTH
     )
-    
-    current = web3tx(app.currentGeneration.call())
-
-    auction = web3tx(app.auctionByGeneration[current].call())
 
     for (let i = 1; i < accounts.length; ++i) {
       await web3tx(dai.approve, `Account ${i} approves daix`)(
@@ -137,11 +131,14 @@ contract('Emanator', (accounts) => {
   })
 
   it('sets Bob as the high bidder', async () => {
-    console.log(`Current: ${current} Auction: ${auction}`)
+    let auction
+    console.log(`App: ${app}`)
+    auction = web3tx(app.currentGeneration, { from: bob })
+    console.log(`Auction: ${auction}`)
     await web3tx(app.bid, `Account ${bob} bids 100`)(toWad(10), { from: bob })
-    console.log(`High bidder: ${auction.highBidder}`)
+    console.log(`High bidder: ${app.auctionByGeneration[auction].highBidder}`)
     assert.equal(
-      await auction.highBidder.toString(), bob.toString())
+      await app.auctionByGeneration[auction].highBidder.toString(), bob.toString())
   })
 
   // OLD from LotterySuperApp
