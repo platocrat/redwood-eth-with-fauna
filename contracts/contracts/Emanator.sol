@@ -152,7 +152,7 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
   function bid(uint bidAmount) public returns (uint256 highBid, uint256 lastBidTime, address highBidder) {
       Auction storage _auction = auctionByGeneration[currentGeneration];
       uint256 endTime = _auction.lastBidTime + winLength;
-      require(block.timestamp > endTime, "The current auction has ended. Please start a new one.");
+      require(block.timestamp < endTime, "The current auction has ended. Please start a new one.");
       // TODO: Add a minimum bid increase threshold
       require(bidAmount > _auction.highBid, "you must bid more than the current high bid");
 
