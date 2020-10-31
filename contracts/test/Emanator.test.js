@@ -137,10 +137,11 @@ contract('Emanator', (accounts) => {
   })
 
   it('sets Bob as the high bidder', async () => {
+    console.log(`Current: ${current} Auction: ${auction}`)
     await web3tx(app.bid, `Account ${bob} bids 100`)(toWad(10), { from: bob })
     console.log(`High bidder: ${auction.highBidder}`)
     assert.equal(
-      auction.highBidder.toString(), bob.toString())
+      await auction.highBidder.toString(), bob.toString())
   })
 
   // OLD from LotterySuperApp
