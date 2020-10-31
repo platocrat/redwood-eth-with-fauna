@@ -131,7 +131,7 @@ contract('Emanator', (accounts) => {
   })
 
   it('sets Bob as the high bidder', async () => {
-    assert.equal(await app.getAuctionBalance.call(), 0)
+    assert.equal(await app.getHighBidder.call(), null)
     await web3tx(app.bid, `Account ${bob} bids 10`)(toWad(10), { from: bob })
     assert.equal(
       (await app.getHighBidder.call()).toString(), bob.toString())
@@ -143,7 +143,7 @@ contract('Emanator', (accounts) => {
     appRealtimeBalance = await printRealtimeBalance("App", app.address);
     await printRealtimeBalance("Bob", bob);
     let timeLeft
-    timeLeft = await web3tx(app.checkTimeRemaining)({ from: bob })
+    timeLeft = await web3tx(app.checkTimeRemaining.call())({ from: bob })
     console.log(timeLeft)
     await web3tx(app.bid, `Account ${carol} bids 20`)(toWad(20), { from: carol })
     appRealtimeBalance = await printRealtimeBalance("App", app.address);
