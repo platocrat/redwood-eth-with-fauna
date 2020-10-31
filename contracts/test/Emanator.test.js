@@ -158,15 +158,22 @@ contract('Emanator', (accounts) => {
     assert.equal(await app.getHighBidder.call(), ZERO_ADDRESS)
     await web3tx(app.bid, `Account ${bob} bids 10`)(toWad(10), { from: bob })
     let timeLeft = await app.checkTimeRemaining()
-    console.log(timeLeft)
     time.increase(timeLeft + 1)
-    console.log(timeLeft)
     await web3tx(app.bid, `Account ${carol} bids 20`)(toWad(20), { from: carol })
       .then(assert.fail).catch(function(error) {
         assert.include(error.message, 'revert', 'bids submitted after an auction ends should revert')
       })
     assert.equal(
       (await app.getHighBidder.call()).toString(), bob.toString())
+  })
+
+  it('allows settling an auction and starting a new auction', async () => {
+    assert.equal(await app.getHighBidder.call(), ZERO_ADDRESS)
+    await web3tx(app.bid, `Account ${bob} bids 10`)(toWad(10), { from: bob })
+    let timeLeft = await app.checkTimeRemaining()
+    time.increase(timeLeft + 1)
+    await web3tx(app.settleAndBeginAuction, `Account ${bob} settles the auction`)({ from: bob })
+    assert.equal(await app.contract.currentGeneration, '2')
   })
 
 
