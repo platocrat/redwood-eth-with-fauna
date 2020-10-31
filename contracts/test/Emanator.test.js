@@ -174,6 +174,7 @@ contract('Emanator', (accounts) => {
     time.increase(timeLeft + 1)
     await web3tx(app.settleAndBeginAuction, `Account ${bob} settles the auction`)({ from: bob })
     assert.equal(await app.currentGeneration.call(), '2')
+    assert.equal(await app.ERC721.ownerOf().call('1').toString(), bob.toString())
   })
 
 
