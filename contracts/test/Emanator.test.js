@@ -13,7 +13,7 @@ contract('Emanator', (accounts) => {
 
   const ZERO_ADDRESS = '0x' + '0'.repeat(40)
   const MINIMUM_GAME_FLOW_RATE = toWad(10).div(toBN(3600 * 24 * 30))
-  const WIN_LENGTH = 60 // seconds
+  const WIN_LENGTH = 20 // seconds
 
   accounts = accounts.slice(0, 4)
   const [admin, bob, carol, dan] = accounts
@@ -153,6 +153,20 @@ contract('Emanator', (accounts) => {
     assert.equal(
         (await app.getHighBidder.call()).toString(), carol.toString())  
   })
+
+  it('does not allow bids after the auction is over', async () => {
+    assert.equal(await app.getHighBidder.call(), '0x0000000000000000000000000000000000000000')
+    await web3tx(app.bid, `Account ${bob} bids 10`)(toWad(10), { from: bob })
+    let timeLeft = await app.checkTimeRemaining()
+    console.log(timeLeft)
+    time.increase(timeLeft + 1)
+    console.log(timeLeft)
+    await expectRevert(app.bid, `Account ${carol} bids 20`)(toWad(20), { from: carol })
+    assert.equal(
+      (await app.getHighBidder.call()).toString(), bob.toString())
+  })
+
+
 
   // OLD from LotterySuperApp
   // it("Lonely game case", async () => {
