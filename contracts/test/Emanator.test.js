@@ -83,43 +83,43 @@ contract('Emanator', (accounts) => {
     return b
   }
 
-  function createBidBatchCall(upgradeAmount = 0) {
-    return [
-      [
-        2, // upgrade 100 daix to play the game
-        daix.address,
-        web3.eth.abi.encodeParameters(
-          ['uint256'],
-          [toWad(upgradeAmount).toString()]
-        ),
-      ],
-      [
-        0, // approve the ticket fee
-        daix.address,
-        web3.eth.abi.encodeParameters(
-          ['address', 'uint256'],
-          [app.address, toWad('1').toString()]
-        ),
-      ],
-      [
-        5, // callAppAction to participate
-        app.address,
-        app.contract.methods.participate('0x').encodeABI(),
-      ],
-      [
-        4, // create constant flow (10/mo)
-        sf.agreements.cfa.address,
-        sf.agreements.cfa.contract.methods
-          .createFlow(
-            daix.address,
-            app.address,
-            MINIMUM_GAME_FLOW_RATE.toString(),
-            '0x'
-          )
-          .encodeABI(),
-      ],
-    ]
-  }
+  // function createBidBatchCall(upgradeAmount = 0) {
+  //   return [
+  //     [
+  //       2, // upgrade 100 daix to play the game
+  //       daix.address,
+  //       web3.eth.abi.encodeParameters(
+  //         ['uint256'],
+  //         [toWad(upgradeAmount).toString()]
+  //       ),
+  //     ],
+  //     [
+  //       0, // approve the ticket fee
+  //       daix.address,
+  //       web3.eth.abi.encodeParameters(
+  //         ['address', 'uint256'],
+  //         [app.address, toWad('1').toString()]
+  //       ),
+  //     ],
+  //     [
+  //       5, // callAppAction to participate
+  //       app.address,
+  //       app.contract.methods.participate('0x').encodeABI(),
+  //     ],
+  //     [
+  //       4, // create constant flow (10/mo)
+  //       sf.agreements.cfa.address,
+  //       sf.agreements.cfa.contract.methods
+  //         .createFlow(
+  //           daix.address,
+  //           app.address,
+  //           MINIMUM_GAME_FLOW_RATE.toString(),
+  //           '0x'
+  //         )
+  //         .encodeABI(),
+  //     ],
+  //   ]
+  // }
 
   it('Deploys the contract', async () => {
     assert.equal(await app.getAuctionBalance.call(), 0)
@@ -192,10 +192,12 @@ contract('Emanator', (accounts) => {
     timeLeft = await app.checkTimeRemaining()
     time.increase(timeLeft + 1)
     await web3tx(app.settleAndBeginAuction, `Account ${carol} settles the auction`)({ from: carol })
+    // test fails in step above on web3tx "Error: Returned error: VM Exception while processing transaction: revert" unclear why 
     await printRealtimeBalance("Creator", creator);
     await printRealtimeBalance("Bob", bob);
     await printRealtimeBalance("Carol", carol);
     assert.equal(await app.currentGeneration.call(), '3')
+    // TODO : write logic to check the expected distribution split
   })
 
 
