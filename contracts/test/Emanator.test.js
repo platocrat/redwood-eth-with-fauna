@@ -189,7 +189,7 @@ contract('Emanator', (accounts) => {
     await printRealtimeBalance("Bob", bob);
     await printRealtimeBalance("Carol", carol);
     await web3tx(app.bid, `Account ${carol} bids 10`)(toWad(10), { from: carol })
-    let timeLeft = await app.checkTimeRemaining()
+    timeLeft = await app.checkTimeRemaining()
     time.increase(timeLeft + 1)
     await web3tx(app.settleAndBeginAuction, `Account ${carol} settles the auction`)({ from: carol })
     await printRealtimeBalance("Creator", creator);
