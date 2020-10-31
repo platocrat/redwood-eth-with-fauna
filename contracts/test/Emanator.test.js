@@ -174,9 +174,19 @@ contract('Emanator', (accounts) => {
     time.increase(timeLeft + 1)
     await web3tx(app.settleAndBeginAuction, `Account ${bob} settles the auction`)({ from: bob })
     assert.equal(await app.currentGeneration.call(), '2')
-    assert.equal(await app.ERC721.ownerOf().call('1').toString(), bob.toString())
+    assert.equal(await app.ERC721.methods.ownerOf().call('1').toString(), bob.toString())
   })
 
+  // it('transfers 70% of the second auctin revenue to the creator and 30% to the winner of auction 1', async () => {
+  //   assert.equal(await app.getHighBidder.call(), ZERO_ADDRESS)
+  //   await web3tx(app.bid, `Account ${bob} bids 10`)(toWad(10), { from: bob })
+  //   let timeLeft = await app.checkTimeRemaining()
+  //   time.increase(timeLeft + 1)
+  //   await web3tx(app.settleAndBeginAuction, `Account ${bob} settles the auction`)({ from: bob })
+
+  //   assert.equal(await app.currentGeneration.call(), '2')
+  //   assert.equal(await app.ERC721.methods.ownerOf().call('1').toString(), bob.toString())
+  // })
 
 
   // OLD from LotterySuperApp
