@@ -142,10 +142,10 @@ contract('Emanator', (accounts) => {
     await web3tx(app.bid, `Account ${bob} bids 10`)(toWad(10), { from: bob })
     appRealtimeBalance = await printRealtimeBalance("App", app.address);
     await printRealtimeBalance("Bob", bob);
-    console.log(block.timestamp)
     let timeLeft = await app.checkTimeRemaining()
     console.log(timeLeft)
     await web3tx(app.bid, `Account ${carol} bids 20`)(toWad(20), { from: carol })
+    console.log(timeLeft)
     appRealtimeBalance = await printRealtimeBalance("App", app.address);
     await printRealtimeBalance("Carol", carol);
     assert.equal(
