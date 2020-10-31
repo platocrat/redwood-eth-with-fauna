@@ -255,6 +255,21 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       return ( _auction.highBid, _auction.highBidder, _auction.lastBidTime);
   }
 
+  function getHighBidder() public view returns (address highBidder){
+      Auction storage _auction = auctionByGeneration[currentGeneration];
+      return (_auction.highBidder);
+  }
+
+  function getHighBid() public view returns (uint highBid){
+      Auction storage _auction = auctionByGeneration[currentGeneration];
+      return (_auction.highBid);
+  }
+
+  function getLastBidTime() public view returns (uint lastBidTime){
+      Auction storage _auction = auctionByGeneration[currentGeneration];
+      return (_auction.lastBidTime);
+  }
+
   function getAuctionBalance() public view returns (uint balanceOf) {
       return tokenX.balanceOf(address(this));
   }
