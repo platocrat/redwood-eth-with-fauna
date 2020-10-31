@@ -123,7 +123,7 @@ contract('Emanator', (accounts) => {
 
   it('Deploys the contract', async () => {
     assert.equal(await app.getAuctionBalance.call(), 0)
-    await web3tx(app.bid, `Account ${bob} bids 100`)(toWad(10), { from: bob })
+    await web3tx(app.bid, `Account ${bob} bids 10`)(toWad(10), { from: bob })
     assert.equal(
       (await app.getAuctionBalance.call()).toString(),
       toWad(10).toString()
@@ -131,10 +131,20 @@ contract('Emanator', (accounts) => {
   })
 
   it('sets Bob as the high bidder', async () => {
-    await web3tx(app.bid, `Account ${bob} bids 100`)(toWad(10), { from: bob })
-    console.log(`High bidder: ${app.getHighBidder}`)
+    assert.equal(await app.getAuctionBalance.call(), 0)
+    await web3tx(app.bid, `Account ${bob} bids 10`)(toWad(10), { from: bob })
     assert.equal(
       (await app.getHighBidder.call()).toString(), bob.toString())
+  })
+
+  it('allows multiple bids', async () => {
+    assert.equal(await app.getAuctionBalance.call(), 0)
+    await web3tx(app.bid, `Account ${bob} bids 10`)(toWad(10), { from: bob })
+    await web3tx(app.bid, `Account ${carol} bids 20`)(toWad(20), { from: carol })
+    assert.equal(
+      (await app.getAuctionBalance.call()).toString(), toWad(30).toString())
+    assert.equal(
+        (await app.getHighBidder.call()).toString(), carol.toString())  
   })
 
   // OLD from LotterySuperApp
