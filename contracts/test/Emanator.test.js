@@ -131,7 +131,7 @@ contract('Emanator', (accounts) => {
   })
 
   it('sets Bob as the high bidder', async () => {
-    assert.equal(await app.getHighBidder.call(), '0x0000000000000000000000000000000000000000')
+    assert.equal(await app.getHighBidder.call(), ZERO_ADDRESS)
     await web3tx(app.bid, `Account ${bob} bids 10`)(toWad(10), { from: bob })
     assert.equal(
       (await app.getHighBidder.call()).toString(), bob.toString())
@@ -155,13 +155,16 @@ contract('Emanator', (accounts) => {
   })
 
   it('does not allow bids after the auction is over', async () => {
-    assert.equal(await app.getHighBidder.call(), '0x0000000000000000000000000000000000000000')
+    assert.equal(await app.getHighBidder.call(), ZERO_ADDRESS)
     await web3tx(app.bid, `Account ${bob} bids 10`)(toWad(10), { from: bob })
     let timeLeft = await app.checkTimeRemaining()
     console.log(timeLeft)
     time.increase(timeLeft + 1)
     console.log(timeLeft)
-    await expectRevert(app.bid, `Account ${carol} bids 20`)(toWad(20), { from: carol })
+    await web3tx(app.bid, `Account ${carol} bids 20`)(toWad(20), { from: carol })
+      .then(assert.fail).catch(function(error) {
+        assert.include(error.message, 'revert', 'bids submitted after an auction ends should revert')
+      })
     assert.equal(
       (await app.getHighBidder.call()).toString(), bob.toString())
   })
