@@ -16,7 +16,7 @@ contract('Emanator', (accounts) => {
   const WIN_LENGTH = 20 // seconds
 
   accounts = accounts.slice(0, 4)
-  const [admin, bob, carol, dan] = accounts
+  const [creator, bob, carol, dan] = accounts
 
   let sf
   let dai
