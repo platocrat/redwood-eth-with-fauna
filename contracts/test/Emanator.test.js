@@ -140,7 +140,12 @@ contract('Emanator', (accounts) => {
   it('allows multiple bids', async () => {
     assert.equal(await app.getAuctionBalance.call(), 0)
     await web3tx(app.bid, `Account ${bob} bids 10`)(toWad(10), { from: bob })
+    appRealtimeBalance = await printRealtimeBalance("App", app.address);
+    await printRealtimeBalance("Bob", bob);
+    console.log(app.checkTimeRemaining.call())
     await web3tx(app.bid, `Account ${carol} bids 20`)(toWad(20), { from: carol })
+    appRealtimeBalance = await printRealtimeBalance("App", app.address);
+    await printRealtimeBalance("Carol", carol);
     assert.equal(
       (await app.getAuctionBalance.call()).toString(), toWad(30).toString())
     assert.equal(
