@@ -173,7 +173,7 @@ contract('Emanator', (accounts) => {
     let timeLeft = await app.checkTimeRemaining()
     time.increase(timeLeft + 1)
     await web3tx(app.settleAndBeginAuction, `Account ${bob} settles the auction`)({ from: bob })
-    assert.equal(await app.contract.currentGeneration, '2')
+    assert.equal(await app.currentGeneration.call(), '2')
   })
 
 
