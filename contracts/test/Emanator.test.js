@@ -57,9 +57,9 @@ contract('Emanator', (accounts) => {
       WIN_LENGTH
     )
     
-    current = await app.currentGeneration
+    current = web3tx(app.currentGeneration.call())
 
-    auction = await app.auctionByGeneration[current]
+    auction = web3tx(app.auctionByGeneration[current].call())
 
     for (let i = 1; i < accounts.length; ++i) {
       await web3tx(dai.approve, `Account ${i} approves daix`)(
