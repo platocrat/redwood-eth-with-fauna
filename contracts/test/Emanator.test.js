@@ -189,7 +189,6 @@ contract('Emanator', (accounts) => {
     await printRealtimeBalance("Bob", bob);
     await printRealtimeBalance("Carol", carol);
     await web3tx(app.bid, `Account ${carol} bids 10`)(toWad(10), { from: carol })
-    timeLeft = await app.checkTimeRemaining()
     time.increase(timeLeft + 1)
     await web3tx(app.settleAndBeginAuction, `Account ${carol} settles the auction`)({ from: carol })
     // test fails in step above on web3tx "Error: Returned error: VM Exception while processing transaction: revert" unclear why 
