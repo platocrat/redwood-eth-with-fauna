@@ -282,8 +282,4 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
     (,currentUnits,) = ida.getSubscription(tokenX, address(this), INDEX_ID, owner);
     return currentUnits;
   }
-
-  function getTotalShares() public view returns (uint shares) {
-
-  }
  }
