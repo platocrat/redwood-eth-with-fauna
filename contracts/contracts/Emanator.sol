@@ -95,7 +95,7 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
   ISuperfluid private host;
   IConstantFlowAgreementV1 private cfa;
   IInstantDistributionAgreementV1 private ida;
-  ISuperToken private tokenX;
+  ISuperToken public tokenX;
 
   struct Auction {
     uint256 lastBidTime;
@@ -179,7 +179,7 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       // All tokens in first auction go to owner
       if (currentGeneration != 1){
         // Distribute tokens to previous winners
-        uint distributeAmount = rmul(tokenX.balanceOf(address(this)), rdiv(7, 10));
+        uint distributeAmount = rmul(tokenX.balanceOf(address(this)), rdiv(3, 10));
         host.callAgreement(
             ida,
             abi.encodeWithSelector(

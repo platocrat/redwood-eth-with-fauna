@@ -5,26 +5,13 @@ import { getErrorResponse } from './general'
 export const isWeb3EnabledBrowser = () =>
   typeof window !== 'undefined' && typeof window.ethereum !== 'undefined'
 
-export const unlockBrowser = async ({
-  debug,
-  silent,
-  isReturningUser,
-  onNetworkChange,
-}) => {
+export const unlockBrowser = async ({ debug, silent, isReturningUser }) => {
   try {
     if (!isWeb3EnabledBrowser()) {
       return { hasWallet: false, isUnlocked: false }
     }
     window.ethereum.autoRefreshOnNetworkChange = false
 
-    try {
-      window.ethereum.on('chainChanged', onNetworkChange)
-      window.ethereum.on('networkChanged', onNetworkChange)
-    } catch (error) {
-      if (debug)
-        /* eslint-disable-next-line no-console */
-        console.log(getErrorResponse(error, 'unlockBrowser').error.message)
-    }
     const walletAddress = await window.ethereum.request({
       method: 'eth_requestAccounts',
       params: [

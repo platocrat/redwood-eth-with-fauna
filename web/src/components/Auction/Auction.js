@@ -6,6 +6,8 @@ import styled from 'styled-components'
 
 import { QUERY } from 'src/components/AuctionsCell'
 
+import { bid } from 'src/web3/auction'
+
 /* @component */
 export const CenteredContainer = styled.div`
   display: flex;
@@ -51,9 +53,17 @@ const getProgressBar = (status, winLength) => {
   )
 }
 
-const getPromptBox = (status, isHighBidder, highBid, winLength) => {
-  let estTotal = (winLength)
-  let promptText = `Become the high bidder by streaming ${highBid + 1} DAI per second - est. total to win auction ${winLength} DAI`
+const getPromptBox = (
+  status,
+  isHighBidder,
+  highBid,
+  winLength,
+  auctionAddress
+) => {
+  let estTotal = winLength
+  let promptText = `Become the high bidder by streaming ${
+    highBid + 1
+  } DAI per second - est. total to win auction ${winLength} DAI`
   let buttonText = 'Bid'
   if (status === 'ended') {
     promptText = 'After settlement, a new auction will begin immediately'
@@ -64,7 +74,11 @@ const getPromptBox = (status, isHighBidder, highBid, winLength) => {
   return (
     <div>
       {promptText}
-      <button className="rw-button" disabled={isHighBidder}>
+      <button
+        className="rw-button"
+        disabled={isHighBidder}
+        onClick={() => bid({ amount: 10, auctionAddress })}
+      >
         {buttonText}
       </button>
     </div>
@@ -81,7 +95,13 @@ const Auction = ({ auction }) => {
           Auction for <i>{auction.name}</i>
         </h1>
         {getProgressBar(auction.status, auction.winLength)}
-        {getPromptBox(auction.status, false, auction.highBid, auction.winLength)}
+        {getPromptBox(
+          auction.status,
+          false,
+          auction.highBid,
+          auction.winLength,
+          auction.address
+        )}
         <header className="rw-segment-header">
           <h2 className="rw-heading rw-heading-secondary">Details</h2>
         </header>
