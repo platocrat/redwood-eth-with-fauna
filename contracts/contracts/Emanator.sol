@@ -231,13 +231,11 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
 
   function checkTimeRemaining() public view returns (uint timeLeft) {
       Auction storage _auction = auctionByGeneration[currentGeneration];
-      require(_auction.highBid > 0, "The auction has not started yet");
       return (_auction.lastBidTime + winLength - block.timestamp);
   }
 
   function checkEndTime() public view returns (uint) {
       Auction storage _auction = auctionByGeneration[currentGeneration];
-      require(_auction.highBid > 0, "The auction has not started yet");
       uint endTime = _auction.lastBidTime + winLength;
       return endTime;
   }

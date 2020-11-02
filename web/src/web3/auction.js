@@ -1,4 +1,4 @@
-import { parseUnits } from '@ethersproject/units'
+import { parseUnits, formatUnits } from '@ethersproject/units'
 import { Contract } from '@ethersproject/contracts'
 
 import SuperfluidSDK from '@superfluid-finance/ethereum-contracts'
@@ -14,7 +14,7 @@ export const approveAuction = async ({ amount, auctionAddress }) => {
     const { error, walletProvider, walletAddress } = await unlockBrowser({
       debug: true,
     })
-
+    console.log('Checking approval...')
     const auction = new Contract(
       auctionAddress,
       Emanator.abi,
@@ -28,12 +28,9 @@ export const approveAuction = async ({ amount, auctionAddress }) => {
     )
     // Skip approval if unnecessary
     const allowance = await token.allowance(walletAddress, auctionAddress)
-    const amountBn = parseUnits(amount.toString(), 18)
-    if (amountBn.lt(allowance)) {
-      return console.log('No approval needed')
-    }
+    const amountBn = parseUnits('1000000000000', 18)
+    if (allowance.gte(amountBn)) return { noApprovalNeeded: true }
 
-    console.log('Approval needed.')
     const tx = await token.approve(auctionAddress, amountBn)
 
     return { tx }
@@ -46,12 +43,14 @@ export const approveAuction = async ({ amount, auctionAddress }) => {
 
 export const bid = async ({ amount, auctionAddress }) => {
   try {
-    const { error, tx: approvalTx } = await approveAuction({
+    const { error, tx: approvalTx, noApprovalNeeded } = await approveAuction({
       amount,
       auctionAddress,
     })
     if (error) throw error.message
-
+    if (noApprovalNeeded) console.log('No approval needed')
+    if (approvalTx) await approvalTx.wait()
+    console.log('Bidding...')
     const { walletProvider } = await unlockBrowser({
       debug: true,
     })
@@ -62,7 +61,7 @@ export const bid = async ({ amount, auctionAddress }) => {
     )
     const bidTx = await auction.bid(parseUnits(amount.toString(), 18))
 
-    return { bidTx, approvalTx }
+    return { bidTx }
   } catch (err) {
     console.log(err)
     return {
@@ -84,7 +83,6 @@ export const settleAndBeginAuction = async ({ auctionAddress }) => {
     const tx = await auction.settleAndBeginAuction()
     return { tx }
   } catch (err) {
-    console.log(err)
     return {
       ...getErrorResponse(err, 'settleAndBeginAuction'),
     }
@@ -97,17 +95,34 @@ export const getAuctionDetails = async ({ auctionAddress }) => {
       debug: true,
     })
     const auction = new Contract(auctionAddress, Emanator.abi, walletProvider)
-    const currentGeneration = await auction.currentGeneration()
     const {
       highBid,
       highBidder,
       lastBidTime,
     } = await auction.getCurrentAuctionInfo()
-    const endTime = auction.checkEndTime()
+    const endTime = await auction.checkEndTime()
     const auctionBalance = await auction.getAuctionBalance()
-    return { endTime, auctionBalance, highBid, highBidder, lastBidTime }
+    const currentGeneration = await auction.currentGeneration()
+    let lastBidTimeFormatted = lastBidTime.toNumber() * 1000
+    let endTimeFormatted = endTime.toNumber() * 1000
+
+    let status = Date.now() > endTimeFormatted ? 'ended' : 'started'
+    if (lastBidTimeFormatted === 0) {
+      lastBidTimeFormatted = 'No bids yet'
+      endTimeFormatted = lastBidTimeFormatted
+      status = 'started'
+    }
+
+    return {
+      highBidder,
+      highBid: Number(formatUnits(highBid, 18)).toFixed(0),
+      currentGeneration,
+      endTime: endTimeFormatted,
+      lastBidTime: lastBidTimeFormatted,
+      auctionBalance: Number(formatUnits(auctionBalance, 18)).toFixed(0),
+      status,
+    }
   } catch (err) {
-    console.log(err)
     return {
       ...getErrorResponse(err, 'getAuctionDetails'),
     }

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useMutation, useFlash } from '@redwoodjs/web'
 import { Link, routes, navigate } from '@redwoodjs/router'
 import NewAuction from 'src/components/NewAuction'
@@ -6,7 +7,7 @@ import styled from 'styled-components'
 
 import { QUERY } from 'src/components/AuctionsCell'
 
-import { bid } from 'src/web3/auction'
+import { bid, getAuctionDetails, settleAndBeginAuction } from 'src/web3/auction'
 
 /* @component */
 export const CenteredContainer = styled.div`
@@ -60,45 +61,56 @@ const getPromptBox = (
   winLength,
   auctionAddress
 ) => {
+  const bidAmount = Number(highBid) + 5
+  let onClick = () => bid({ amount: bidAmount, auctionAddress })
   let estTotal = winLength
-  let promptText = `Become the high bidder by streaming ${
-    highBid + 1
-  } DAI per second - est. total to win auction ${winLength} DAI`
+  let promptText = `Become the high bidder by streaming ${bidAmount} DAI per second`
   let buttonText = 'Bid'
   if (status === 'ended') {
     promptText = 'After settlement, a new auction will begin immediately'
     buttonText = 'Settle Auction'
+    onClick = () => settleAndBeginAuction({ auctionAddress })
   }
   if (isHighBidder) promptText = 'You are the highest bidder!'
 
   return (
-    <div>
-      {promptText}
-      <button
-        className="rw-button"
-        disabled={isHighBidder}
-        onClick={() => bid({ amount: 10, auctionAddress })}
-      >
+    <CenteredContainer>
+      <p>{promptText}</p>
+      <button className="rw-button" disabled={isHighBidder} onClick={onClick}>
         {buttonText}
       </button>
-    </div>
+    </CenteredContainer>
   )
 }
 
 const Auction = ({ auction }) => {
   const { addMessage } = useFlash()
+  const [auctionDetails, setAuctionDetails] = useState({})
+
+  const loadAuction = async () => {
+    const _auctionDetails = await getAuctionDetails({
+      auctionAddress: auction.address,
+    })
+    console.log(_auctionDetails)
+    setAuctionDetails({ ..._auctionDetails })
+  }
+
+  useEffect(() => {
+    loadAuction()
+  }, [])
 
   return (
     <CenteredContainer>
       <div className="rw-segment">
         <h1>
-          Auction for <i>{auction.name}</i>
+          <b>{auction.name}</b>
         </h1>
-        {getProgressBar(auction.status, auction.winLength)}
+        <h3>Generation: {auctionDetails?.currentGeneration}</h3>
+        {getProgressBar(auctionDetails?.status, auction.winLength)}
         {getPromptBox(
-          auction.status,
+          auctionDetails?.status,
           false,
-          auction.highBid,
+          auctionDetails?.highBid,
           auction.winLength,
           auction.address
         )}
@@ -107,6 +119,38 @@ const Auction = ({ auction }) => {
         </header>
         <table className="rw-table">
           <tbody>
+            <tr>
+              <th>Curent Auction Revenue</th>
+              <td>{auctionDetails?.auctionBalance}</td>
+            </tr>
+            <tr>
+              <th>Status</th>
+              <td>{auctionDetails?.status}</td>
+            </tr>
+            <tr>
+              <th>High bid</th>
+              <td>{auctionDetails?.highBid}</td>
+            </tr>
+            <tr>
+              <th>High bidder</th>
+              <td>{auctionDetails?.highBidder}</td>
+            </tr>
+            <tr>
+              <th>Last bid time</th>
+              <td>
+                {typeof auctionDetails?.lastBidTime === 'string'
+                  ? auctionDetails?.lastBidTime
+                  : timeTag(auctionDetails?.lastBidTime)}
+              </td>
+            </tr>
+            <tr>
+              <th>Auction close time</th>
+              <td>
+                {typeof auctionDetails?.endTime === 'string'
+                  ? auctionDetails?.endTime
+                  : timeTag(auctionDetails?.endTime)}
+              </td>
+            </tr>
             <tr>
               <th>Description</th>
               <td>{auction.description}</td>
@@ -120,24 +164,8 @@ const Auction = ({ auction }) => {
               <td>{auction.owner}</td>
             </tr>
             <tr>
-              <th>Created at</th>
+              <th>Launch date</th>
               <td>{timeTag(auction.createdAt)}</td>
-            </tr>
-            <tr>
-              <th>Status</th>
-              <td>{auction.status}</td>
-            </tr>
-            <tr>
-              <th>High bid</th>
-              <td>{auction.highBid}</td>
-            </tr>
-            <tr>
-              <th>Generation</th>
-              <td>{auction.generation}</td>
-            </tr>
-            <tr>
-              <th>Revenue</th>
-              <td>{auction.revenue}</td>
             </tr>
           </tbody>
         </table>
