@@ -15,6 +15,7 @@
   "dependencies": {
     "@ethersproject/contracts": "^5.0.5",
     "@ethersproject/providers": "^5.0.6",
+    "@ethersproject/units": "^5.0.6",
     "@redwoodjs/forms": "^0.20.0",
     "@redwoodjs/router": "^0.20.0",
     "@redwoodjs/web": "^0.20.0",
