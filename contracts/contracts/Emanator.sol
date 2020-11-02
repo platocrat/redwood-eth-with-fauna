@@ -158,18 +158,6 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
 
       tokenX.transferFrom(msg.sender, address(this), bidAmount);
 
-      // Subscribe the bidder to the IDA for tokenX
-      // host.callAgreement(
-      //   ida,
-      //   abi.encodeWithSelector(
-      //       ida.approveSubscription.selector,
-      //       tokenX,
-      //       msg.sender,
-      //       INDEX_ID,
-      //       new bytes(0)
-      //   )
-      // );
-
       _auction.highBid = bidAmount;
       _auction.highBidder = msg.sender;
       _auction.lastBidTime = block.timestamp;
@@ -228,6 +216,19 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       emit newAuction(currentGeneration);
   }
 
+  function subscribeToIda() public {
+    host.callAgreement(
+      ida,
+      abi.encodeWithSelector(
+        ida.approveSubscription.selector,
+        tokenX,
+        address(this),
+        INDEX_ID,
+        new bytes(0)
+      )
+    );
+  }
+
   function checkTimeRemaining() public view returns (uint timeLeft) {
       Auction storage _auction = auctionByGeneration[currentGeneration];
       require(_auction.highBid > 0, "The auction has not started yet");
@@ -268,5 +269,21 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
 
   function getAuctionBalance() public view returns (uint balanceOf) {
       return tokenX.balanceOf(address(this));
+  }
+
+  function getShares() public view returns (uint128 shares) {
+    uint128 currentUnits;
+    (,currentUnits,) = ida.getSubscription(tokenX, address(this), INDEX_ID, msg.sender);
+    return currentUnits;
+  }
+
+  function getSharesOf(address owner) public view returns (uint128 shares) {
+    uint128 currentUnits;
+    (,currentUnits,) = ida.getSubscription(tokenX, address(this), INDEX_ID, owner);
+    return currentUnits;
+  }
+
+  function getTotalShares() public view returns (uint shares) {
+
   }
  }
