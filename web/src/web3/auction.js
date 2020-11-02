@@ -42,8 +42,8 @@ export const approve = async ({ amount, auctionAddress }) => {
 
 export const bid = async ({ amount, auctionAddress }) => {
   try {
-    // const { error, tx: approvalTx } = await approve({ amount, auctionAddress })
-    // if (error) throw error
+    const { error, tx: approvalTx } = await approve({ amount, auctionAddress })
+    if (error) throw error
 
     const { walletProvider } = await unlockBrowser({
       debug: true,
