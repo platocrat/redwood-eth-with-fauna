@@ -61,10 +61,10 @@ const getPromptBox = (
   winLength,
   auctionAddress
 ) => {
-  const bidAmount = Number(highBid) + 5
+  const bidAmount = highBid ? Number(highBid) + 5 : '0'
   let onClick = () => bid({ amount: bidAmount, auctionAddress })
   let estTotal = winLength
-  let promptText = `Become the high bidder by streaming ${bidAmount} DAI per second`
+  let promptText = `Become the high bidder - Bid ${bidAmount} DAI`
   let buttonText = 'Bid'
   if (status === 'ended') {
     promptText = 'After settlement, a new auction will begin immediately'
@@ -95,9 +95,16 @@ const Auction = ({ auction }) => {
     setAuctionDetails({ ..._auctionDetails })
   }
 
+  console.log(auctionDetails?.lastBidTime)
+  let status = 'loading'
+
   useEffect(() => {
     loadAuction()
   }, [])
+
+  useEffect(() => {
+    status = Date.now() < auctionDetails?.lastBidTime ? 'started' : 'ended'
+  }, [auctionDetails, Date.now()])
 
   return (
     <CenteredContainer>
@@ -106,9 +113,9 @@ const Auction = ({ auction }) => {
           <b>{auction.name}</b>
         </h1>
         <h3>Generation: {auctionDetails?.currentGeneration}</h3>
-        {getProgressBar(auctionDetails?.status, auction.winLength)}
+        {getProgressBar(status, auction.winLength)}
         {getPromptBox(
-          auctionDetails?.status,
+          status,
           false,
           auctionDetails?.highBid,
           auction.winLength,
@@ -122,10 +129,6 @@ const Auction = ({ auction }) => {
             <tr>
               <th>Curent Auction Revenue</th>
               <td>{auctionDetails?.auctionBalance}</td>
-            </tr>
-            <tr>
-              <th>Status</th>
-              <td>{auctionDetails?.status}</td>
             </tr>
             <tr>
               <th>High bid</th>

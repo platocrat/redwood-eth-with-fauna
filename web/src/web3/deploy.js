@@ -40,9 +40,9 @@ export const deployAuction = async ({ winLength }) => {
       daix.address,
       winLength
     )
-    const receipt = await contract.deployTransaction.wait()
-    // console.log(receipt)
-    if (receipt.status === 0) return { error: receipt }
+    // const receipt = await contract.deployTransaction.wait()
+    // // console.log(receipt)
+    // if (receipt.status === 0) return { error: receipt }
 
     const { address } = contract
     console.log('App deployed at', address)

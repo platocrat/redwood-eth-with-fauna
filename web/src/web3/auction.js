@@ -106,11 +106,9 @@ export const getAuctionDetails = async ({ auctionAddress }) => {
     let lastBidTimeFormatted = lastBidTime.toNumber() * 1000
     let endTimeFormatted = endTime.toNumber() * 1000
 
-    let status = Date.now() > endTimeFormatted ? 'ended' : 'started'
     if (lastBidTimeFormatted === 0) {
       lastBidTimeFormatted = 'No bids yet'
       endTimeFormatted = lastBidTimeFormatted
-      status = 'started'
     }
 
     return {
@@ -120,7 +118,6 @@ export const getAuctionDetails = async ({ auctionAddress }) => {
       endTime: endTimeFormatted,
       lastBidTime: lastBidTimeFormatted,
       auctionBalance: Number(formatUnits(auctionBalance, 18)).toFixed(0),
-      status,
     }
   } catch (err) {
     return {
