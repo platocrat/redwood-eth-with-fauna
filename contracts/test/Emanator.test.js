@@ -176,7 +176,7 @@ contract('Emanator', (accounts) => {
     assert.equal(await app.currentGeneration.call(), '2')
   })
 
-  it('transfers 70% of the second auctin revenue to the creator and 30% to the winner of auction 1', async () => {
+  it('transfers 70% of the second auction revenue to the creator and 30% to the winner of auction 1', async () => {
     assert.equal(await app.getHighBidder.call(), ZERO_ADDRESS)
     await printRealtimeBalance("Creator", creator);
     await printRealtimeBalance("Bob", bob);
@@ -184,7 +184,9 @@ contract('Emanator', (accounts) => {
     await web3tx(app.bid, `Account ${bob} bids 1`)(toWad(1), { from: bob })
     let timeLeft = await app.checkTimeRemaining()
     time.increase(timeLeft + 1)
+    console.log(await app.currentGeneration.call())
     await web3tx(app.settleAndBeginAuction, `Account ${bob} settles the auction`)({ from: bob })
+    console.log(await app.currentGeneration.call())
     await printRealtimeBalance("Creator", creator);
     await printRealtimeBalance("Bob", bob);
     await printRealtimeBalance("Carol", carol);
@@ -195,6 +197,7 @@ contract('Emanator', (accounts) => {
     await printRealtimeBalance("Creator", creator);
     await printRealtimeBalance("Bob", bob);
     await printRealtimeBalance("Carol", carol);
+    console.log(await app.currentGeneration.call())
     assert.equal(await app.currentGeneration.call(), '3')
     // TODO : write logic to check the expected distribution split
   })
