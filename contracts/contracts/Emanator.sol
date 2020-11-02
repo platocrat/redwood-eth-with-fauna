@@ -85,12 +85,12 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
   uint32 public constant INDEX_ID = 0;
   // winLength is the number of seconds that a user must be the highBidder to win the auction;
   uint32 public winLength;
-  uint32 public currentGeneration;
+  uint32 public currentGeneration = 1;
 
-  uint[] public ownerRevShares = [1*10**18];
+  uint public shareAmount = 1*10**18;
 
   address payable public creator;
-  address[] public revShareRecipients;
+  address[] public winners;
 
   ISuperfluid private host;
   IConstantFlowAgreementV1 private cfa;
@@ -121,7 +121,6 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       tokenX = _tokenX;
       winLength = _winLength;
       creator = msg.sender;
-      revShareRecipients.push(msg.sender);
       setApprovalForAll(address(this), true);
 
       host.callAgreement(
@@ -134,27 +133,13 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
           )
       );
 
-      _firstAuction();
+      ERC721._safeMint(msg.sender, 0);
+      // Start the first auction
+      emit newAuction(0);
   }
 
   function onERC721Received(address, address, uint256, bytes calldata) external override returns (bytes4) {
       return bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
-  }
-
-  function _firstAuction() private {
-    ERC721._safeMint(msg.sender, 0);
-
-    // Create the first auction
-    currentGeneration = 1;
-
-    // creating the first auction creates an income distribution agreement index
-    // host.callAgreement(ida.address, ida.contract.methods.createIndex
-    //    (tokenX.address, 1, "0x").encodeABI(), { from: address(this) })
-    // // creating the first auction adds the creator to the income distribution agreement subscribers
-    // host.callAgreement(ida.address, ida.contract.methods.updateSubscription
-    //    (tokenX.address, 1, msg.sender, ownerRevShares[0], "0x").encodeABI(), { from: address(this) })
-
-    emit newAuction(currentGeneration);
   }
 
   // Submit a higher bid and increase the length of the auction
@@ -174,16 +159,16 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       tokenX.transferFrom(msg.sender, address(this), bidAmount);
 
       // Subscribe the bidder to the IDA for tokenX
-      host.callAgreement(
-        ida,
-        abi.encodeWithSelector(
-            ida.approveSubscription.selector,
-            tokenX,
-            msg.sender,
-            INDEX_ID,
-            new bytes(0)
-        )
-      )
+      // host.callAgreement(
+      //   ida,
+      //   abi.encodeWithSelector(
+      //       ida.approveSubscription.selector,
+      //       tokenX,
+      //       msg.sender,
+      //       INDEX_ID,
+      //       new bytes(0)
+      //   )
+      // );
 
       _auction.highBid = bidAmount;
       _auction.highBidder = msg.sender;
@@ -203,24 +188,24 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       // Mint the NFT
       ERC721._safeMint(_auction.highBidder, currentGeneration);
 
-      // Distribute tokens
-      uint distributeAmount = rmul(tokenX.balanceOf(address(this)), rdiv(7, 10));
-      host.callAgreement(
-          ida,
-          abi.encodeWithSelector(
-              ida.distribute.selector,
-              tokenX,
-              INDEX_ID,
-              distributeAmount,
-              new bytes(0)
-          )
-      );
-      tokenX.transfer(creator, tokenX.balanceOf(address(this)));
+      // All tokens in first auction go to owner
+      if (currentGeneration != 1){
+        // Distribute tokens to previous winners
+        uint distributeAmount = rmul(tokenX.balanceOf(address(this)), rdiv(7, 10));
+        host.callAgreement(
+            ida,
+            abi.encodeWithSelector(
+                ida.distribute.selector,
+                tokenX,
+                INDEX_ID,
+                distributeAmount,
+                new bytes(0)
+            )
+        );
+      }
 
-      // Update the shares
-      uint newShares = rmul(ownerRevShares[ownerRevShares.length], rdiv(9, 10));
-      ownerRevShares.push(newShares);
-      revShareRecipients.push(_auction.highBidder);
+      // Update revenue shares
+      winners.push(_auction.highBidder);
       host.callAgreement(
         ida,
         abi.encodeWithSelector(
@@ -228,13 +213,17 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
           tokenX,
           INDEX_ID,
           _auction.highBidder,
-          newShares,
+          shareAmount,
           new bytes(0)
         )
       );
-      emit auctionWon(currentGeneration, _auction.highBidder);
+      shareAmount = rmul(shareAmount, rdiv(9, 10));
+
+      // Remaining balance to owner
+      tokenX.transfer(creator, tokenX.balanceOf(address(this)));
 
       // Start a new auction
+      emit auctionWon(currentGeneration, _auction.highBidder);
       currentGeneration++;
       emit newAuction(currentGeneration);
   }
