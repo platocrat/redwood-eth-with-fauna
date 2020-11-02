@@ -166,20 +166,24 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       } else {
           endTime = block.timestamp * 2;
       }
+
       require(block.timestamp < endTime, "The current auction has ended. Please start a new one.");
       // TODO: Add a minimum bid increase threshold
       require(bidAmount > _auction.highBid, "you must bid more than the current high bid");
 
       tokenX.transferFrom(msg.sender, address(this), bidAmount);
-      // highBidder creates new SuperFluid constant flow agreement
-      // host.callAgreement(cfa.address, cfa.contract.methods.createFlow
-         // (tokenX.address, address(this), msg.value, "0x").encodeABI(), { from: msg.sender })
 
-       // new highBidder should stop previous highBidder's SuperFluid constant flow agreement
-      // if (_auction.generation>0){
-            // host.callAgreement(cfa.address, cfa.contract.methods.deleteFlow
-                // (tokenX.address, _auction.prevHighBidder, address(this), _auction.highBid, "0x").encodeABI(), { from: address(this) }
-      // }
+      // Subscribe the bidder to the IDA for tokenX
+      host.callAgreement(
+        ida,
+        abi.encodeWithSelector(
+            ida.approveSubscription.selector,
+            tokenX,
+            msg.sender,
+            INDEX_ID,
+            new bytes(0)
+        )
+      )
 
       _auction.highBid = bidAmount;
       _auction.highBidder = msg.sender;
@@ -188,8 +192,7 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       return (_auction.highBid, _auction.lastBidTime, _auction.highBidder);
   }
 
-  // End the auction and claim prize
-  // TODO: allow anyone to end the auction
+  // End the auction and claim prized
   function settleAndBeginAuction() public {
       Auction storage _auction = auctionByGeneration[currentGeneration];
 
