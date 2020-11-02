@@ -1,74 +1,23 @@
 pragma solidity ^0.7.0;
 
 contract DSMath {
-    function add(uint x, uint y) internal pure returns (uint z) {
+    function add(uint128 x, uint128 y) internal pure returns (uint128 z) {
         require((z = x + y) >= x, "ds-math-add-overflow");
     }
-    function sub(uint x, uint y) internal pure returns (uint z) {
-        require((z = x - y) <= x, "ds-math-sub-underflow");
-    }
-    function mul(uint x, uint y) internal pure returns (uint z) {
+
+    function mul(uint128 x, uint128 y) internal pure returns (uint128 z) {
         require(y == 0 || (z = x * y) / y == x, "ds-math-mul-overflow");
     }
 
-    function min(uint x, uint y) internal pure returns (uint z) {
-        return x <= y ? x : y;
-    }
-    function max(uint x, uint y) internal pure returns (uint z) {
-        return x >= y ? x : y;
-    }
-    function imin(int x, int y) internal pure returns (int z) {
-        return x <= y ? x : y;
-    }
-    function imax(int x, int y) internal pure returns (int z) {
-        return x >= y ? x : y;
-    }
-
-    uint constant WAD = 10 ** 18;
-    uint constant RAY = 10 ** 27;
+    uint128 constant WAD = 10 ** 18;
 
     //rounds to zero if x*y < WAD / 2
-    function wmul(uint x, uint y) internal pure returns (uint z) {
+    function wmul(uint128 x, uint128 y) internal pure returns (uint128 z) {
         z = add(mul(x, y), WAD / 2) / WAD;
     }
     //rounds to zero if x*y < WAD / 2
-    function rmul(uint x, uint y) internal pure returns (uint z) {
-        z = add(mul(x, y), RAY / 2) / RAY;
-    }
-    //rounds to zero if x*y < WAD / 2
-    function wdiv(uint x, uint y) internal pure returns (uint z) {
+    function wdiv(uint128 x, uint128 y) internal pure returns (uint128 z) {
         z = add(mul(x, WAD), y / 2) / y;
-    }
-    //rounds to zero if x*y < RAY / 2
-    function rdiv(uint x, uint y) internal pure returns (uint z) {
-        z = add(mul(x, RAY), y / 2) / y;
-    }
-
-    // This famous algorithm is called "exponentiation by squaring"
-    // and calculates x^n with x as fixed-point and n as regular unsigned.
-    //
-    // It's O(log n), instead of O(n) for naive repeated multiplication.
-    //
-    // These facts are why it works:
-    //
-    //  If n is even, then x^n = (x^2)^(n/2).
-    //  If n is odd,  then x^n = x * x^(n-1),
-    //   and applying the equation for even x gives
-    //    x^n = x * (x^2)^((n-1) / 2).
-    //
-    //  Also, EVM division is flooring and
-    //    floor[(n-1) / 2] = floor[n / 2].
-    //
-    function rpow(uint x, uint n) internal pure returns (uint z) {
-        z = n % 2 != 0 ? x : RAY;
-
-        for (n /= 2; n != 0; n /= 2) {
-            x = rmul(x, x);
-
-            if (n % 2 != 0) {
-                z = rmul(z, x);
-            }
-        }
     }
 }
 
@@ -82,34 +31,34 @@ import "@superfluid-finance/ethereum-contracts/contracts/interfaces/agreements/I
 contract Emanator is ERC721, IERC721Receiver, DSMath {
   using SafeMath for uint256;
 
-  address payable public creator;
+  uint32 public constant INDEX_ID = 0;
   // winLength is the number of seconds that a user must be the highBidder to win the auction;
-  uint256 public winLength;
+  uint32 public winLength;
+  uint32 public currentGeneration;
 
-  struct Auction {
-      uint256 lastBidTime;
-      uint256 highBid;
-      address owner;
-      address highBidder;
-  }
+  uint128[] public ownerRevShares = [1*10**18];
 
+  address payable public creator;
   address[] public revShareRecipients;
-  uint256[] public ownerRevShares;
-  uint256 public totalShares;
-
-  uint256 public currentGeneration;
 
   ISuperfluid private host;
   IConstantFlowAgreementV1 private cfa;
   IInstantDistributionAgreementV1 private ida;
   ISuperToken private tokenX;
 
+  struct Auction {
+    uint256 lastBidTime;
+    uint256 highBid;
+    address owner;
+    address highBidder;
+  }
+
   mapping (uint256 => Auction) public auctionByGeneration;
 
   event newAuction(uint256 id);
   event auctionWon(uint256 id, address indexed winner);
 
-  constructor(ISuperfluid _host, IConstantFlowAgreementV1 _cfa, IInstantDistributionAgreementV1 _ida, ISuperToken _tokenX, uint256 _winLength) public ERC721 ("emaNaFTe", "emNFT") {
+  constructor(ISuperfluid _host, IConstantFlowAgreementV1 _cfa, IInstantDistributionAgreementV1 _ida, ISuperToken _tokenX, uint32 _winLength) ERC721 ("Emanator", "ENFT") {
       // assert(address(_host) != address(0));
       // assert(address(_cfa) != address(0));
       // assert(address(_ida) != address(0));
@@ -121,11 +70,20 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       tokenX = _tokenX;
       winLength = _winLength;
       creator = msg.sender;
-      ownerRevShares.push(1*10**18);
-      totalShares = 1*10**18;
+      revShareRecipients.push(msg.sender);
       setApprovalForAll(address(this), true);
-      _firstAuction();
 
+      host.callAgreement(
+          ida,
+          abi.encodeWithSelector(
+              ida.createIndex.selector,
+              tokenX,
+              INDEX_ID,
+              new bytes(0)
+          )
+      );
+
+      _firstAuction();
   }
 
   function onERC721Received(address, address, uint256, bytes calldata) external override returns (bytes4) {
@@ -188,51 +146,42 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       uint256 endTime = _auction.lastBidTime + winLength;
       require(block.timestamp > endTime, "The auction is not over yet");
 
-      // Auction winner mints the new childNFT
+      // Mint the NFT
       ERC721._safeMint(_auction.highBidder, currentGeneration);
 
-      // claiming NFT deletes the winner's SuperFluid constant flow agreement
-      // host.callAgreement(cfa.address, cfa.contract.methods.deleteFlow
-      // (tokenX.address, msg.sender, address(this), msg.value, "0x").encodeABI(), { from: msg.sender })
+      // Distribute tokens
+      uint128 distributeAmount = wmul(tokenX.balanceOf(address(this)), wdiv(7, 10));
+      host.callAgreement(
+          ida,
+          abi.encodeWithSelector(
+              ida.distribute.selector,
+              tokenX,
+              INDEX_ID,
+              uint128(distributeAmount),
+              new bytes(0)
+          )
+      );
+      tokenX.transfer(creator, tokenX.balanceOf(address(this)));
 
-      // Upon claiming, the contract distributes the auction funds to the prior owners according to their proportion of totalShares
-      uint amt = tokenX.balanceOf(address(this));
-      uint creatorShare = rmul(amt, rdiv(7, 10));
-
-      if(currentGeneration <= 1) {
-          tokenX.transferFrom(address(this), creator, amt);
-          revShareRecipients.push(_auction.highBidder);
-      } else {
-        creator.transfer(creatorShare);
-        uint remainder = address(this).balance;
-        uint perShare = rdiv(remainder, totalShares);
-        for (uint i = 0; i < revShareRecipients.length; i++) {
-          uint distro = rmul(ownerRevShares[i], perShare);
-          tokenX.transferFrom(address(this), revShareRecipients[i], distro);
-        }
-        //Update the revenue shares array
-        revShareRecipients.push(_auction.highBidder);
-        uint position = ownerRevShares.length - 1;
-        uint newShares = rmul(ownerRevShares[position], rdiv(9, 10));
-        totalShares = totalShares + newShares;
-        ownerRevShares.push(newShares);
-      }
-
-      // claiming the NFT distributes the auction's accumulated funds to the revenue share owners
-      // host.callAgreement(ida.address, ida.contract.methods.updateIndex
-      // (tokenX.address, 1, balanceOf(address(this)), "0x").encodeABI(), { from: address(this) })
-
-      // claiming the NFT adds the new owner to the income distribution agreement subscribers
-      // host.callAgreement(ida.address, ida.contract.methods.updateSubscription
-           // (tokenX.address, 1, msg.sender, newShares, "0x").encodeABI(), { from: address(this) })
-
-      // claiming the NFT approves the subscription
-      // host.callAgreement(ida.address, ida.contract.methods.approveSubscription
-           // (tokenX.address, address(this), 1, "0x").encodeABI(), { from: msg.sender })
-
-
-      currentGeneration++;
+      // Update the shares
+      uint128 newShares = wmul(ownerRevShares[ownerRevShares.length], wdiv(9, 10));
+      ownerRevShares.push(newShares);
+      revShareRecipients.push(_auction.highBidder);
+      host.callAgreement(
+        ida,
+        abi.encodeWithSelector(
+          ida.updateSubscription.selector,
+          tokenX,
+          INDEX_ID,
+          _auction.highBidder,
+          uint128(newShares),
+          new bytes(0)
+        )
+      );
       emit auctionWon(currentGeneration, _auction.highBidder);
+
+      // Start a new auction
+      currentGeneration++;
       emit newAuction(currentGeneration);
   }
 

@@ -64,11 +64,10 @@ contract('Emanator', (accounts) => {
       await web3tx(daix.upgrade, `Account ${i} upgrades dai`)(toWad(100), {
         from: accounts[i],
       })
-      await web3tx(daix.approve, `Account ${i} approves Emanator contract`)(
-        app.address,
-        toWad(100000000), 
-        { from: accounts[i] }
-      )
+      await web3tx(
+        daix.approve,
+        `Account ${i} approves Emanator contract`
+      )(app.address, toWad(100000000), { from: accounts[i] })
     }
   })
 
@@ -76,7 +75,7 @@ contract('Emanator', (accounts) => {
     const b = await daix.realtimeBalanceOfNow.call(account)
     console.log(
       `${label} realtime balance`,
-      b.availableBalance.toString(),
+      b.availableBalance.toString()
       // b.deposit.toString(),
       // b.owedDeposit.toString()
     )
@@ -121,87 +120,94 @@ contract('Emanator', (accounts) => {
   //   ]
   // }
 
-  it('Deploys the contract', async () => {
-    assert.equal(await app.getAuctionBalance.call(), 0)
-    await web3tx(app.bid, `Account ${bob} bids 10`)(toWad(10), { from: bob })
-    assert.equal(
-      (await app.getAuctionBalance.call()).toString(),
-      toWad(10).toString()
-    )
-  })
-
-  it('sets Bob as the high bidder', async () => {
-    assert.equal(await app.getHighBidder.call(), ZERO_ADDRESS)
-    await web3tx(app.bid, `Account ${bob} bids 10`)(toWad(10), { from: bob })
-    assert.equal(
-      (await app.getHighBidder.call()).toString(), bob.toString())
-  })
-
-  it('allows multiple bids', async () => {
-    assert.equal(await app.getAuctionBalance.call(), 0)
-    await web3tx(app.bid, `Account ${bob} bids 10`)(toWad(10), { from: bob })
-    appRealtimeBalance = await printRealtimeBalance("App", app.address);
-    await printRealtimeBalance("Bob", bob);
-    let timeLeft = await app.checkTimeRemaining()
-    console.log(timeLeft)
-    await web3tx(app.bid, `Account ${carol} bids 20`)(toWad(20), { from: carol })
-    console.log(timeLeft)
-    appRealtimeBalance = await printRealtimeBalance("App", app.address);
-    await printRealtimeBalance("Carol", carol);
-    assert.equal(
-      (await app.getAuctionBalance.call()).toString(), toWad(30).toString())
-    assert.equal(
-        (await app.getHighBidder.call()).toString(), carol.toString())  
-  })
-
-  it('does not allow bids after the auction is over', async () => {
-    assert.equal(await app.getHighBidder.call(), ZERO_ADDRESS)
-    await web3tx(app.bid, `Account ${bob} bids 10`)(toWad(10), { from: bob })
-    let timeLeft = await app.checkTimeRemaining()
-    time.increase(timeLeft + 1)
-    await web3tx(app.bid, `Account ${carol} bids 20`)(toWad(20), { from: carol })
-      .then(assert.fail).catch(function(error) {
-        assert.include(error.message, 'revert', 'bids submitted after an auction ends should revert')
-      })
-    assert.equal(
-      (await app.getHighBidder.call()).toString(), bob.toString())
-  })
-
-  it('allows settling an auction and starting a new auction', async () => {
-    assert.equal(await app.getHighBidder.call(), ZERO_ADDRESS)
-    await web3tx(app.bid, `Account ${bob} bids 10`)(toWad(10), { from: bob })
-    let timeLeft = await app.checkTimeRemaining()
-    time.increase(timeLeft + 1)
-    await web3tx(app.settleAndBeginAuction, `Account ${bob} settles the auction`)({ from: bob })
-    assert.equal(await app.currentGeneration.call(), '2')
-  })
+  // it('Deploys the contract', async () => {
+  //   assert.equal(await app.getAuctionBalance.call(), 0)
+  //   await web3tx(app.bid, `Account ${bob} bids 10`)(toWad(10), { from: bob })
+  //   assert.equal(
+  //     (await app.getAuctionBalance.call()).toString(),
+  //     toWad(10).toString()
+  //   )
+  // })
+  //
+  // it('sets Bob as the high bidder', async () => {
+  //   assert.equal(await app.getHighBidder.call(), ZERO_ADDRESS)
+  //   await web3tx(app.bid, `Account ${bob} bids 10`)(toWad(10), { from: bob })
+  //   assert.equal(
+  //     (await app.getHighBidder.call()).toString(), bob.toString())
+  // })
+  //
+  // it('allows multiple bids', async () => {
+  //   assert.equal(await app.getAuctionBalance.call(), 0)
+  //   await web3tx(app.bid, `Account ${bob} bids 10`)(toWad(10), { from: bob })
+  //   appRealtimeBalance = await printRealtimeBalance("App", app.address);
+  //   await printRealtimeBalance("Bob", bob);
+  //   let timeLeft = await app.checkTimeRemaining()
+  //   console.log(timeLeft)
+  //   await web3tx(app.bid, `Account ${carol} bids 20`)(toWad(20), { from: carol })
+  //   console.log(timeLeft)
+  //   appRealtimeBalance = await printRealtimeBalance("App", app.address);
+  //   await printRealtimeBalance("Carol", carol);
+  //   assert.equal(
+  //     (await app.getAuctionBalance.call()).toString(), toWad(30).toString())
+  //   assert.equal(
+  //       (await app.getHighBidder.call()).toString(), carol.toString())
+  // })
+  //
+  // it('does not allow bids after the auction is over', async () => {
+  //   assert.equal(await app.getHighBidder.call(), ZERO_ADDRESS)
+  //   await web3tx(app.bid, `Account ${bob} bids 10`)(toWad(10), { from: bob })
+  //   let timeLeft = await app.checkTimeRemaining()
+  //   time.increase(timeLeft + 1)
+  //   await web3tx(app.bid, `Account ${carol} bids 20`)(toWad(20), { from: carol })
+  //     .then(assert.fail).catch(function(error) {
+  //       assert.include(error.message, 'revert', 'bids submitted after an auction ends should revert')
+  //     })
+  //   assert.equal(
+  //     (await app.getHighBidder.call()).toString(), bob.toString())
+  // })
+  //
+  // it('allows settling an auction and starting a new auction', async () => {
+  //   assert.equal(await app.getHighBidder.call(), ZERO_ADDRESS)
+  //   await web3tx(app.bid, `Account ${bob} bids 10`)(toWad(10), { from: bob })
+  //   let timeLeft = await app.checkTimeRemaining()
+  //   time.increase(timeLeft + 1)
+  //   await web3tx(app.settleAndBeginAuction, `Account ${bob} settles the auction`)({ from: bob })
+  //   assert.equal(await app.currentGeneration.call(), '2')
+  // })
 
   it('transfers 70% of the second auction revenue to the creator and 30% to the winner of auction 1', async () => {
     assert.equal(await app.getHighBidder.call(), ZERO_ADDRESS)
-    await printRealtimeBalance("Creator", creator);
-    await printRealtimeBalance("Bob", bob);
-    await printRealtimeBalance("Carol", carol);
+    await printRealtimeBalance('Creator', creator)
+    await printRealtimeBalance('Bob', bob)
+    await printRealtimeBalance('Carol', carol)
     await web3tx(app.bid, `Account ${bob} bids 1`)(toWad(1), { from: bob })
     let timeLeft = await app.checkTimeRemaining()
     time.increase(timeLeft + 1)
     console.log(await app.currentGeneration.call())
-    await web3tx(app.settleAndBeginAuction, `Account ${bob} settles the auction`)({ from: bob })
+    await web3tx(
+      app.settleAndBeginAuction,
+      `Account ${bob} settles the auction`
+    )({ from: bob })
     console.log(await app.currentGeneration.call())
-    await printRealtimeBalance("Creator", creator);
-    await printRealtimeBalance("Bob", bob);
-    await printRealtimeBalance("Carol", carol);
-    await web3tx(app.bid, `Account ${carol} bids 10`)(toWad(10), { from: carol })
+    await printRealtimeBalance('Creator', creator)
+    await printRealtimeBalance('Bob', bob)
+    await printRealtimeBalance('Carol', carol)
+    await web3tx(app.bid, `Account ${carol} bids 10`)(toWad(10), {
+      from: carol,
+    })
     time.increase(timeLeft + 1)
-    await web3tx(app.settleAndBeginAuction, `Account ${carol} settles the auction`)({ from: carol })
-    // test fails in step above on web3tx "Error: Returned error: VM Exception while processing transaction: revert" unclear why 
-    await printRealtimeBalance("Creator", creator);
-    await printRealtimeBalance("Bob", bob);
-    await printRealtimeBalance("Carol", carol);
+    await web3tx(
+      app.settleAndBeginAuction,
+      `Account ${carol} settles the auction`
+    )({ from: carol })
+    // test fails in step above on web3tx "Error: Returned error: VM Exception while processing transaction: revert" unclear why
+    await printRealtimeBalance('Creator', creator)
+    await printRealtimeBalance('Bob', bob)
+    await printRealtimeBalance('Carol', carol)
     console.log(await app.currentGeneration.call())
     assert.equal(await app.currentGeneration.call(), '3')
     // TODO : write logic to check the expected distribution split
   })
-
 
   // OLD from LotterySuperApp
   // it("Lonely game case", async () => {
