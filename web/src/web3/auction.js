@@ -9,7 +9,7 @@ import ERC20 from '@superfluid-finance/ethereum-contracts/build/contracts/ERC20.
 import { getErrorResponse } from './general'
 import { unlockBrowser } from './connect'
 
-export const approve = async ({ amount, auctionAddress }) => {
+export const approveAuction = async ({ amount, auctionAddress }) => {
   try {
     const { error, walletProvider, walletAddress } = await unlockBrowser({
       debug: true,
@@ -46,7 +46,10 @@ export const approve = async ({ amount, auctionAddress }) => {
 
 export const bid = async ({ amount, auctionAddress }) => {
   try {
-    const { error, tx: approvalTx } = await approve({ amount, auctionAddress })
+    const { error, tx: approvalTx } = await approveAuction({
+      amount,
+      auctionAddress,
+    })
     if (error) throw error.message
 
     const { walletProvider } = await unlockBrowser({
@@ -57,13 +60,56 @@ export const bid = async ({ amount, auctionAddress }) => {
       Emanator.abi,
       walletProvider.getSigner()
     )
-    const bidTx = await contract.bid(parseUnits(amount.toString(), 18))
+    const bidTx = await auction.bid(parseUnits(amount.toString(), 18))
 
     return { bidTx, approvalTx }
   } catch (err) {
     console.log(err)
     return {
       ...getErrorResponse(err, 'bid'),
+    }
+  }
+}
+
+export const settleAndBeginAuction = async ({ auctionAddress }) => {
+  try {
+    const { error, walletProvider, walletAddress } = await unlockBrowser({
+      debug: true,
+    })
+    const auction = new Contract(
+      auctionAddress,
+      Emanator.abi,
+      walletProvider.getSigner()
+    )
+    const tx = await auction.settleAndBeginAuction()
+    return { tx }
+  } catch (err) {
+    console.log(err)
+    return {
+      ...getErrorResponse(err, 'settleAndBeginAuction'),
+    }
+  }
+}
+
+export const getAuctionDetails = async ({ auctionAddress }) => {
+  try {
+    const { error, walletProvider, walletAddress } = await unlockBrowser({
+      debug: true,
+    })
+    const auction = new Contract(auctionAddress, Emanator.abi, walletProvider)
+    const currentGeneration = await auction.currentGeneration()
+    const {
+      highBid,
+      highBidder,
+      lastBidTime,
+    } = await auction.getCurrentAuctionInfo()
+    const endTime = auction.checkEndTime()
+    const auctionBalance = await auction.getAuctionBalance()
+    return { endTime, auctionBalance, highBid, highBidder, lastBidTime }
+  } catch (err) {
+    console.log(err)
+    return {
+      ...getErrorResponse(err, 'getAuctionDetails'),
     }
   }
 }
