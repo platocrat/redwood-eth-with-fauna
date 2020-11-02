@@ -203,7 +203,7 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
           tokenX.transferFrom(address(this), creator, amt);
           revShareRecipients.push(_auction.highBidder);
       } else {
-        creator.transfer(creatorShare);
+        tokenX.transferFrom(address(this), creator, creatorShare);
         uint remainder = address(this).balance;
         uint perShare = rdiv(remainder, totalShares);
         for (uint i = 0; i < revShareRecipients.length; i++) {
