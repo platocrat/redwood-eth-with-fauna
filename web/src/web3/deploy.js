@@ -41,7 +41,7 @@ export const deployAuction = async ({ winLength }) => {
       winLength
     )
     const receipt = await contract.deployTransaction.wait()
-    console.log(receipt)
+    // console.log(receipt)
     if (receipt.status === 0) return { error: receipt }
 
     const { address } = contract
