@@ -1,4 +1,4 @@
-import { useMutation, useFlash } from '@redwoodjs/web'
+import { useFlash } from '@redwoodjs/web'
 import { Link, routes } from '@redwoodjs/router'
 
 import { QUERY } from 'src/components/AuctionsCell'

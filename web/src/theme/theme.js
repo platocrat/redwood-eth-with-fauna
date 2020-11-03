@@ -1,5 +1,3 @@
-/*eslint i18next/no-literal-string: 0*/
-
 /*eslint-disable-next-line no-restricted-imports */
 // import '../assets/fonts/fonts.css';
 import breakpoints from './breakpoints'

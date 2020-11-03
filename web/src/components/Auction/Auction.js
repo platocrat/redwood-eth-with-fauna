@@ -1,6 +1,4 @@
-import { useState, useEffect } from 'react'
 import { useMutation, useFlash } from '@redwoodjs/web'
-import { Link, routes, navigate } from '@redwoodjs/router'
 import NewAuction from 'src/components/NewAuction'
 
 import styled from 'styled-components'
@@ -17,14 +15,6 @@ export const CenteredContainer = styled.div`
   width: 100%;
   text-align: center;
 `
-
-const jsonDisplay = (obj) => {
-  return (
-    <pre>
-      <code>{JSON.stringify(obj, null, 2)}</code>
-    </pre>
-  )
-}
 
 const timeTag = (datetime) => {
   return (

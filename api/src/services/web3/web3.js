@@ -1,9 +1,8 @@
-import { parseUnits, formatUnits } from '@ethersproject/units'
+import { formatUnits } from '@ethersproject/units'
 import { InfuraProvider } from '@ethersproject/providers'
 import { Contract } from '@ethersproject/contracts'
 
 import Emanator from 'emanator-contracts/build/contracts/Emanator.json'
-import ERC20 from '@superfluid-finance/ethereum-contracts/build/contracts/ERC20.json'
 
 export const web3Auction = async ({ address }) => {
   try {

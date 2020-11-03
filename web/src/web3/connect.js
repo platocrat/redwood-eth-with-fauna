@@ -5,7 +5,7 @@ import { getErrorResponse } from './general'
 export const isWeb3EnabledBrowser = () =>
   typeof window !== 'undefined' && typeof window.ethereum !== 'undefined'
 
-export const unlockBrowser = async ({ debug, silent, isReturningUser }) => {
+export const unlockBrowser = async ({ debug }) => {
   try {
     if (!isWeb3EnabledBrowser()) {
       return { hasWallet: false, isUnlocked: false }
