@@ -1,4 +1,4 @@
-const { web3tx, toWad, toBN } = require('@decentral.ee/web3-helpers')
+const { web3tx, toWad, toBN, wad4human } = require('@decentral.ee/web3-helpers')
 const { time, expectRevert } = require('@openzeppelin/test-helpers')
 const deployFramework = require('@superfluid-finance/ethereum-contracts/scripts/deploy-framework')
 const deployTestToken = require('@superfluid-finance/ethereum-contracts/scripts/deploy-test-token')
@@ -68,57 +68,26 @@ contract('Emanator', (accounts) => {
         daix.approve,
         `Account ${i} approves Emanator contract`
       )(app.address, toWad(100000000), { from: accounts[i] })
+      await web3tx(
+        sf.host.callAgreement,
+        'Carol approves subscription to the app'
+      )(
+        sf.agreements.ida.address,
+        sf.agreements.ida.contract.methods
+          .approveSubscription(daix.address, app.address, 0, '0x')
+          .encodeABI(),
+        {
+          from: accounts[i],
+        }
+      )
     }
   })
 
   async function printRealtimeBalance(label, account) {
     const b = await daix.realtimeBalanceOfNow.call(account)
-    console.log(
-      `${label} realtime balance`,
-      b.availableBalance.toString()
-      // b.deposit.toString(),
-      // b.owedDeposit.toString()
-    )
+    console.log(`${label} realtime balance`, wad4human(b.availableBalance))
     return b
   }
-
-  // function createBidBatchCall(upgradeAmount = 0) {
-  //   return [
-  //     [
-  //       2, // upgrade 100 daix to play the game
-  //       daix.address,
-  //       web3.eth.abi.encodeParameters(
-  //         ['uint256'],
-  //         [toWad(upgradeAmount).toString()]
-  //       ),
-  //     ],
-  //     [
-  //       0, // approve the ticket fee
-  //       daix.address,
-  //       web3.eth.abi.encodeParameters(
-  //         ['address', 'uint256'],
-  //         [app.address, toWad('1').toString()]
-  //       ),
-  //     ],
-  //     [
-  //       5, // callAppAction to participate
-  //       app.address,
-  //       app.contract.methods.participate('0x').encodeABI(),
-  //     ],
-  //     [
-  //       4, // create constant flow (10/mo)
-  //       sf.agreements.cfa.address,
-  //       sf.agreements.cfa.contract.methods
-  //         .createFlow(
-  //           daix.address,
-  //           app.address,
-  //           MINIMUM_GAME_FLOW_RATE.toString(),
-  //           '0x'
-  //         )
-  //         .encodeABI(),
-  //     ],
-  //   ]
-  // }
 
   it('Deploys the contract', async () => {
     assert.equal(await app.getAuctionBalance.call(), 0)
@@ -190,47 +159,54 @@ contract('Emanator', (accounts) => {
     assert.equal(await app.getHighBidder.call(), ZERO_ADDRESS)
     await printRealtimeBalance('Creator', creator)
     await printRealtimeBalance('Bob', bob)
-    await web3tx(app.bid, `Account ${bob} bids 1`)(toWad(1), { from: bob })
-    
+    await printRealtimeBalance('Dan', dan)
+    await printRealtimeBalance('Carol', carol)
+
+    ////// NEW AUCTION - Generation 1 /////
+    console.log(
+      `======= New auction - Generation ${await app.currentGeneration.call()} =======`
+    )
+    await web3tx(app.bid, `Bob bids 1`)(toWad(1), { from: bob })
     let timeLeft = await app.checkTimeRemaining()
     time.increase(timeLeft + 1)
-    console.log(await app.currentGeneration.call())
     await web3tx(
       app.settleAndBeginAuction,
-      `Account ${bob} settles the auction`
+      `Bob settles the auction`
     )({ from: bob })
-    await web3tx(app.subscribeToIda, `Account ${bob} subscribes to IDA`)( {from: bob} )
-    console.log(await app.currentGeneration.call())
     await printRealtimeBalance('Creator', creator)
     await printRealtimeBalance('Bob', bob)
-    await printRealtimeBalance('Carol', carol)
-    await web3tx(app.bid, `Account ${carol} bids 10`)(toWad(10), {
-      from: carol,
-    })
+
+    ////// NEW AUCTION - Generation 2 /////
+    console.log(
+      `======= New auction - Generation ${await app.currentGeneration.call()} =======`
+    )
+    await web3tx(app.bid, `Carol bids 10`)(toWad(10), { from: carol })
     time.increase(timeLeft + 1)
     await web3tx(
       app.settleAndBeginAuction,
-      `Account ${carol} settles the auction`
+      `Carol settles the auction`
     )({ from: carol })
     await printRealtimeBalance('Creator', creator)
     await printRealtimeBalance('Bob', bob)
     await printRealtimeBalance('Carol', carol)
-    await printRealtimeBalance('Dan', dan)
-    await web3tx(app.bid, `Account ${dan} bids 30`)(toWad(30), {
-      from: dan,
-    })
+
+    ////// NEW AUCTION - Generation 3 /////
+    console.log(
+      `======= New auction - Generation ${await app.currentGeneration.call()} =======`
+    )
+    await web3tx(app.bid, `Dan bids 30`)(toWad(30), { from: dan })
     time.increase(timeLeft + 1)
     await web3tx(
       app.settleAndBeginAuction,
-      `Account ${dan} settles the auction`
+      `Dan settles the auction`
     )({ from: dan })
     await printRealtimeBalance('Creator', creator)
     await printRealtimeBalance('Bob', bob)
     await printRealtimeBalance('Carol', carol)
     await printRealtimeBalance('Dan', dan)
-    console.log(await app.currentGeneration.call())
+
     assert.equal(await app.currentGeneration.call(), '4')
-    
+
     // TODO : write logic to check the expected distribution split
   })
 
