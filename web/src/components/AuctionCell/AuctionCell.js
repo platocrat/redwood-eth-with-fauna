@@ -5,11 +5,20 @@ export const QUERY = gql`
     auction: auction(address: $address) {
       id
       name
+      address
       description
       createdAt
       revenue
       winLength
       owner
+    }
+    web3Auction: web3Auction(address: $address) {
+      endTime
+      lastBidTime
+      auctionBalance
+      highBid
+      highBidder
+      status
     }
   }
 `
@@ -18,6 +27,6 @@ export const Loading = () => <div>Loading...</div>
 
 export const Empty = () => <div>Auction not found</div>
 
-export const Success = ({ auction }) => {
-  return <Auction auction={auction} />
+export const Success = ({ auction, web3Auction }) => {
+  return <Auction auction={{ ...auction, ...web3Auction }} />
 }
