@@ -2,7 +2,7 @@
             declare module '@redwoodjs/router' {
               interface AvailableRoutes {
                 newAuction: () => "/auctions/new"
-auction: () => "/auctions/{id:Int}"
+auction: () => "/auctions/{address}"
 home: () => "/"
               }
             }

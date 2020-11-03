@@ -16,7 +16,7 @@ export const schema = gql`
 
   type Query {
     auctions: [Auction!]!
-    auction(id: Int!): Auction
+    auction(address: String!): Auction
   }
 
   input CreateAuctionInput {
