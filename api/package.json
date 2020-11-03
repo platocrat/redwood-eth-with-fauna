@@ -3,6 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@redwoodjs/api": "^0.20.0"
+    "@ethersproject/contracts": "^5.0.5",
+    "@ethersproject/providers": "^5.0.14",
+    "@ethersproject/units": "^5.0.6",
+    "@redwoodjs/api": "^0.20.0",
+    "@superfluid-finance/ethereum-contracts": "^0.1.2-preview-20201014-fix5",
+    "emanator-contracts": "1.0.0"
   }
 }
