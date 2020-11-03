@@ -85,7 +85,7 @@ const Auction = ({ auction }) => {
         <h3>Generation: {auction.currentGeneration}</h3>
         {getProgressBar(status, auction.winLength)}
         {getPromptBox(
-          status,
+          auction.status,
           false,
           auction.highBid,
           auction.winLength,
