@@ -70,7 +70,7 @@ contract('Emanator', (accounts) => {
       )(app.address, toWad(100000000), { from: accounts[i] })
       await web3tx(
         sf.host.callAgreement,
-        'Carol approves subscription to the app'
+        `Account ${i} approves subscription to the app`
       )(
         sf.agreements.ida.address,
         sf.agreements.ida.contract.methods
