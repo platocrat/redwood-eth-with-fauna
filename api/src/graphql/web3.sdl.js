@@ -9,7 +9,13 @@ export const schema = gql`
     lastBidTime: DateTime!
   }
 
+  type Web3User {
+    superTokenBalance: String!
+    isSubscribed: Boolean!
+  }
+
   type Query {
     web3Auction(address: String!): Web3Auction!
+    web3User(address: String!, auctionAddress: String!): Web3User!
   }
 `

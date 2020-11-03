@@ -1,8 +1,6 @@
 import { parseUnits, formatUnits } from '@ethersproject/units'
 import { Contract } from '@ethersproject/contracts'
 
-import SuperfluidSDK from '@superfluid-finance/ethereum-contracts'
-
 import Emanator from 'emanator-contracts/build/contracts/Emanator.json'
 import ERC20 from '@superfluid-finance/ethereum-contracts/build/contracts/ERC20.json'
 
