@@ -7,7 +7,7 @@ import styled from 'styled-components'
 
 import { QUERY } from 'src/components/AuctionsCell'
 
-import { bid, getAuctionDetails, settleAndBeginAuction } from 'src/web3/auction'
+import { bid, settleAndBeginAuction } from 'src/web3/auction'
 
 /* @component */
 export const CenteredContainer = styled.div`
@@ -85,26 +85,6 @@ const getPromptBox = (
 
 const Auction = ({ auction }) => {
   const { addMessage } = useFlash()
-  const [auctionDetails, setAuctionDetails] = useState({})
-
-  const loadAuction = async () => {
-    const _auctionDetails = await getAuctionDetails({
-      auctionAddress: auction.address,
-    })
-    console.log(_auctionDetails)
-    setAuctionDetails({ ..._auctionDetails })
-  }
-
-  console.log(auctionDetails?.lastBidTime)
-  let status = 'loading'
-
-  useEffect(() => {
-    loadAuction()
-  }, [])
-
-  useEffect(() => {
-    status = Date.now() < auctionDetails?.lastBidTime ? 'started' : 'ended'
-  }, [auctionDetails, Date.now()])
 
   return (
     <CenteredContainer>
@@ -112,12 +92,12 @@ const Auction = ({ auction }) => {
         <h1>
           <b>{auction.name}</b>
         </h1>
-        <h3>Generation: {auctionDetails?.currentGeneration}</h3>
+        <h3>Generation: {auction.currentGeneration}</h3>
         {getProgressBar(status, auction.winLength)}
         {getPromptBox(
           status,
           false,
-          auctionDetails?.highBid,
+          auction.highBid,
           auction.winLength,
           auction.address
         )}
@@ -128,30 +108,30 @@ const Auction = ({ auction }) => {
           <tbody>
             <tr>
               <th>Curent Auction Revenue</th>
-              <td>{auctionDetails?.auctionBalance}</td>
+              <td>{auction.auctionBalance}</td>
             </tr>
             <tr>
               <th>High bid</th>
-              <td>{auctionDetails?.highBid}</td>
+              <td>{auction.highBid}</td>
             </tr>
             <tr>
               <th>High bidder</th>
-              <td>{auctionDetails?.highBidder}</td>
+              <td>{auction.highBidder}</td>
             </tr>
             <tr>
               <th>Last bid time</th>
               <td>
-                {typeof auctionDetails?.lastBidTime === 'string'
-                  ? auctionDetails?.lastBidTime
-                  : timeTag(auctionDetails?.lastBidTime)}
+                {typeof auction.lastBidTime === 'string'
+                  ? auction.lastBidTime
+                  : timeTag(auction.lastBidTime)}
               </td>
             </tr>
             <tr>
               <th>Auction close time</th>
               <td>
-                {typeof auctionDetails?.endTime === 'string'
-                  ? auctionDetails?.endTime
-                  : timeTag(auctionDetails?.endTime)}
+                {typeof auction.endTime === 'string'
+                  ? auction.endTime
+                  : timeTag(auction.endTime)}
               </td>
             </tr>
             <tr>

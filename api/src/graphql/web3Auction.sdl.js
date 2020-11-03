@@ -10,6 +10,6 @@ export const schema = gql`
   }
 
   type Query {
-    web3Auction(auctionAddress: String!): Web3Auction!
+    web3Auction(address: String!): Web3Auction!
   }
 `

@@ -5,17 +5,13 @@ import { Contract } from '@ethersproject/contracts'
 import Emanator from 'emanator-contracts/build/contracts/Emanator.json'
 import ERC20 from '@superfluid-finance/ethereum-contracts/build/contracts/ERC20.json'
 
-export const web3Auction = async ({ auctionAddress }) => {
+export const web3Auction = async ({ address }) => {
   try {
     const walletlessProvider = new InfuraProvider(
       'goerli',
       process.env.INFURA_ENDPOINT_KEY
     )
-    const auction = new Contract(
-      auctionAddress,
-      Emanator.abi,
-      walletlessProvider
-    )
+    const auction = new Contract(address, Emanator.abi, walletlessProvider)
     const {
       highBid,
       highBidder,
@@ -44,6 +40,6 @@ export const web3Auction = async ({ auctionAddress }) => {
       status,
     }
   } catch (err) {
-    return new Error(`Error getting auction ${auctionAddress}. ${err}`)
+    return new Error(`Error getting auction ${address}. ${err}`)
   }
 }
