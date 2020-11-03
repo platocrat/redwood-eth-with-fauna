@@ -2,7 +2,7 @@ import Auction from 'src/components/Auction'
 
 export const QUERY = gql`
   query FIND_AUCTION_BY_ADDRESS($address: String!) {
-    auction: auction(address: $address) {
+    auction(address: $address) {
       id
       name
       address
@@ -12,7 +12,7 @@ export const QUERY = gql`
       winLength
       owner
     }
-    web3Auction: web3Auction(address: $address) {
+    web3Auction(address: $address) {
       endTime
       lastBidTime
       auctionBalance

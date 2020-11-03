@@ -121,9 +121,6 @@ export const subscribeToIDA = async ({ auctionAddress }) => {
         .approveSubscription(superTokenAddress, auctionAddress, 0, '0x')
         .encodeABI()
     )
-
-    console.log(tx)
-
     return { tx }
   } catch (err) {
     console.log(err)

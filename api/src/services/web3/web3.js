@@ -54,7 +54,7 @@ export const web3User = async ({ address, auctionAddress }) => {
       chainId: 5,
       version: process.env.RELEASE_VERSION || 'test',
       web3Provider: new Web3.providers.HttpProvider(
-        'https://goerli.infura.io/v3/ebe4d04169c4443ebe87905060aa16eb'
+        `https://goerli.infura.io/v3/${process.env.INFURA_ENDPOINT_KEY}`
       ),
     })
     await sf.initialize()

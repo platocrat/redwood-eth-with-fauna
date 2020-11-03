@@ -14,22 +14,24 @@ import SubscribeForm from 'src/components/SubscribeForm/SubscribeForm'
 import { subscribeToIDA } from 'src/web3/auction'
 
 const Web3User = ({ web3User, auctionAddress }) => {
-  const [error, setError] = useState(null)
-  const [loading, setLoading] = useState(false)
-
   const { superTokenBalance, isSubscribed } = web3User
 
+  const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [showForm, setShowForm] = useState(!isSubscribed)
+
   const handleError = (error) => {
-    setError(error)
+    setError(error.message)
     setLoading(false)
   }
 
-  const onSave = async () => {
+  const onSubscribe = async () => {
     setLoading(true)
+    setError(null)
     const { tx, error: submitError } = await subscribeToIDA({ auctionAddress })
     if (submitError) return handleError(submitError)
-    const receipt = await tx.wait()
-    console.log(receipt)
+    await tx.wait()
+    setShowForm(false)
     setLoading(false)
   }
 
@@ -37,9 +39,11 @@ const Web3User = ({ web3User, auctionAddress }) => {
     <div>
       <h2>{'Web3User'}</h2>
       <p>{`superTokenBalance: ${superTokenBalance}`}</p>
-      {!isSubscribed && (
-        <SubscribeForm error={error} loading={loading} onSave={onSave} />
-      )}
+      <div>
+        {showForm && (
+          <SubscribeForm error={error} loading={loading} onSave={onSubscribe} />
+        )}
+      </div>
     </div>
   )
 }
