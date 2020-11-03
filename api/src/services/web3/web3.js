@@ -28,11 +28,8 @@ export const web3Auction = async ({ address }) => {
     let endTimeFormatted = endTime.toNumber() * 1000
     let status = Date.now() < lastBidTimeFormatted ? 'started' : 'ended'
 
-    if (lastBidTimeFormatted === 0) {
-      lastBidTimeFormatted = 'No bids yet'
-      endTimeFormatted = lastBidTimeFormatted
-      status = 'started'
-    }
+    if (lastBidTimeFormatted === 0) status = 'started'
+
     return {
       highBidder,
       highBid: Number(formatUnits(highBid, 18)).toFixed(0),

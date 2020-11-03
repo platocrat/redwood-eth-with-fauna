@@ -1,11 +1,13 @@
+import { useState, useEffect } from 'react'
 import { useMutation, useFlash } from '@redwoodjs/web'
 import NewAuction from 'src/components/NewAuction'
-
+import Web3UserCell from 'src/components/Web3UserCell/Web3UserCell'
 import styled from 'styled-components'
 
 import { QUERY } from 'src/components/AuctionsCell'
 
 import { bid, settleAndBeginAuction } from 'src/web3/auction'
+import { unlockBrowser } from 'src/web3/connect'
 
 /* @component */
 export const CenteredContainer = styled.div`
@@ -75,76 +77,92 @@ const getPromptBox = (
 
 const Auction = ({ auction }) => {
   const { addMessage } = useFlash()
+  const [walletAddress, setWalletAddress] = useState(null)
+
+  const unlockWallet = async () => {
+    const { walletAddress: address, error } = await unlockBrowser({
+      debug: true,
+    })
+    if (error) console.log(error)
+    setWalletAddress(address)
+  }
+
+  useEffect(() => {
+    unlockWallet()
+  }, [])
 
   return (
-    <CenteredContainer>
-      <div className="rw-segment">
-        <h1>
-          <b>{auction.name}</b>
-        </h1>
-        <h3>Generation: {auction.currentGeneration}</h3>
-        {getProgressBar(status, auction.winLength)}
-        {getPromptBox(
-          auction.status,
-          false,
-          auction.highBid,
-          auction.winLength,
-          auction.address
-        )}
-        <header className="rw-segment-header">
-          <h2 className="rw-heading rw-heading-secondary">Details</h2>
-        </header>
-        <table className="rw-table">
-          <tbody>
-            <tr>
-              <th>Curent Auction Revenue</th>
-              <td>{auction.auctionBalance}</td>
-            </tr>
-            <tr>
-              <th>High bid</th>
-              <td>{auction.highBid}</td>
-            </tr>
-            <tr>
-              <th>High bidder</th>
-              <td>{auction.highBidder}</td>
-            </tr>
-            <tr>
-              <th>Last bid time</th>
-              <td>
-                {typeof auction.lastBidTime === 'string'
-                  ? auction.lastBidTime
-                  : timeTag(auction.lastBidTime)}
-              </td>
-            </tr>
-            <tr>
-              <th>Auction close time</th>
-              <td>
-                {typeof auction.endTime === 'string'
-                  ? auction.endTime
-                  : timeTag(auction.endTime)}
-              </td>
-            </tr>
-            <tr>
-              <th>Description</th>
-              <td>{auction.description}</td>
-            </tr>
-            <tr>
-              <th>Address</th>
-              <td>{auction.address}</td>
-            </tr>
-            <tr>
-              <th>Owner</th>
-              <td>{auction.owner}</td>
-            </tr>
-            <tr>
-              <th>Launch date</th>
-              <td>{timeTag(auction.createdAt)}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <nav className="rw-button-group"></nav>
-    </CenteredContainer>
+    <>
+      <h1>
+        <b>{auction.name}</b>
+      </h1>
+      <h3>Generation: {auction.currentGeneration}</h3>
+      {getProgressBar(status, auction.winLength)}
+      {getPromptBox(
+        auction.status,
+        false,
+        auction.highBid,
+        auction.winLength,
+        auction.address
+      )}
+      <header className="rw-segment-header">
+        <h2 className="rw-heading rw-heading-secondary">Details</h2>
+      </header>
+      {walletAddress && (
+        <Web3UserCell
+          address={walletAddress}
+          auctionAddress={auction.address}
+        />
+      )}
+      <table className="rw-table">
+        <tbody>
+          <tr>
+            <th>Curent Auction Revenue</th>
+            <td>{auction.auctionBalance}</td>
+          </tr>
+          <tr>
+            <th>High bid</th>
+            <td>{auction.highBid}</td>
+          </tr>
+          <tr>
+            <th>High bidder</th>
+            <td>{auction.highBidder}</td>
+          </tr>
+          <tr>
+            <th>Last bid time</th>
+            <td>
+              {typeof auction.lastBidTime === 'string'
+                ? auction.lastBidTime
+                : timeTag(auction.lastBidTime)}
+            </td>
+          </tr>
+          <tr>
+            <th>Auction close time</th>
+            <td>
+              {typeof auction.endTime === 'string'
+                ? auction.endTime
+                : timeTag(auction.endTime)}
+            </td>
+          </tr>
+          <tr>
+            <th>Description</th>
+            <td>{auction.description}</td>
+          </tr>
+          <tr>
+            <th>Address</th>
+            <td>{auction.address}</td>
+          </tr>
+          <tr>
+            <th>Owner</th>
+            <td>{auction.owner}</td>
+          </tr>
+          <tr>
+            <th>Launch date</th>
+            <td>{timeTag(auction.createdAt)}</td>
+          </tr>
+        </tbody>
+      </table>
+    </>
   )
 }
 
