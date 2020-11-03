@@ -12,11 +12,9 @@ import './index.css'
 ReactDOM.render(
   <FatalErrorBoundary page={FatalErrorPage}>
     <RedwoodProvider>
-      <ThemeProvider>
-        <DefaultLayout>
-          <Routes />
-        </DefaultLayout>
-      </ThemeProvider>
+      <DefaultLayout>
+        <Routes />
+      </DefaultLayout>
     </RedwoodProvider>
   </FatalErrorBoundary>,
   document.getElementById('redwood-app')
