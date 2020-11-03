@@ -15,6 +15,6 @@ export const Empty = () => <div>Empty</div>
 
 export const Failure = ({ error }) => <div>Error: {error.message}</div>
 
-export const Success = ({ web3User }) => {
-  return <Web3User web3User={web3User} />
+export const Success = ({ web3User, auctionAddress }) => {
+  return <Web3User web3User={web3User} auctionAddress={auctionAddress} />
 }

@@ -105,15 +105,15 @@ const Auction = ({ auction }) => {
         auction.winLength,
         auction.address
       )}
-      <header className="rw-segment-header">
-        <h2 className="rw-heading rw-heading-secondary">Details</h2>
-      </header>
       {walletAddress && (
         <Web3UserCell
           address={walletAddress}
           auctionAddress={auction.address}
         />
       )}
+      <header className="rw-segment-header">
+        <h2 className="rw-heading rw-heading-secondary">Details</h2>
+      </header>
       <table className="rw-table">
         <tbody>
           <tr>
