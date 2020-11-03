@@ -191,7 +191,7 @@ contract('Emanator', (accounts) => {
     await printRealtimeBalance('Creator', creator)
     await printRealtimeBalance('Bob', bob)
     await web3tx(app.bid, `Account ${bob} bids 1`)(toWad(1), { from: bob })
-    await web3tx(app.subscribeToIda, `Account ${bob} subscribes to IDA`)( {from: bob} )
+    
     let timeLeft = await app.checkTimeRemaining()
     time.increase(timeLeft + 1)
     console.log(await app.currentGeneration.call())
@@ -199,6 +199,7 @@ contract('Emanator', (accounts) => {
       app.settleAndBeginAuction,
       `Account ${bob} settles the auction`
     )({ from: bob })
+    await web3tx(app.subscribeToIda, `Account ${bob} subscribes to IDA`)( {from: bob} )
     console.log(await app.currentGeneration.call())
     await printRealtimeBalance('Creator', creator)
     await printRealtimeBalance('Bob', bob)
