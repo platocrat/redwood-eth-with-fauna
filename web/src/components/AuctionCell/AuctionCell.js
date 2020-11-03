@@ -1,16 +1,12 @@
 import Auction from 'src/components/Auction'
 
 export const QUERY = gql`
-  query FIND_AUCTION_BY_ID($id: Int!) {
-    auction: auction(id: $id) {
+  query FIND_AUCTION_BY_ADDRESS($address: String!) {
+    auction: auction(address: $address) {
       id
-      address
       name
       description
       createdAt
-      status
-      highBid
-      generation
       revenue
       winLength
       owner

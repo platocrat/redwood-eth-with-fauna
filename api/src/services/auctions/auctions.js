@@ -4,8 +4,8 @@ export const auctions = () => {
   return db.auction.findMany()
 }
 
-export const auction = ({ id }) => {
-  return db.auction.findOne({ where: { id } })
+export const auction = ({ address }) => {
+  return db.auction.findOne({ where: { address } })
 }
 
 export const createAuction = ({ input }) => {
@@ -14,5 +14,5 @@ export const createAuction = ({ input }) => {
 
 export const Auction = {
   bids: (_obj, { root }) =>
-    db.auction.findOne({ where: { id: root.id } }).bids(),
+    db.auction.findOne({ where: { address: root.address } }).bids(),
 }

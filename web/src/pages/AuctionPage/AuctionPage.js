@@ -1,9 +1,9 @@
 import AuctionCell from 'src/components/AuctionCell'
 
-const AuctionPage = ({ id }) => {
+const AuctionPage = ({ address }) => {
   return (
     <>
-      <AuctionCell id={id} />
+      <AuctionCell address={address} />
     </>
   )
 }

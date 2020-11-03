@@ -70,7 +70,7 @@ const AuctionsList = ({ auctions }) => {
               <td>
                 <nav className="rw-table-actions">
                   <Link
-                    to={routes.auction({ id: auction.id })}
+                    to={routes.auction({ address: auction.address })}
                     title={'Show auction ' + auction.id + ' detail'}
                     className="rw-button rw-button-small"
                   >
