@@ -2,9 +2,7 @@
 
 - https://redwoodjs.com/docs/cli-commands
 
-### Steps I took
-
-#### Setting up the App
+## Setting up the App
 
 ```bash
 yarn rw generate layout default
@@ -12,7 +10,7 @@ yarn rw generate page home /
 yarn rw generate page auction {auctionAddress}
 ```
 
-#### Database setup
+## Database setup
 
 Update `schema.prisma` to add the auction object
 
@@ -49,7 +47,7 @@ I didn't need some of the edit/delete functionality (blockchain is immutable?), 
 
 We should now be able to create new auctions by entering dummy data.
 
-#### Edit the form
+## Edit the form
 
 Now we need to add functionality to deploy the contract. Once we can deploy a new auction, we can use the contract address and owner address to populate our database.
 
@@ -64,7 +62,7 @@ const onSave = async (input) => {
 }
 ```
 
-#### Fetch web3 data
+## Fetch web3 data
 
 I followed the example for [Using a Third Party API](https://redwoodjs.com/cookbook/using-a-third-party-api#server-side-api-integration) for fetching web3 data. I choose to use the server rather than the app to make Web3 calls, because it makes things much simpler to work with.
 
@@ -102,7 +100,7 @@ query GET_WEB3_USER($address: String!, $auctionAddress: String!) {
   }
 ```
 
-#### Display web3 data
+## Display web3 data
 
 Now that we have some new Web3 queries, there are two ways to use them.
 
@@ -142,6 +140,22 @@ query FIND_AUCTION_BY_ADDRESS($address: String!) {
   }
 }
 ```
+
+## Staying updated with Web3
+
+As a quick and dirty way to keep the app up-to-date with Web3 data, I added the following function to `Auctioncell.js` and `Web3UserCell.js` (see [Generating a Cell](https://redwoodjs.com/docs/cells#beforequery)). This could be done a better way, but it works for now.
+
+```js
+export const beforeQuery = (props) => {
+  return { variables: props, fetchPolicy: 'network-only', pollInterval: 5000 }
+}
+```
+
+## Challenge: keep the Database in-sync with Web3
+
+Right now, when a new auction is deployed, the database is updated with the immediately, without waiting to see if the deployment is successful. A better solution would be to wait for the deployment to succeed before creating the database entry. If we write this logic on the app, the user may close the page before it can finish, and the database will not include the freshly deployed auction.
+
+Instead we should have the server wait on the pending transaction, instead of the app.
 
 ### Notes
 

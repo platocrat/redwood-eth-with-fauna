@@ -23,6 +23,10 @@ export const QUERY = gql`
   }
 `
 
+export const beforeQuery = (props) => {
+  return { variables: props, pollInterval: 5000 }
+}
+
 export const Loading = () => <div>Loading...</div>
 
 export const Empty = () => <div>Auction not found</div>

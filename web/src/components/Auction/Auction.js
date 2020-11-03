@@ -53,7 +53,7 @@ const getPromptBox = (
   winLength,
   auctionAddress
 ) => {
-  const bidAmount = highBid ? Number(highBid) + 5 : '0'
+  const bidAmount = typeof highBid === 'number' ? Number(highBid) + 5 : '0'
   let onClick = () => bid({ amount: bidAmount, auctionAddress })
   let estTotal = winLength
   let promptText = `Become the high bidder - Bid ${bidAmount} DAI`
