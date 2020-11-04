@@ -171,7 +171,7 @@ contract('Emanator', (accounts) => {
     let timeLeft = await app.checkTimeRemaining()
     time.increase(timeLeft + 1)
     await printRealtimeBalance('Auction Contract', app.address)
-    const newShares = await web3tx(
+    let newShares = await web3tx(
       app.settleAndBeginAuction,
       `Bob settles the auction`
     )({ from: bob })
@@ -187,10 +187,11 @@ contract('Emanator', (accounts) => {
     await web3tx(app.bid, `Carol bids 10`)(toWad(10), { from: carol })
     time.increase(timeLeft + 1)
     await printRealtimeBalance('Auction Contract', app.address)
-    await web3tx(
+    newShares = await web3tx(
       app.settleAndBeginAuction,
       `Carol settles the auction`
     )({ from: carol })
+    console.log(newShares)
     await printRealtimeBalance('Auction Contract', app.address)
     await printRealtimeBalance('Creator', creator)
     await printRealtimeBalance('Bob', bob)
@@ -203,10 +204,11 @@ contract('Emanator', (accounts) => {
     await web3tx(app.bid, `Dan bids 30`)(toWad(30), { from: dan })
     time.increase(timeLeft + 1)
     await printRealtimeBalance('Auction Contract', app.address)
-    await web3tx(
+    newShares = await web3tx(
       app.settleAndBeginAuction,
       `Dan settles the auction`
     )({ from: dan })
+    console.log(newShares)
     await printRealtimeBalance('Auction Contract', app.address)
     await printRealtimeBalance('Creator', creator)
     await printRealtimeBalance('Bob', bob)
@@ -220,10 +222,11 @@ contract('Emanator', (accounts) => {
     await web3tx(app.bid, `Dan bids 100`)(toWad(100), { from: dan })
     time.increase(timeLeft + 1)
     await printRealtimeBalance('Auction Contract', app.address)
-    await web3tx(
+    newShares = await web3tx(
       app.settleAndBeginAuction,
       `Carol settles the auction`
     )({ from: carol })
+    console.log(newShares)
     await printRealtimeBalance('Auction Contract', app.address)
     await printRealtimeBalance('Creator', creator)
     await printRealtimeBalance('Bob', bob)
