@@ -174,7 +174,7 @@ contract('Emanator', (accounts) => {
     await web3tx(
       app.settleAndBeginAuction,
       `Bob settles the auction`
-    )({ from: bob })
+    )({ from: bob }).then(console.log)
     await printRealtimeBalance('Auction Contract', app.address)
     await printRealtimeBalance('Creator', creator)
     await printRealtimeBalance('Bob', bob)
