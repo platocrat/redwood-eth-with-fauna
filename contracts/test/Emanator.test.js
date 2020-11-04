@@ -212,7 +212,24 @@ contract('Emanator', (accounts) => {
     await printRealtimeBalance('Carol', carol)
     await printRealtimeBalance('Dan', dan)
 
-    assert.equal(await app.currentGeneration.call(), '4')
+    ////// NEW AUCTION - Generation 4 /////
+    console.log(
+      `======= New auction - Generation ${await app.currentGeneration.call()} =======`
+    )
+    await web3tx(app.bid, `Dan bids 100`)(toWad(100), { from: dan })
+    time.increase(timeLeft + 1)
+    await printRealtimeBalance('Auction Contract', app.address)
+    await web3tx(
+      app.settleAndBeginAuction,
+      `Carol settles the auction`
+    )({ from: carol })
+    await printRealtimeBalance('Auction Contract', app.address)
+    await printRealtimeBalance('Creator', creator)
+    await printRealtimeBalance('Bob', bob)
+    await printRealtimeBalance('Carol', carol)
+    await printRealtimeBalance('Dan', dan)
+  
+    assert.equal(await app.currentGeneration.call(), '5')
 
     // TODO : write logic to check the expected distribution split
   })
