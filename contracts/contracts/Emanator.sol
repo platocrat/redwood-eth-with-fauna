@@ -87,7 +87,7 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
   uint32 public winLength;
   uint32 public currentGeneration = 1;
 
-  uint public shareAmount = 1*10**18;
+  uint public shareAmount = 1*10**8;
 
   address payable public creator;
   address[] public winners;
@@ -179,8 +179,7 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       // All tokens in first auction go to owner
       if (currentGeneration != 1){
         // Distribute tokens to previous winners
-        // uint distributeAmount = rmul(tokenX.balanceOf(address(this)), rdiv(3, 10));
-        uint distributeAmount = tokenX.balanceOf(address(this));
+        uint distributeAmount = rmul(tokenX.balanceOf(address(this)), rdiv(3, 10));
         host.callAgreement(
             ida,
             abi.encodeWithSelector(
