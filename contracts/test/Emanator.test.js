@@ -157,7 +157,7 @@ contract('Emanator', (accounts) => {
 
   it('transfers 70% of the second auction revenue to the creator and 30% to the winner of auction 1', async () => {
     assert.equal(await app.getHighBidder.call(), ZERO_ADDRESS)
-    await printRealtimeBalance('Auction Contract', address(this))
+    await printRealtimeBalance('Auction Contract', app.address)
     await printRealtimeBalance('Creator', creator)
     await printRealtimeBalance('Bob', bob)
     await printRealtimeBalance('Dan', dan)
@@ -174,7 +174,7 @@ contract('Emanator', (accounts) => {
       app.settleAndBeginAuction,
       `Bob settles the auction`
     )({ from: bob })
-    await printRealtimeBalance('Auction Contract', address(this))
+    await printRealtimeBalance('Auction Contract', app.address)
     await printRealtimeBalance('Creator', creator)
     await printRealtimeBalance('Bob', bob)
 
@@ -188,7 +188,7 @@ contract('Emanator', (accounts) => {
       app.settleAndBeginAuction,
       `Carol settles the auction`
     )({ from: carol })
-    await printRealtimeBalance('Auction Contract', address(this))
+    await printRealtimeBalance('Auction Contract', app.address)
     await printRealtimeBalance('Creator', creator)
     await printRealtimeBalance('Bob', bob)
     await printRealtimeBalance('Carol', carol)
@@ -203,7 +203,7 @@ contract('Emanator', (accounts) => {
       app.settleAndBeginAuction,
       `Dan settles the auction`
     )({ from: dan })
-    await printRealtimeBalance('Auction Contract', address(this))
+    await printRealtimeBalance('Auction Contract', app.address)
     await printRealtimeBalance('Creator', creator)
     await printRealtimeBalance('Bob', bob)
     await printRealtimeBalance('Carol', carol)
