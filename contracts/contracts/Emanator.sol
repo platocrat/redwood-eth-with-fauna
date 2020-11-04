@@ -179,6 +179,7 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       // All tokens in first auction go to owner
       if (currentGeneration != 1){
         // Distribute tokens to previous winners
+        // uint distributeAmount = rmul(tokenX.balanceOf(address(this)), rdiv(3, 10));
         uint distributeAmount = tokenX.balanceOf(address(this));
         host.callAgreement(
             ida,
@@ -208,26 +209,13 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       shareAmount = rmul(shareAmount, rdiv(9, 10));
 
       // Remaining balance to owner
-    //   tokenX.transfer(creator, tokenX.balanceOf(address(this)));
+      tokenX.transfer(creator, tokenX.balanceOf(address(this)));
 
       // Start a new auction
       emit auctionWon(currentGeneration, _auction.highBidder);
       currentGeneration++;
       emit newAuction(currentGeneration);
       return newShareAmount;
-  }
-
-  function subscribeToIda() public {
-    host.callAgreement(
-      ida,
-      abi.encodeWithSelector(
-        ida.approveSubscription.selector,
-        tokenX,
-        address(this),
-        INDEX_ID,
-        new bytes(0)
-      )
-    );
   }
 
   function checkTimeRemaining() public view returns (uint timeLeft) {
