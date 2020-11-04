@@ -170,6 +170,7 @@ contract('Emanator', (accounts) => {
     await web3tx(app.bid, `Bob bids 1`)(toWad(1), { from: bob })
     let timeLeft = await app.checkTimeRemaining()
     time.increase(timeLeft + 1)
+    await printRealtimeBalance('Auction Contract', app.address)
     await web3tx(
       app.settleAndBeginAuction,
       `Bob settles the auction`
@@ -184,6 +185,7 @@ contract('Emanator', (accounts) => {
     )
     await web3tx(app.bid, `Carol bids 10`)(toWad(10), { from: carol })
     time.increase(timeLeft + 1)
+    await printRealtimeBalance('Auction Contract', app.address)
     await web3tx(
       app.settleAndBeginAuction,
       `Carol settles the auction`
@@ -199,6 +201,7 @@ contract('Emanator', (accounts) => {
     )
     await web3tx(app.bid, `Dan bids 30`)(toWad(30), { from: dan })
     time.increase(timeLeft + 1)
+    await printRealtimeBalance('Auction Contract', app.address)
     await web3tx(
       app.settleAndBeginAuction,
       `Dan settles the auction`
