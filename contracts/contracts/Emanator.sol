@@ -166,7 +166,7 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
   }
 
   // End the auction and claim prized
-  function settleAndBeginAuction() public {
+  function settleAndBeginAuction() public returns (uint newShareAmount) {
       Auction storage _auction = auctionByGeneration[currentGeneration];
 
       require(_auction.highBid > 0, "The auction has not started yet");
@@ -179,7 +179,7 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       // All tokens in first auction go to owner
       if (currentGeneration != 1){
         // Distribute tokens to previous winners
-        uint distributeAmount = rmul(tokenX.balanceOf(address(this)), rdiv(3, 10));
+        uint distributeAmount = tokenX.balanceOf(address(this));
         host.callAgreement(
             ida,
             abi.encodeWithSelector(
@@ -208,12 +208,13 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       shareAmount = rmul(shareAmount, rdiv(9, 10));
 
       // Remaining balance to owner
-      tokenX.transfer(creator, tokenX.balanceOf(address(this)));
+    //   tokenX.transfer(creator, tokenX.balanceOf(address(this)));
 
       // Start a new auction
       emit auctionWon(currentGeneration, _auction.highBidder);
       currentGeneration++;
       emit newAuction(currentGeneration);
+      return newShareAmount;
   }
 
   function subscribeToIda() public {
