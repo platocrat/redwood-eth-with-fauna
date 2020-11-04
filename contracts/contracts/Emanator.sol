@@ -166,7 +166,7 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
   }
 
   // End the auction and claim prized
-  function settleAndBeginAuction() public {
+  function settleAndBeginAuction() public returns (uint newShareAmount) {
       Auction storage _auction = auctionByGeneration[currentGeneration];
 
       require(_auction.highBid > 0, "The auction has not started yet");
@@ -214,6 +214,7 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       emit auctionWon(currentGeneration, _auction.highBidder);
       currentGeneration++;
       emit newAuction(currentGeneration);
+      return newShareAmount;
   }
 
   function subscribeToIda() public {
