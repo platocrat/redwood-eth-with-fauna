@@ -61,7 +61,7 @@ contract('Emanator', (accounts) => {
         toWad(100000000),
         { from: accounts[i] }
       )
-      await web3tx(daix.upgrade, `Account ${i} upgrades dai`)(toWad(100), {
+      await web3tx(daix.upgrade, `Account ${i} upgrades dai`)(toWad(1000), {
         from: accounts[i],
       })
       await web3tx(
@@ -204,11 +204,11 @@ contract('Emanator', (accounts) => {
     await runAuction(bids)
 
     ////// NEW AUCTION - Generation 3 /////
-    bids = [{ account: dan, amount: 30, label: 'Dan' }]
+    bids = [{ account: dan, amount: 100, label: 'Dan' }]
     await runAuction(bids)
 
     ////// NEW AUCTION - Generation 4 /////
-    bids = [{ account: dan, amount: 10, label: 'Dan' }]
+    bids = [{ account: dan, amount: 100, label: 'Dan' }]
     await runAuction(bids)
 
     // TODO : write logic to check the expected distribution split
