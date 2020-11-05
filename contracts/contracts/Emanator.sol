@@ -201,7 +201,7 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
           tokenX,
           INDEX_ID,
           _auction.highBidder,
-          shareAmount,
+          getSharesOf(_auction.highBidder) + shareAmount,
           new bytes(0)
         )
       );

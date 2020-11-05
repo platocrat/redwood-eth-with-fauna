@@ -90,7 +90,7 @@ contract('Emanator', (accounts) => {
 
   async function printShares(label, account) {
     const shares = await app.getSharesOf.call(account)
-    return console.log(`${label} shares: `, wad4human(shares))
+    return console.log(`${label} shares: `, shares.toString())
   }
 
   // it('Deploys the contract', async () => {
