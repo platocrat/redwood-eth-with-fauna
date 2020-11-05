@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import Countdown from 'react-countdown';
 import { useMutation, useFlash } from '@redwoodjs/web'
 import NewAuction from 'src/components/NewAuction'
 import Web3UserCell from 'src/components/Web3UserCell/Web3UserCell'
@@ -30,8 +31,9 @@ const checkboxInputTag = (checked) => {
   return <input type="checkbox" checked={checked} disabled />
 }
 
-const getProgressBar = (status, winLength) => {
+const getProgressBar = (status, winLength, lastBidTime) => {
   let barText = '<TIME LEFT / PROGRESS BAR>'
+  let endTime = lastBidTime + winLength
   let subText = `Auction win time: ${winLength} seconds`
   if (status === 'created') barText = 'Waiting for first Bid'
   if (status === 'ended') {
@@ -42,6 +44,8 @@ const getProgressBar = (status, winLength) => {
     <>
       <h3>{barText}</h3>
       {subText}
+      <Countdown date={Date.now() + 10000} />
+      <Countdown date={Date.endTime }/>
     </>
   )
 }
