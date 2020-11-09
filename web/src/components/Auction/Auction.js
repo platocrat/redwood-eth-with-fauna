@@ -1,22 +1,33 @@
 import { useState, useEffect } from 'react'
-import Countdown from 'react-countdown';
+import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useMutation, useFlash } from '@redwoodjs/web'
 import NewAuction from 'src/components/NewAuction'
 import Web3UserCell from 'src/components/Web3UserCell/Web3UserCell'
 import styled from 'styled-components'
 
+
 import { QUERY } from 'src/components/AuctionsCell'
 
-import { bid, settleAndBeginAuction } from 'src/web3/auction'
+import { bid, settleAndBeginAuction, timeLeft } from 'src/web3/auction'
 import { unlockBrowser } from 'src/web3/connect'
 
 /* @component */
 export const CenteredContainer = styled.div`
   display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
   justify-content: center;
   width: 100%;
   text-align: center;
+`
+export const CountdownContainer = styled.div`
+  display: inline-block;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+  color: #004777;
 `
 
 const timeTag = (datetime) => {
@@ -30,11 +41,24 @@ const timeTag = (datetime) => {
 const checkboxInputTag = (checked) => {
   return <input type="checkbox" checked={checked} disabled />
 }
+/* 
+const getCountdownComponent = (winLength) => {
+  let timeLeft = winLength
+  return (
+    <>
+    <CountdownCircleTimer 
+        isPlaying
+        duration ={timeLeft}
+        initialRemainingTime={timeLeft}
+        colors="#A30000"
+      />
+    </>
+)}
+*/
 
-const getProgressBar = (status, winLength, lastBidTime) => {
+const getProgressBar = (status, winLength, timeLeft) => {
   let barText = '<TIME LEFT / PROGRESS BAR>'
-  let endTime = lastBidTime + winLength
-  let subText = `Auction win time: ${winLength} seconds`
+  let subText = `Auction win time: ${winLength} seconds. This auction will end in ${timeLeft} seconds.`
   if (status === 'created') barText = 'Waiting for first Bid'
   if (status === 'ended') {
     barText = '🔨 Auction ended ⏳'
@@ -44,9 +68,37 @@ const getProgressBar = (status, winLength, lastBidTime) => {
     <>
       <h3>{barText}</h3>
       {subText}
-      <Countdown date={Date.now() + 10000} />
-      <Countdown date={Date.endTime }/>
     </>
+  )
+}
+
+const getCountdown = (timeLeft) => {
+  return (
+    <CountdownContainer>   
+    <CountdownCircleTimer 
+          isPlaying
+          strokeWidth='18'
+          duration={timeLeft}
+          colors={[
+            ['#004777', 0.4],
+            ['#F7B801', 0.4],
+            ['#A30000', 0.2],
+          ]}
+          onComplete={() => {
+            console.log('Auction completed')
+            return [false, 0]
+          }} 
+        >
+        {({ timeLeft}) => (
+          <div>
+          There are 
+          <br /> {timeLeft} 
+          <br />seconds
+          <br /> remaining
+          </div>
+        )}
+    </CountdownCircleTimer>
+    </CountdownContainer> 
   )
 }
 
@@ -101,7 +153,10 @@ const Auction = ({ auction }) => {
         <b>{auction.name}</b>
       </h1>
       <h3>Generation: {auction.currentGeneration}</h3>
-      {getProgressBar(status, auction.winLength)}
+      {getProgressBar(status, auction.winLength, auction.lastBidTime)}
+      <br />
+      {getCountdown(auction.winLength)}
+      <br />
       {getPromptBox(
         auction.status,
         false,
@@ -109,12 +164,14 @@ const Auction = ({ auction }) => {
         auction.winLength,
         auction.address
       )}
+      <p></p>
       {walletAddress && (
         <Web3UserCell
           address={walletAddress}
           auctionAddress={auction.address}
         />
       )}
+      <p></p>
       <header className="rw-segment-header">
         <h2 className="rw-heading rw-heading-secondary">Details</h2>
       </header>

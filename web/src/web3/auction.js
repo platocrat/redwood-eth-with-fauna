@@ -89,6 +89,26 @@ export const settleAndBeginAuction = async ({ auctionAddress }) => {
   }
 }
 
+export const timeLeft = async ({ auctionAddress }) => {
+  try {
+    const { walletProvider } = await unlockBrowser({
+      debug: true,
+    })
+    const auction = new Contract(
+      auctionAddress,
+      Emanator.abi,
+      walletProvider.getSigner()
+    )
+    const timeRemaining = await auction.getTimeRemaining()
+
+    return { timeRemaining }
+  } catch (err) {
+    return {
+      ...getErrorResponse(err, 'timeLeft'),
+    }
+  }
+}
+
 export const subscribeToIDA = async ({ auctionAddress }) => {
   try {
     const { error, walletProvider, walletAddress } = await unlockBrowser({
