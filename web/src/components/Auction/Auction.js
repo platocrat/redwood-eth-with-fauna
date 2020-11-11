@@ -6,6 +6,7 @@ import { themeGet } from '@styled-system/theme-get'
 import NewAuction from 'src/components/NewAuction'
 import Web3UserCell from 'src/components/Web3UserCell/Web3UserCell'
 import { Row, Column } from 'src/components/core/Grid'
+import Address from 'src/components/core/Address'
 
 import { QUERY } from 'src/components/AuctionsCell'
 
@@ -85,7 +86,37 @@ const getPromptBox = (
   )
 }
 
-const displayAuctionDetails = ({ auction }) => (
+const displayAuctionRevenueTable = ({ auction, bidders }) => (
+  <div className="rw-segment rw-table-wrapper-responsive">
+    <table className="rw-table">
+      <thead>
+        <tr>
+          <th>Recipient</th>
+          <th>Revenue to Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {bidders.map((bidder, index) => {
+          const bidderText =
+            index === 0 ? (
+              <Address address={bidder.address}>Creator</Address>
+            ) : (
+              <Address address={bidder.address} />
+            )
+
+          return (
+            <tr>
+              <td>{bidderText}</td>
+              <td>{bidder.revenue}</td>
+            </tr>
+          )
+        })}
+      </tbody>
+    </table>
+  </div>
+)
+
+const displayAuctionDetailsTable = ({ auction }) => (
   <>
     <header className="rw-segment-header">
       <h2 className="rw-heading rw-heading-secondary">Details</h2>
@@ -93,16 +124,14 @@ const displayAuctionDetails = ({ auction }) => (
     <table className="rw-table">
       <tbody>
         <tr>
-          <th>Curent Auction Revenue</th>
-          <td>{auction.auctionBalance}</td>
-        </tr>
-        <tr>
           <th>High bid</th>
           <td>{auction.highBid}</td>
         </tr>
         <tr>
           <th>High bidder</th>
-          <td>{auction.highBidder}</td>
+          <td>
+            <Address address={auction.highBidder} />
+          </td>
         </tr>
         <tr>
           <th>Last bid time</th>
@@ -126,11 +155,15 @@ const displayAuctionDetails = ({ auction }) => (
         </tr>
         <tr>
           <th>Address</th>
-          <td>{auction.address}</td>
+          <td>
+            <Address address={auction.address} />
+          </td>
         </tr>
         <tr>
           <th>Owner</th>
-          <td>{auction.owner}</td>
+          <td>
+            <Address address={auction.owner} />
+          </td>
         </tr>
         <tr>
           <th>Launch date</th>
@@ -173,7 +206,22 @@ const Auction = ({ auction }) => {
             auction.address
           )}
         </Column>
-        <Column></Column>
+        <Column>
+          <header className="rw-header">
+            <h1 className="rw-heading rw-heading-primary">
+              ${auction.auctionBalance} DAIx
+            </h1>
+            <p>Current Auction Revenue</p>
+          </header>
+          {displayAuctionRevenueTable({
+            auction,
+            bidders: [
+              { address: '0xabc', revenue: 10 },
+              { address: '0xabc', revenue: 10 },
+              { address: '0xabc', revenue: 10 },
+            ],
+          })}
+        </Column>
       </Row>
       <Row gap="10px">
         <Column>
@@ -184,7 +232,7 @@ const Auction = ({ auction }) => {
             />
           )}
         </Column>
-        <Column>{displayAuctionDetails({ auction })}</Column>
+        <Column>{displayAuctionDetailsTable({ auction })}</Column>
       </Row>
     </Container>
   )

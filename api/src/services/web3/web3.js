@@ -16,7 +16,7 @@ export const web3Auction = async ({ address }) => {
     )
     const auction = new Contract(address, Emanator.abi, walletlessProvider)
     const currentGeneration = await auction.currentGeneration()
-    console.log(currentGeneration)
+
     const { highBid, highBidder, lastBidTime } = await auction.getAuctionInfo(
       currentGeneration
     )
