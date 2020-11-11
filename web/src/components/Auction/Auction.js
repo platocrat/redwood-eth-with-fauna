@@ -33,11 +33,11 @@ const Container = styled.div`
 `
 
 const CountdownContainer = styled.div`
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
   text-align: center;
-  padding: ${themeGet('space.4')};
+  padding: ${themeGet('space.2')};
 `
 
 const Countdown = styled(CountdownCircleTimer)`
@@ -57,16 +57,18 @@ const checkboxInputTag = (checked) => {
   return <input type="checkbox" checked={checked} disabled />
 }
 
-const getProgress = (status, endTime, lastBidTime) => {
+const getProgress = ({ auction }) => {
+  const { status, endTime, lastBidTime } = auction
   let duration = 0
   let initialRemainingTime = 0
-  if (status === 'started' && lastBidTime > 0) {
-    duration = (endTime - lastBidTime) / 1000
-    initialRemainingTime = endTime - Date.now()
+  const end = new Date(endTime)
+  const now = new Date()
+  const lastBid = new Date(lastBidTime)
+
+  if (status === 'started' && end > now) {
+    duration = (end - lastBid) / 1000
+    initialRemainingTime = (end - now) / 1000
   }
-  console.log(typeof lastBidTime)
-  console.log(initialRemainingTime)
-  console.log(duration)
   return (
     <CountdownContainer>
       <Countdown
@@ -262,7 +264,7 @@ const Auction = ({ auction }) => {
   useEffect(() => {
     unlockWallet()
   }, [])
-  console.log(auction)
+
   return (
     <Container>
       <Row gap="10px">
@@ -275,12 +277,9 @@ const Auction = ({ auction }) => {
           <i>Win time: </i>
           {`${auction.winLength}s`}
           <Spacer mb={5} />
-          {getProgress(
-            auction.status,
-            auction.winLength,
-            auction.endTime,
-            auction.lastBidTime
-          )}
+          {getProgress({
+            auction,
+          })}
           <Spacer mb={3} />
           {getPromptBox(
             auction.status,
