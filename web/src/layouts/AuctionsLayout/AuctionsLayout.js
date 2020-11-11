@@ -6,10 +6,7 @@ const AuctionsLayout = (props) => {
     <div className="rw-scaffold">
       <Flash timeout={1000} />
       <header className="rw-header">
-        <h1 className="rw-heading rw-heading-primary">Auctions</h1>
-        <Link to={routes.newAuction()} className="rw-button rw-button-green">
-          <div className="rw-button-icon">+</div> New Auction
-        </Link>
+        <h1 className="rw-heading rw-heading-primary">Top Grossing NFTs</h1>
       </header>
       <main className="rw-main">{props.children}</main>
     </div>

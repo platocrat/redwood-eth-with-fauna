@@ -1,7 +1,9 @@
 import { db } from 'src/lib/db'
 
 export const auctions = () => {
-  return db.auction.findMany()
+  return db.auction.findMany({
+    orderBy: { revenue: 'desc' },
+  })
 }
 
 export const auction = ({ address }) => {

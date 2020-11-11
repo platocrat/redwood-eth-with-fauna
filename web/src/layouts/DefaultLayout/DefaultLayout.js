@@ -1,5 +1,4 @@
 import { Link } from '@redwoodjs/router'
-import { themeGet } from '@styled-system/theme-get'
 
 import styled from 'styled-components'
 
@@ -13,13 +12,6 @@ const Background = styled.div`
   @media (max-width: 720px) {
     background-position: 0% 0%;
   }
-`
-
-const Wrapper = styled.header`
-  position: relative;
-  width: 100%;
-  padding-top: ${themeGet('space.4')};
-  background-color: ${themeGet('colors.bg')};
 `
 
 const MainWrapper = styled.div`

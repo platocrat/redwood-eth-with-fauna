@@ -45,28 +45,14 @@ const AuctionsList = ({ auctions }) => {
       <table className="rw-table">
         <thead>
           <tr>
-            <th>Address</th>
             <th>Name</th>
-            <th>Description</th>
-            <th>Created at</th>
-            <th>Status</th>
-            <th>High bid</th>
-            <th>Generation</th>
+            <th>Generations</th>
             <th>Revenue</th>
-            <th>&nbsp;</th>
           </tr>
         </thead>
         <tbody>
           {auctions.map((auction) => (
             <tr key={auction.id}>
-              <td>{truncate(auction.address)}</td>
-              <td>{truncate(auction.name)}</td>
-              <td>{truncate(auction.description)}</td>
-              <td>{timeTag(auction.createdAt)}</td>
-              <td>{truncate(auction.status)}</td>
-              <td>{truncate(auction.highBid)}</td>
-              <td>{truncate(auction.generation)}</td>
-              <td>{truncate(auction.revenue)}</td>
               <td>
                 <nav className="rw-table-actions">
                   <Link
@@ -74,10 +60,12 @@ const AuctionsList = ({ auctions }) => {
                     title={'Show auction ' + auction.id + ' detail'}
                     className="rw-button rw-button-small"
                   >
-                    Show
+                    {truncate(auction.name)}
                   </Link>
                 </nav>
               </td>
+              <td>{truncate(auction.generation)}</td>
+              <td>{truncate(auction.revenue)}</td>
             </tr>
           ))}
         </tbody>
