@@ -19,6 +19,7 @@ export const QUERY = gql`
       highBid
       highBidder
       status
+      currentGeneration
     }
   }
 `

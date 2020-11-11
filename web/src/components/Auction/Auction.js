@@ -67,7 +67,7 @@ const getPromptBox = (
   let onClick = () => bid({ amount: bidAmount, auctionAddress })
   let estTotal = winLength
   let promptText = `Become the high bidder - Bid ${bidAmount} DAI`
-  let buttonText = 'Bid'
+  let buttonText = 'approve & bid'
   if (status === 'ended') {
     promptText = 'After settlement, a new auction will begin immediately'
     buttonText = 'Settle Auction'
@@ -156,13 +156,12 @@ const Auction = ({ auction }) => {
   useEffect(() => {
     unlockWallet()
   }, [])
-
   return (
     <Container>
       <h1>
         <b>{auction.name}</b>
       </h1>
-      <h3>Generation: {auction.currentGeneration || 0}</h3>
+      <h3>Generation: {auction.currentGeneration}</h3>
       <Row gap="10px">
         <Column>
           {getProgressBar(status, auction.winLength)}

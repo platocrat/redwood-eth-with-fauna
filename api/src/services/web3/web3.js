@@ -15,12 +15,11 @@ export const web3Auction = async ({ address }) => {
       process.env.INFURA_ENDPOINT_KEY
     )
     const auction = new Contract(address, Emanator.abi, walletlessProvider)
-    const {
-      highBid,
-      highBidder,
-      lastBidTime,
-      currentGeneration,
-    } = await auction.getCurrentAuctionInfo()
+    const currentGeneration = await auction.currentGeneration()
+    console.log(currentGeneration)
+    const { highBid, highBidder, lastBidTime } = await auction.getAuctionInfo(
+      currentGeneration
+    )
 
     const endTime = await auction.checkEndTime()
     const auctionBalance = await auction.getAuctionBalance()
@@ -29,7 +28,6 @@ export const web3Auction = async ({ address }) => {
     let status = Date.now() < lastBidTimeFormatted ? 'started' : 'ended'
 
     if (lastBidTimeFormatted === 0) status = 'started'
-
     return {
       highBidder,
       highBid: Number(formatUnits(highBid, 18)).toFixed(0),

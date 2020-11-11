@@ -19,8 +19,9 @@ const SubscribeForm = (props) => {
     <Container>
       <Form onSubmit={onSubmit}>
         <p>
-          Warning: You are not subscribed to the IDA, you will receive tokens,
-          but they won't appear in your balance until you subscribe
+          Warning: You are not subscribed to the IDA for this auction. You will
+          still receive tokens, but they won't appear in your balance until you
+          subscribe
         </p>
         <div className="rw-button-group">
           <Submit disabled={props.loading} className="rw-button rw-button-blue">
