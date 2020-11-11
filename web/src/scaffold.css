@@ -258,10 +258,10 @@
   color: #c53030;
 }
 .rw-table-wrapper-responsive {
-  overflow-x: scroll;
+  overflow-x: auto;
 }
 .rw-table-wrapper-responsive .rw-table {
-  min-width: 48rem;
+  min-width: 20rem;
 }
 .rw-table {
   table-layout: auto;
@@ -303,10 +303,7 @@
 }
 .rw-table-actions {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  height: 17px;
-  padding-right: 0.25rem;
 }
 .rw-table-actions .rw-button {
   background-color: transparent;

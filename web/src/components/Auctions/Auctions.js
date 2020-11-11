@@ -1,15 +1,8 @@
 import { useFlash } from '@redwoodjs/web'
-import { Link, routes } from '@redwoodjs/router'
+import { navigate, routes } from '@redwoodjs/router'
+import Link from 'src/components/core/Link'
 
 import { QUERY } from 'src/components/AuctionsCell'
-
-const DELETE_AUCTION_MUTATION = gql`
-  mutation DeleteAuctionMutation($id: Int!) {
-    deleteAuction(id: $id) {
-      id
-    }
-  }
-`
 
 const MAX_STRING_LENGTH = 150
 
@@ -54,15 +47,13 @@ const AuctionsList = ({ auctions }) => {
           {auctions.map((auction) => (
             <tr key={auction.id}>
               <td>
-                <nav className="rw-table-actions">
-                  <Link
-                    to={routes.auction({ address: auction.address })}
-                    title={'Show auction ' + auction.id + ' detail'}
-                    className="rw-button rw-button-small"
-                  >
-                    {truncate(auction.name)}
-                  </Link>
-                </nav>
+                <Link
+                  onClick={() =>
+                    navigate(routes.auction({ address: auction.address }))
+                  }
+                >
+                  {truncate(auction.name)}
+                </Link>
               </td>
               <td>{truncate(auction.generation)}</td>
               <td>{truncate(auction.revenue)}</td>

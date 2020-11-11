@@ -24,16 +24,14 @@ const HomePage = () => {
           <div className="rw-scaffold">
             <Flash timeout={1000} />
             <header className="rw-header">
-              <h1 className="rw-heading rw-heading-primary">
-                Create your own NFT
-              </h1>
+              <h1 className="rw-heading rw-heading-primary">Create an NFT</h1>
             </header>
             <main className="rw-main">
               <NewAuction />
             </main>
           </div>
         </Column>
-        <Column>
+        <Column sm="auto">
           <AuctionsLayout>
             <AuctionsCell />
           </AuctionsLayout>

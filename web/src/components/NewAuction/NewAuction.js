@@ -40,9 +40,6 @@ const NewAuction = () => {
 
   return (
     <div className="rw-segment">
-      <header className="rw-segment-header">
-        <h2 className="rw-heading rw-heading-secondary">New Auction</h2>
-      </header>
       <div className="rw-segment-main">
         <AuctionForm
           onSave={onSave}
