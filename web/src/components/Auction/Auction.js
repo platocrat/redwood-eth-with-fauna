@@ -202,13 +202,14 @@ const Auction = ({ auction }) => {
 
   return (
     <Container>
-      <h1>
-        <b>{auction.name}</b>
-      </h1>
-      <h3>Generation: {auction.currentGeneration}</h3>
-      {getProgressBar(status, auction.winLength)}
       <Row gap="10px">
         <Column>
+          <h1> {auction.name} </h1>
+          <Spacer mb={3} />
+          <h3>Generation: {auction.currentGeneration}</h3>
+          <Spacer mb={5} />
+          {getProgressBar(status, auction.winLength)}
+          <Spacer mb={3} />
           {getPromptBox(
             auction.status,
             false,
@@ -217,7 +218,7 @@ const Auction = ({ auction }) => {
             auction.address
           )}
         </Column>
-        <Column>
+        <Column sm="auto">
           <Container>
             <h1 className="rw-heading rw-heading-primary">
               ${auction.auctionBalance.toFixed(2)}
@@ -234,7 +235,7 @@ const Auction = ({ auction }) => {
           })}
         </Column>
       </Row>
-      <Spacer mb={4} />
+      <Spacer mb={5} />
       <Row gap="10px">
         <Column>
           {walletAddress && (
