@@ -1,4 +1,13 @@
 import { Form, Submit } from '@redwoodjs/forms'
+import styled from 'styled-components'
+import { themeGet } from '@styled-system/theme-get'
+
+export const Container = styled.div`
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: ${themeGet('space.4')};
+`
 
 const FormError = ({ error }) => <div>ERROR: {error}</div>
 
@@ -7,11 +16,11 @@ const SubscribeForm = (props) => {
     props.onSave()
   }
   return (
-    <div className="rw-form-wrapper">
+    <Container>
       <Form onSubmit={onSubmit}>
         <p>
-          You are not subscribed to the IDA, you will receive tokens, but they
-          won't appear in your balance until you subscribe
+          Warning: You are not subscribed to the IDA, you will receive tokens,
+          but they won't appear in your balance until you subscribe
         </p>
         <div className="rw-button-group">
           <Submit disabled={props.loading} className="rw-button rw-button-blue">
@@ -20,7 +29,7 @@ const SubscribeForm = (props) => {
         </div>
         {props.error && <FormError error={props.error} />}
       </Form>
-    </div>
+    </Container>
   )
 }
 

@@ -9,6 +9,7 @@ import NewAuction from 'src/components/NewAuction'
 import { Row, Column } from 'src/components/core/Grid'
 
 const TextContainer = styled.div`
+  min-width: 20rem;
   padding: ${themeGet('space.4')};
 `
 const HomePage = () => {

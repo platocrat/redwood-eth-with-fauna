@@ -19,11 +19,11 @@ export const web3Auction = async ({ address }) => {
       highBid,
       highBidder,
       lastBidTime,
+      currentGeneration,
     } = await auction.getCurrentAuctionInfo()
 
     const endTime = await auction.checkEndTime()
     const auctionBalance = await auction.getAuctionBalance()
-    const currentGeneration = await auction.currentGeneration()
     let lastBidTimeFormatted = lastBidTime.toNumber() * 1000
     let endTimeFormatted = endTime.toNumber() * 1000
     let status = Date.now() < lastBidTimeFormatted ? 'started' : 'ended'

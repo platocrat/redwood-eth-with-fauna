@@ -1,4 +1,8 @@
 import { useState } from 'react'
+import { parseUnits, formatUnits } from '@ethersproject/units'
+
+import styled from 'styled-components'
+import { themeGet } from '@styled-system/theme-get'
 
 import {
   Form,
@@ -12,6 +16,13 @@ import {
 import SubscribeForm from 'src/components/SubscribeForm/SubscribeForm'
 
 import { subscribeToIDA } from 'src/web3/auction'
+
+export const Container = styled.div`
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+`
 
 const Web3User = ({ web3User, auctionAddress }) => {
   const { superTokenBalance, isSubscribed } = web3User
@@ -36,15 +47,24 @@ const Web3User = ({ web3User, auctionAddress }) => {
   }
 
   return (
-    <div>
-      <h2>{'Web3User'}</h2>
-      <p>{`superTokenBalance: ${superTokenBalance}`}</p>
-      <div>
-        {showForm && (
-          <SubscribeForm error={error} loading={loading} onSave={onSubscribe} />
-        )}
-      </div>
-    </div>
+    <Container>
+      <header className="rw-segment-header">
+        <h2 className="rw-heading rw-heading-secondary">
+          Your Superfluid Account
+        </h2>
+      </header>
+      <table className="rw-table">
+        <tbody>
+          <tr>
+            <th>DAIx Balance</th>
+            <td>{Number(formatUnits(superTokenBalance, 18)).toFixed(6)}</td>
+          </tr>
+        </tbody>
+      </table>
+      {showForm && (
+        <SubscribeForm error={error} loading={loading} onSave={onSubscribe} />
+      )}
+    </Container>
   )
 }
 

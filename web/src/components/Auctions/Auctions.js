@@ -41,6 +41,7 @@ const AuctionsList = ({ auctions }) => {
             <th>Name</th>
             <th>Generations</th>
             <th>Revenue</th>
+            <th>Date Created</th>
           </tr>
         </thead>
         <tbody>
@@ -57,6 +58,7 @@ const AuctionsList = ({ auctions }) => {
               </td>
               <td>{truncate(auction.generation)}</td>
               <td>{truncate(auction.revenue)}</td>
+              <td>{timeTag(auction.createdAt)}</td>
             </tr>
           ))}
         </tbody>
