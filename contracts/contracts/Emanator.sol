@@ -90,7 +90,6 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
   uint public shareAmount = 1*10**8;
 
   address payable public creator;
-  address[] public winners;
 
   ISuperfluid private host;
   IConstantFlowAgreementV1 private cfa;
@@ -102,6 +101,7 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
     uint256 highBid;
     address owner;
     address highBidder;
+    uint256 revenue;
   }
 
   mapping (uint256 => Auction) public auctionByGeneration;
@@ -161,6 +161,7 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       _auction.highBid = bidAmount;
       _auction.highBidder = msg.sender;
       _auction.lastBidTime = block.timestamp;
+      _auction.revenue += bidAmount;
 
       return (_auction.highBid, _auction.lastBidTime, _auction.highBidder);
   }
@@ -193,7 +194,6 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       }
 
       // Update revenue shares
-      winners.push(_auction.highBidder);
       host.callAgreement(
         ida,
         abi.encodeWithSelector(
@@ -233,9 +233,9 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       return ( _auction.highBid, _auction.highBidder, _auction.lastBidTime, currentGeneration);
   }
 
-  function getAuctionInfo(uint id) public view returns ( uint highBid, address highBidder, uint lastBidTime){
+  function getAuctionInfo(uint id) public view returns ( uint highBid, address highBidder, uint lastBidTime, uint revenue){
       Auction storage _auction = auctionByGeneration[id];
-      return ( _auction.highBid, _auction.highBidder, _auction.lastBidTime);
+      return ( _auction.highBid, _auction.highBidder, _auction.lastBidTime, _auction.revenue);
   }
 
   function getHighBidder() public view returns (address highBidder){

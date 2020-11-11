@@ -15,7 +15,6 @@ export const QUERY = gql`
       generation
       winLength
       owner
-      revenue
     }
   }
 `

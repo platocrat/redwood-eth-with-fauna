@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useMutation, useFlash } from '@redwoodjs/web'
 import styled from 'styled-components'
 import { themeGet } from '@styled-system/theme-get'
@@ -14,7 +15,7 @@ import { QUERY } from 'src/components/AuctionsCell'
 import { bid, settleAndBeginAuction } from 'src/web3/auction'
 import { unlockBrowser } from 'src/web3/connect'
 
-export const PromptContainer = styled.div`
+const PromptContainer = styled.div`
   align-items: center;
   justify-content: center;
   width: 100%;
@@ -23,12 +24,25 @@ export const PromptContainer = styled.div`
   padding: ${themeGet('space.4')};
 `
 
-export const Container = styled.div`
+const Container = styled.div`
   align-items: center;
   justify-content: center;
   width: 100%;
   text-align: center;
   padding: ${themeGet('space.4')};
+`
+
+const CountdownContainer = styled.div`
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+  padding: ${themeGet('space.4')};
+`
+
+const Countdown = styled(CountdownCircleTimer)`
+  justify-content: center;
+  width: 100%;
 `
 
 const timeTag = (datetime) => {
@@ -43,19 +57,44 @@ const checkboxInputTag = (checked) => {
   return <input type="checkbox" checked={checked} disabled />
 }
 
-const getProgressBar = (status, winLength) => {
-  let barText = '<TIME LEFT / PROGRESS BAR>'
-  let subText = `Auction win time: ${winLength} seconds`
-  if (status === 'created') barText = 'Waiting for first Bid'
-  if (status === 'ended') {
-    barText = '🔨 Auction ended ⏳'
-    subText = 'Waiting to start the next one'
+const getProgress = (status, endTime, lastBidTime) => {
+  let duration = 0
+  let initialRemainingTime = 0
+  if (status === 'started' && lastBidTime > 0) {
+    duration = (endTime - lastBidTime) / 1000
+    initialRemainingTime = endTime - Date.now()
   }
+  console.log(typeof lastBidTime)
+  console.log(initialRemainingTime)
+  console.log(duration)
   return (
-    <>
-      <h3>{barText}</h3>
-      {subText}
-    </>
+    <CountdownContainer>
+      <Countdown
+        isPlaying
+        strokeWidth="18"
+        duration={duration}
+        initialRemainingTime={initialRemainingTime}
+        colors={[
+          ['#004777', 0.4],
+          ['#F7B801', 0.4],
+          ['#A30000', 0.2],
+        ]}
+      >
+        {({ remainingTime }) => {
+          const minutes = Math.floor(remainingTime / 60)
+          const seconds = remainingTime % 60
+          if (remainingTime > 0) return <h1>{`${minutes}:${seconds}`}</h1>
+          if (status === 'started') return <>Waiting for first Bid</>
+          return (
+            <>
+              🔨⏳
+              <br />
+              Auction ended
+            </>
+          )
+        }}
+      </Countdown>
+    </CountdownContainer>
   )
 }
 
@@ -96,35 +135,40 @@ const getPromptBox = (
   )
 }
 
-const displayAuctionRevenueTable = ({ auction, bidders }) => (
-  <div className="rw-segment rw-table-wrapper-responsive">
-    <table className="rw-table">
-      <thead>
-        <tr>
-          <th>Recipient</th>
-          <th>Revenue to Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        {bidders.map((bidder, index) => {
-          const bidderText =
-            index === 0 ? (
-              <Address address={bidder.address}>Creator</Address>
-            ) : (
-              <Address address={bidder.address} />
+const displayAuctionRevenueTable = ({ auction }) => {
+  const { winners, owner } = auction
+  const winnersList = [
+    { address: owner, revenue: 0, generation: 0 },
+    ...winners,
+  ]
+  console.log(winnersList)
+  return (
+    <div className="rw-segment rw-table-wrapper-responsive">
+      <table className="rw-table">
+        <thead>
+          <tr>
+            <th>Recipient</th>
+            <th>Revenue to Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {winnersList.map((winner, index) => {
+            return (
+              <tr key={`${winner.address}-${winner.revenue}`}>
+                <td>
+                  <Address address={winner.address}>
+                    {index === 0 && 'Creator'}
+                  </Address>
+                </td>
+                <td>{winner.revenue}</td>
+              </tr>
             )
-
-          return (
-            <tr>
-              <td>{bidderText}</td>
-              <td>{bidder.revenue}</td>
-            </tr>
-          )
-        })}
-      </tbody>
-    </table>
-  </div>
-)
+          })}
+        </tbody>
+      </table>
+    </div>
+  )
+}
 
 const displayAuctionDetailsTable = ({ auction }) => (
   <>
@@ -145,19 +189,11 @@ const displayAuctionDetailsTable = ({ auction }) => (
         </tr>
         <tr>
           <th>Last bid time</th>
-          <td>
-            {typeof auction.lastBidTime === 'string'
-              ? auction.lastBidTime
-              : timeTag(auction.lastBidTime)}
-          </td>
+          <td>{timeTag(auction.lastBidTime)}</td>
         </tr>
         <tr>
           <th>Auction close time</th>
-          <td>
-            {typeof auction.endTime === 'string'
-              ? auction.endTime
-              : timeTag(auction.endTime)}
-          </td>
+          <td>{timeTag(auction.endTime)}</td>
         </tr>
         <tr>
           <th>Description</th>
@@ -199,16 +235,25 @@ const Auction = ({ auction }) => {
   useEffect(() => {
     unlockWallet()
   }, [])
-
+  console.log(auction)
   return (
     <Container>
       <Row gap="10px">
         <Column>
           <h1> {auction.name} </h1>
           <Spacer mb={3} />
-          <i>Generation: {auction.currentGeneration}</i>
+          <i>Generation: </i>
+          {auction.currentGeneration}
+          <br />
+          <i>Win time: </i>
+          {`${auction.winLength}s`}
           <Spacer mb={5} />
-          {getProgressBar(status, auction.winLength)}
+          {getProgress(
+            auction.status,
+            auction.winLength,
+            auction.endTime,
+            auction.lastBidTime
+          )}
           <Spacer mb={3} />
           {getPromptBox(
             auction.status,
@@ -228,9 +273,9 @@ const Auction = ({ auction }) => {
           {displayAuctionRevenueTable({
             auction,
             bidders: [
-              { address: '0xabc', revenue: 10 },
-              { address: '0xabc', revenue: 10 },
-              { address: '0xabc', revenue: 10 },
+              { address: '0xabc', revenue: 101 },
+              { address: '0xabc', revenue: 102 },
+              { address: '0xabc', revenue: 103 },
             ],
           })}
         </Column>

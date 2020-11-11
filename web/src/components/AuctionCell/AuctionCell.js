@@ -8,7 +8,6 @@ export const QUERY = gql`
       address
       description
       createdAt
-      revenue
       winLength
       owner
     }
@@ -20,6 +19,8 @@ export const QUERY = gql`
       highBidder
       status
       currentGeneration
+      winners
+      revenue
     }
   }
 `

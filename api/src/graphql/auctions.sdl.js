@@ -10,7 +10,6 @@ export const schema = gql`
     status: String!
     highBid: Int!
     generation: Int!
-    revenue: Int!
     bids: [Bid]!
   }
 
@@ -28,7 +27,6 @@ export const schema = gql`
     status: String
     highBid: Int
     generation: Int
-    revenue: Int
   }
 
   type Mutation {

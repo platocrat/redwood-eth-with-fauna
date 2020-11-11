@@ -17,17 +17,29 @@ export const web3Auction = async ({ address }) => {
     const auction = new Contract(address, Emanator.abi, walletlessProvider)
     const currentGeneration = await auction.currentGeneration()
 
-    const { highBid, highBidder, lastBidTime } = await auction.getAuctionInfo(
+    let revenue = 0
+    let winners = []
+
+    for (var i = 0; i < currentGeneration - 1; i++) {
+      const {
+        highBidder: winner,
+        revenue: auctionRevenue,
+      } = await auction.getAuctionInfo(i)
+      revenue += Number(formatUnits(auctionRevenue, 18))
+      winners.push({ address: winner, generation: i })
+    }
+
+    const { lastBidTime, highBid, highBidder } = await auction.getAuctionInfo(
       currentGeneration
     )
-
     const endTime = await auction.checkEndTime()
     const auctionBalance = await auction.getAuctionBalance()
+
     let lastBidTimeFormatted = lastBidTime.toNumber() * 1000
     let endTimeFormatted = endTime.toNumber() * 1000
-    let status = Date.now() < lastBidTimeFormatted ? 'started' : 'ended'
-
+    let status = Date.now() < endTimeFormatted ? 'started' : 'ended'
     if (lastBidTimeFormatted === 0) status = 'started'
+
     return {
       highBidder,
       highBid: Number(formatUnits(highBid, 18)).toFixed(0),
@@ -36,6 +48,8 @@ export const web3Auction = async ({ address }) => {
       lastBidTime: lastBidTimeFormatted,
       auctionBalance: Number(formatUnits(auctionBalance, 18)).toFixed(0),
       status,
+      winners,
+      revenue,
     }
   } catch (err) {
     return new Error(`Error getting auction ${address}. ${err}`)

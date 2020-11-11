@@ -7,6 +7,8 @@ export const schema = gql`
     auctionBalance: Int!
     endTime: DateTime!
     lastBidTime: DateTime!
+    winners: JSON!
+    revenue: Int!
   }
 
   type Web3User {
