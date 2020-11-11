@@ -7,7 +7,7 @@ export const schema = gql`
     auctionBalance: Int!
     endTime: DateTime!
     lastBidTime: DateTime!
-    winners: JSON!
+    pastAuctions: JSON!
     revenue: Int!
   }
 

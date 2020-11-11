@@ -18,15 +18,20 @@ export const web3Auction = async ({ address }) => {
     const currentGeneration = await auction.currentGeneration()
 
     let revenue = 0
-    let winners = []
+    let pastAuctions = []
 
-    for (var i = 0; i < currentGeneration - 1; i++) {
+    for (var i = 1; i < currentGeneration; i++) {
       const {
         highBidder: winner,
         revenue: auctionRevenue,
       } = await auction.getAuctionInfo(i)
-      revenue += Number(formatUnits(auctionRevenue, 18))
-      winners.push({ address: winner, generation: i })
+      const revenueFormatted = Number(formatUnits(auctionRevenue, 18))
+      revenue += revenueFormatted
+      pastAuctions.push({
+        generation: i,
+        winner: winner,
+        revenue: revenueFormatted,
+      })
     }
 
     const { lastBidTime, highBid, highBidder } = await auction.getAuctionInfo(
@@ -48,7 +53,7 @@ export const web3Auction = async ({ address }) => {
       lastBidTime: lastBidTimeFormatted,
       auctionBalance: Number(formatUnits(auctionBalance, 18)).toFixed(0),
       status,
-      winners,
+      pastAuctions,
       revenue,
     }
   } catch (err) {

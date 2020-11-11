@@ -136,12 +136,37 @@ const getPromptBox = (
 }
 
 const displayAuctionRevenueTable = ({ auction }) => {
-  const { winners, owner } = auction
-  const winnersList = [
-    { address: owner, revenue: 0, generation: 0 },
-    ...winners,
-  ]
-  console.log(winnersList)
+  const { pastAuctions, owner, currentGeneration } = auction
+
+  let winnersList = []
+  let carryOver = 0
+  let ownerRevenue = 0
+
+  pastAuctions.forEach((auction, i) => {
+    winnersList.push({
+      address: auction.winner,
+      generation: auction.generation,
+      revenue: 0,
+      shares: 100000 * Math.pow(0.9, i),
+    })
+  })
+
+  pastAuctions.forEach((auction, i) => {
+    if (i === pastAuctions.length - 1) return // The last winner has no revenue
+    const lastRev = pastAuctions[i + 1].revenue
+    const dist = lastRev * 0.3
+    ownerRevenue += lastRev - dist
+    const validRecipients = winnersList.slice(0, i + 1)
+    const totalShares = validRecipients.reduce(
+      (acc, cur) => acc + cur.shares,
+      0
+    )
+    validRecipients.forEach((s, j) => {
+      winnersList[j].revenue += (dist * winnersList[j].shares) / totalShares
+    })
+  })
+  winnersList.push({ address: owner, generation: 0, revenue: ownerRevenue })
+
   return (
     <div className="rw-segment rw-table-wrapper-responsive">
       <table className="rw-table">
@@ -152,18 +177,20 @@ const displayAuctionRevenueTable = ({ auction }) => {
           </tr>
         </thead>
         <tbody>
-          {winnersList.map((winner, index) => {
-            return (
-              <tr key={`${winner.address}-${winner.revenue}`}>
-                <td>
-                  <Address address={winner.address}>
-                    {index === 0 && 'Creator'}
-                  </Address>
-                </td>
-                <td>{winner.revenue}</td>
-              </tr>
-            )
-          })}
+          {winnersList
+            .sort((a, b) => a.generation - b.generation)
+            .map((winner, index) => {
+              return (
+                <tr key={`${winner.address}-${winner.revenue}`}>
+                  <td>
+                    <Address address={winner.address}>
+                      {index === 0 && 'Creator'}
+                    </Address>
+                  </td>
+                  <td>${winner.revenue.toFixed(2)}</td>
+                </tr>
+              )
+            })}
         </tbody>
       </table>
     </div>

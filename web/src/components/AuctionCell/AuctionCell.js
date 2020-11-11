@@ -19,7 +19,7 @@ export const QUERY = gql`
       highBidder
       status
       currentGeneration
-      winners
+      pastAuctions
       revenue
     }
   }

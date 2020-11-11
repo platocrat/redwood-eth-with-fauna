@@ -30,8 +30,6 @@ export const approveAuction = async ({ amount, auctionAddress }) => {
     const allowance = await token.allowance(walletAddress, auctionAddress)
     const amountBn = parseUnits('10000000', 18)
     if (allowance.gte(amountBn)) return { noApprovalNeeded: true }
-    console.log(10000000)
-    console.log(formatUnits(allowance, 18))
     const tx = await token.approve(auctionAddress, amountBn)
 
     return { tx }
