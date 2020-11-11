@@ -206,7 +206,7 @@ const Auction = ({ auction }) => {
         <Column>
           <h1> {auction.name} </h1>
           <Spacer mb={3} />
-          <h3>Generation: {auction.currentGeneration}</h3>
+          <i>Generation: {auction.currentGeneration}</i>
           <Spacer mb={5} />
           {getProgressBar(status, auction.winLength)}
           <Spacer mb={3} />
