@@ -7,18 +7,20 @@ import NewAuction from 'src/components/NewAuction'
 import Web3UserCell from 'src/components/Web3UserCell/Web3UserCell'
 import { Row, Column } from 'src/components/core/Grid'
 import Address from 'src/components/core/Address'
+import Spacer from 'src/components/core/Spacer'
 
 import { QUERY } from 'src/components/AuctionsCell'
 
 import { bid, settleAndBeginAuction } from 'src/web3/auction'
 import { unlockBrowser } from 'src/web3/connect'
 
-export const CenteredContainer = styled.div`
-  display: flex;
+export const PromptContainer = styled.div`
   align-items: center;
   justify-content: center;
   width: 100%;
+  height: 100%;
   text-align: center;
+  padding: ${themeGet('space.4')};
 `
 
 export const Container = styled.div`
@@ -77,12 +79,20 @@ const getPromptBox = (
   if (isHighBidder) promptText = 'You are the highest bidder!'
 
   return (
-    <CenteredContainer>
+    <PromptContainer>
+      <Spacer mb={4} />
       <p>{promptText}</p>
-      <button className="rw-button" disabled={isHighBidder} onClick={onClick}>
-        {buttonText}
-      </button>
-    </CenteredContainer>
+      <Spacer mb={4} />
+      <div className="rw-button-group">
+        <button
+          className="rw-button rw-button-blue"
+          disabled={isHighBidder}
+          onClick={onClick}
+        >
+          {buttonText}
+        </button>
+      </div>
+    </PromptContainer>
   )
 }
 
@@ -189,15 +199,16 @@ const Auction = ({ auction }) => {
   useEffect(() => {
     unlockWallet()
   }, [])
+
   return (
     <Container>
       <h1>
         <b>{auction.name}</b>
       </h1>
       <h3>Generation: {auction.currentGeneration}</h3>
+      {getProgressBar(status, auction.winLength)}
       <Row gap="10px">
         <Column>
-          {getProgressBar(status, auction.winLength)}
           {getPromptBox(
             auction.status,
             false,
@@ -207,12 +218,12 @@ const Auction = ({ auction }) => {
           )}
         </Column>
         <Column>
-          <header className="rw-header">
+          <Container>
             <h1 className="rw-heading rw-heading-primary">
-              ${auction.auctionBalance} DAIx
+              ${auction.auctionBalance.toFixed(2)}
             </h1>
             <p>Current Auction Revenue</p>
-          </header>
+          </Container>
           {displayAuctionRevenueTable({
             auction,
             bidders: [
@@ -223,6 +234,7 @@ const Auction = ({ auction }) => {
           })}
         </Column>
       </Row>
+      <Spacer mb={4} />
       <Row gap="10px">
         <Column>
           {walletAddress && (

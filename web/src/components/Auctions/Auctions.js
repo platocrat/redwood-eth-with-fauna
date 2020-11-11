@@ -49,6 +49,7 @@ const AuctionsList = ({ auctions }) => {
             <tr key={auction.id}>
               <td>
                 <Link
+                  underline
                   onClick={() =>
                     navigate(routes.auction({ address: auction.address }))
                   }

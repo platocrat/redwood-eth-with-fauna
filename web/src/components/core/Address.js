@@ -28,6 +28,7 @@ const Address = ({ address, children }) => {
   if (!address) return <></>
   return (
     <Link
+      underline
       onClick={() => window.open(getEtherscanAddressLink(address, 'goerli'))}
     >
       {children ? children : smartTrim(address, 8)}

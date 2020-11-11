@@ -7,8 +7,6 @@ const Link = styled.button.attrs((props) => ({
 }))`
   cursor: ${({ asText }) => !asText && `pointer`};
   font-style: normal;
-  font-weight: ${themeGet('fontWeights.medium')};
-  font-size: 16px;
   font-family: ${themeGet('fonts.base')};
   background-color: ${themeGet('colors.transparent')};
   color: ${themeGet('colors.black')};
@@ -18,6 +16,7 @@ const Link = styled.button.attrs((props) => ({
   padding-left: 0;
   position: relative;
   transition: all 0.15s ease-in-out;
+  text-decoration: ${({ underline }) => underline && `underline`};
 
   &:hover {
     transform: translateY(-2px);
@@ -28,7 +27,6 @@ const Link = styled.button.attrs((props) => ({
   }
 
   @media (min-width: ${themeGet('breakpoints.xl')}) {
-    font-size: 18px;
   }
 `
 export default Link
