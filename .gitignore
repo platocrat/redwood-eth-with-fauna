@@ -9,7 +9,7 @@ dist-babel
 node_modules
 yarn-error.log
 web/public/mockServiceWorker.js
-
+zipped/
 /data
 /node_modules
 /build
