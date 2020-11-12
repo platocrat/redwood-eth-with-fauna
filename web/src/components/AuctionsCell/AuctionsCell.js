@@ -15,6 +15,7 @@ export const QUERY = gql`
       generation
       winLength
       owner
+      revenue
     }
   }
 `
@@ -22,14 +23,7 @@ export const QUERY = gql`
 export const Loading = () => <div>Loading...</div>
 
 export const Empty = () => {
-  return (
-    <div className="rw-text-center">
-      {'No auctions yet. '}
-      <Link to={routes.newAuction()} className="rw-link">
-        {'Create one?'}
-      </Link>
-    </div>
-  )
+  return <div className="rw-text-center">{'No auctions yet. Create one!'}</div>
 }
 
 export const Success = ({ auctions }) => {
