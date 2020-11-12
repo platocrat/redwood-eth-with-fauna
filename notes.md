@@ -157,6 +157,20 @@ Right now, when a new auction is deployed, the database is updated with the imme
 
 Instead we should have the server wait on the pending transaction, instead of the app.
 
+## Deployment
+
+Since I already had a Vercel account, I chose to go with them for hosting the serverless app, and Heroku for the database. In total it took about 30 minutes. I just followed the tutorial [here](https://redwoodjs.com/tutorial/deployment).
+
+The only issue I encountered was `yarn rw build` did not build my contracts. I solved this by updating the build command like so:
+
+```js
+// Default
+yarn rw build && yarn rw db up --no-db-client --auto-approve && yarn rw dataMigrate up
+
+// Now contracts are built first
+cd contracts && yarn build && cd .. && yarn rw build && yarn rw db up --no-db-client --auto-approve && yarn rw dataMigrate up
+```
+
 ### Notes
 
 `yarn rw generate scaffold` Does not work perfectly for all prisma relations. See https://redwoodjs.com/docs/schema-relations
