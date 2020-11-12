@@ -88,6 +88,7 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
   uint32 public currentGeneration = 1;
 
   uint public shareAmount = 1*10**8;
+  uint public totalRevenue;
 
   address payable public creator;
 
@@ -177,6 +178,8 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
       // Mint the NFT
       ERC721._safeMint(_auction.highBidder, currentGeneration);
 
+      totalRevenue += tokenX.balanceOf(address(this));
+
       // All tokens in first auction go to owner
       if (currentGeneration != 1){
         // Distribute tokens to previous winners
@@ -236,6 +239,10 @@ contract Emanator is ERC721, IERC721Receiver, DSMath {
   function getAuctionInfo(uint id) public view returns ( uint highBid, address highBidder, uint lastBidTime, uint revenue){
       Auction storage _auction = auctionByGeneration[id];
       return ( _auction.highBid, _auction.highBidder, _auction.lastBidTime, _auction.revenue);
+  }
+
+  function getTotalRevenue() public view returns (uint revenue){
+      return (totalRevenue);
   }
 
   function getHighBidder() public view returns (address highBidder){

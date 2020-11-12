@@ -4,7 +4,7 @@ import { Contract } from '@ethersproject/contracts'
 
 import Web3 from 'web3'
 
-import SuperfluidSDK from '@superfluid-finance/ethereum-contracts'
+import SuperfluidSDK from 'sf-ethereum-contracts'
 
 import Emanator from 'emanator-contracts/build/contracts/Emanator.json'
 

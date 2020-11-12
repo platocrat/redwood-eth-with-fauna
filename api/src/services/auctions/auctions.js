@@ -1,9 +1,32 @@
 import { db } from 'src/lib/db'
 
-export const auctions = () => {
-  return db.auction.findMany({
-    orderBy: { revenue: 'desc' },
+import Emanator from 'emanator-contracts/build/contracts/Emanator.json'
+
+import { Contract } from '@ethersproject/contracts'
+import { InfuraProvider } from '@ethersproject/providers'
+import { formatUnits } from '@ethersproject/units'
+
+export const auctions = async () => {
+  let auctions = await db.auction.findMany()
+
+  const walletlessProvider = new InfuraProvider(
+    'goerli',
+    process.env.INFURA_ENDPOINT_KEY
+  )
+  console.log(auctions)
+  await auctions.forEach(async (auction, i) => {
+    const contract = new Contract(
+      auction.address,
+      Emanator.abi,
+      walletlessProvider
+    )
+    const revenue = Number(formatUnits(await contract.getTotalRevenue(), 18))
+    auctions[i].revenue = revenue
+    auctions[i].generation = await contract.currentGeneration()
+    console.log(auctions[i])
   })
+  console.log(auctions)
+  return auctions
 }
 
 export const auction = ({ address }) => {
