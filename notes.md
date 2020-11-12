@@ -1,3 +1,7 @@
+In this post I'll walk you through how I used `redwood-js` to create an ethereum dapp.
+
+The key advantages to using this framework, as opposed to create-react-app, is that its built for graphql.
+
 ### Resources
 
 - https://redwoodjs.com/docs/cli-commands
@@ -161,15 +165,17 @@ Instead we should have the server wait on the pending transaction, instead of th
 
 Since I already had a Vercel account, I chose to go with them for hosting the serverless app, and Heroku for the database. In total it took about 30 minutes. I just followed the tutorial [here](https://redwoodjs.com/tutorial/deployment).
 
-The only issue I encountered was `yarn rw build` did not build my contracts. I solved this by updating the build command like so:
+The only issue I encountered was that `yarn rw build` was not building my contracts. I solved this by adding to the build command:
 
 ```js
 // Default
 yarn rw build && yarn rw db up --no-db-client --auto-approve && yarn rw dataMigrate up
 
 // Now contracts are built first
-cd contracts && yarn build && cd .. && yarn rw build && yarn rw db up --no-db-client --auto-approve && yarn rw dataMigrate up
+cd contracts && yarn build && cd .. && yarn rw build //...
 ```
+
+However, Vercel complained that my serverless function was too large by about 5mb. I know that compiled contracts can be fairly large so I checked and my build folder was 7mb! Since the API only needed a single contract (`emanator.json`), I decided to check the build folder into git and remove the unnecessary contracts. I quickly pushed up my changes and reverted the build command back to the original one.
 
 ### Notes
 
