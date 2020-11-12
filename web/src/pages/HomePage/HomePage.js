@@ -19,8 +19,10 @@ const HomePage = () => {
         <Column>
           <TextContainer>
             <h1>How Emanator works</h1>
-            <p>Perpetual distribution</p>
-            <p>Start real time SuperFluid auctions</p>
+            <p>Perpetual distribution of NFT-linked content</p>
+            <p>Mint NFTs that auction copies of themselves</p>
+            <p>Bidders must hold top position for specified length of time to win</p> 
+            <p>30% auction revenue shared among previous winners via SuperFluid</p>
           </TextContainer>
           <div className="rw-scaffold">
             <Flash timeout={1000} />
