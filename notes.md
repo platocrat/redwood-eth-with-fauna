@@ -175,7 +175,11 @@ yarn rw build && yarn rw db up --no-db-client --auto-approve && yarn rw dataMigr
 cd contracts && yarn build && cd .. && yarn rw build //...
 ```
 
-However, Vercel complained that my serverless function was too large by about 5mb. I know that compiled contracts can be fairly large so I checked and my build folder was 7mb! Since the API only needed a single contract (`emanator.json`), I decided to check the build folder into git and remove the unnecessary contracts. I quickly pushed up my changes and reverted the build command back to the original one.
+However, Vercel complained that my serverless function was too large by about 5mb. I know that compiled contracts can be fairly large, so I checked the contract build folder which was was 7mb unzipped. Since the API only needed a single contract (`emanator.json`), I decided to check the build folder into git and remove the unnecessary contracts. I quickly pushed up my changes and reverted the build command back to the original one.
+
+Unfortunately this didn't make much of a difference. Thanks to some helpful advice from the Redwood Discord, and some Github issue hunting, I learned of a tool to help [find the culprit](https://github.com/redwoodjs/redwood/issues/1196#issuecomment-723562940). I discovered that `truffle` was eating up a ton of space. I'm not sure how it was included in the build, despite being a development dependency. I removed truffle from devDependencies (err...ok?) but was still getting some `@truffle` dependencies due to `@openzeppelin/test-helpers`. Now pretty frustrated, I _blew away all devDependencies_ in the `contracts` package, deleted `yarn.lock` and prayed - "Oh mighty dependency gods, please bless me safe passage"!
+
+I was now down to 62mb from ~72mb, which is still over the 50mb limit, but maybe Vercel packages things differently than the Netlify tool I was using? Lets hope so!
 
 ### Notes
 

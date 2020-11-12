@@ -21,6 +21,7 @@
     "@redwoodjs/web": "^0.20.0",
     "@styled-system/theme-get": "^5.1.2",
     "@superfluid-finance/ethereum-contracts": "^0.1.2-preview-20201014-fix5",
+    "@truffle/contract": "^4.2.29",
     "emanator-contracts": "1.0.0",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
