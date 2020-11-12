@@ -12,6 +12,14 @@
     "web3": "^1.3.0"
   },
   "devDependencies": {
-    "@netlify/zip-it-and-ship-it": "^1.4.0"
+    "@netlify/zip-it-and-ship-it": "^1.4.0",
+    "@decentral.ee/web3-helpers": "^0.3.2",
+    "@openzeppelin/contracts": "3.2.1-solc-0.7",
+    "@openzeppelin/test-helpers": "^0.5.7",
+    "@superfluid-finance/ethereum-contracts": "^0.1.2-preview-20201014-fix5",
+    "@truffle/contract": "^4.2.25",
+    "@truffle/hdwallet-provider": "^1.1.0",
+    "dotenv": "^8.2.0",
+    "truffle": "^5.1.48"
   }
 }

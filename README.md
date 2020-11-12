@@ -9,6 +9,8 @@ cd contracts && yarn build
 
 cd .. cp .env.example .env
 
+yarn rw db save
+yarn rw db up
 yarn rw dev
 ```
 
