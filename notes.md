@@ -188,7 +188,8 @@ Unfortunately this didn't make much of a difference. Thanks to some helpful advi
 I was now down to 62mb from ~72mb, which is still over the 50mb limit, but maybe Vercel builds/bundles things differently than the Netlify tool I was using? Lets hope so! While this is deploying, I'll start making a Netlify account, which has a 69.9mb limit...just in case.
 
 - Added back the `binaryTarget` in attempt to switch to netlify, but that increased the zipped size to 72mb
-- Added back the devDependencies, which changed to 73.2
+- Added back the devDependencies, which changed to 73.2mb
+-
 
 ### Notes
 

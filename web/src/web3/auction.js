@@ -28,7 +28,7 @@ export const approveAuction = async ({ amount, auctionAddress }) => {
     )
     // Skip approval if unnecessary
     const allowance = await token.allowance(walletAddress, auctionAddress)
-    const amountBn = parseUnits('10000000', 18)
+    const amountBn = parseUnits('10000', 18)
     if (allowance.gte(amountBn)) return { noApprovalNeeded: true }
     const tx = await token.approve(auctionAddress, amountBn)
 
