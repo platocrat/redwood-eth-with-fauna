@@ -15499,6 +15499,11 @@ setprototypeof@1.2.0:
   resolved "https://registry.yarnpkg.com/setprototypeof/-/setprototypeof-1.2.0.tgz#66c9a24a73f9fc28cbe66b09fed3d33dcaf1b424"
   integrity sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==
 
+sf-ethereum-contracts@^0.1.2-preview-20201014-nodep:
+  version "0.1.2-preview-20201014-nodep"
+  resolved "https://registry.yarnpkg.com/sf-ethereum-contracts/-/sf-ethereum-contracts-0.1.2-preview-20201014-nodep.tgz#23f3ca7540c5b0cce2d3521f2aee9d65ac4e96fe"
+  integrity sha512-kQnwWWlqpm2jy1lcPP4WIV8mbZJfYYIXdacVZIfo5jMTJSEhxtdcucD8vGQkXxSjOH+1go3QdQaBgUdaWr/XRg==
+
 sha.js@^2.4.0, sha.js@^2.4.11, sha.js@^2.4.8:
   version "2.4.11"
   resolved "https://registry.yarnpkg.com/sha.js/-/sha.js-2.4.11.tgz#37a5cf0b81ecbc6943de109ba2960d1b26584ae7"

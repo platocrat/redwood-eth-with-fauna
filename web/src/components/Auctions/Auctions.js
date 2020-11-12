@@ -32,7 +32,7 @@ const checkboxInputTag = (checked) => {
 
 const AuctionsList = ({ auctions }) => {
   const { addMessage } = useFlash()
-
+  console.log(auctions)
   return (
     <div className="rw-segment rw-table-wrapper-responsive">
       <table className="rw-table">

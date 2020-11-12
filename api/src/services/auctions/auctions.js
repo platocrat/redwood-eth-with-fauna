@@ -13,7 +13,7 @@ export const auctions = async () => {
     'goerli',
     process.env.INFURA_ENDPOINT_KEY
   )
-
+  console.log(auctions)
   await auctions.forEach(async (auction, i) => {
     const contract = new Contract(
       auction.address,
@@ -23,8 +23,10 @@ export const auctions = async () => {
     const revenue = Number(formatUnits(await contract.getTotalRevenue(), 18))
     auctions[i].revenue = revenue
     auctions[i].generation = await contract.currentGeneration()
+    console.log(auctions[i])
   })
-  return auctions.sort((a, b) => a.revenue - b.revenue)
+  console.log(auctions)
+  return auctions
 }
 
 export const auction = ({ address }) => {
