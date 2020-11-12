@@ -154,10 +154,12 @@ const displayAuctionRevenueTable = ({ auction }) => {
   })
 
   pastAuctions.forEach((auction, i) => {
-    if (i === pastAuctions.length - 1) return // The last winner has no revenue
+    if (i === 0) ownerRevenue = ownerRevenue + pastAuctions[0].revenue
+    if (i === pastAuctions.length - 1) return // The last winner has no revenue, so skip the rest
     const lastRev = pastAuctions[i + 1].revenue
     const dist = lastRev * 0.3
-    ownerRevenue += lastRev - dist
+
+    ownerRevenue = ownerRevenue + lastRev - dist
     const validRecipients = winnersList.slice(0, i + 1)
     const totalShares = validRecipients.reduce(
       (acc, cur) => acc + cur.shares,
