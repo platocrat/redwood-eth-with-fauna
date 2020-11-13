@@ -1,8 +1,8 @@
 const name = 'redwood-pm2' // Name to use in PM2
-const repo = 'git@github.com:njjkgeerts/redwood-pm2.git' // Link to your repo
-const user = 'deploy' // Server user
+const repo = 'https://github.com/emaNaFTe/monorepo.git' // Link to your repo
+const user = 'patrick' // Server user
 const path = `/home/${user}/${name}` // Path on the server to deploy to
-const host = 'example.com' // Server hostname
+const host = 'patrickgallagher.dev' // Server hostname
 const port = 8911 // Port to use locally on the server
 const build =
   'yarn install && yarn rw build && yarn rw db up && yarn rw db seed' // Build commands
