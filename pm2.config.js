@@ -14,7 +14,6 @@ module.exports = {
       cwd: `${path}/current/`,
       script: 'node_modules/@redwoodjs/api-server/dist/index.js',
       args: `-f api/dist/functions --port ${port}`,
-      interpreter: 'node@12.18.3',
       env: {
         NODE_ENV: 'development',
       },
