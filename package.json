@@ -4,7 +4,8 @@
     "packages": [
       "api",
       "web",
-      "contracts"
+      "contracts",
+      "js-sdk"
     ]
   },
   "devDependencies": {
