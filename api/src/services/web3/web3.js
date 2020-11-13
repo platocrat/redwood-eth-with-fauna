@@ -2,7 +2,7 @@ import { formatUnits } from '@ethersproject/units'
 import { InfuraProvider } from '@ethersproject/providers'
 import { Contract } from '@ethersproject/contracts'
 
-import SuperfluidSDK from 'superfluid-finance-ethereum-contracts'
+import SuperfluidSDK from '@superfluid-finance/ethereum-contracts'
 
 import Emanator from 'emanator-contracts/build/contracts/Emanator.json'
 
