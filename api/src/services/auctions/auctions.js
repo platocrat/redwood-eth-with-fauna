@@ -7,26 +7,31 @@ import { InfuraProvider } from '@ethersproject/providers'
 import { formatUnits } from '@ethersproject/units'
 
 export const auctions = async () => {
-  let auctions = await db.auction.findMany()
+  try {
+    const auctionsRaw = await db.auction.findMany()
 
-  const walletlessProvider = new InfuraProvider(
-    'goerli',
-    process.env.INFURA_ENDPOINT_KEY
-  )
-  console.log(auctions)
-  await auctions.forEach(async (auction, i) => {
-    const contract = new Contract(
-      auction.address,
-      Emanator.abi,
-      walletlessProvider
+    const walletlessProvider = new InfuraProvider(
+      'goerli',
+      process.env.INFURA_ENDPOINT_KEY
     )
-    const revenue = Number(formatUnits(await contract.getTotalRevenue(), 18))
-    auctions[i].revenue = revenue
-    auctions[i].generation = await contract.currentGeneration()
-    console.log(auctions[i])
-  })
-  console.log(auctions)
-  return auctions
+
+    const auctions = await auctionsRaw.map(async (auction, i) => {
+      const contract = new Contract(
+        auction.address,
+        Emanator.abi,
+        walletlessProvider
+      )
+      const revenue = Number(formatUnits(await contract.getTotalRevenue(), 18))
+      return {
+        ...auction,
+        revenue,
+        generation: await contract.currentGeneration(),
+      }
+    })
+    return auctions
+  } catch (err) {
+    return new Error(`Error getting auctions. ${err}`)
+  }
 }
 
 export const auction = ({ address }) => {
