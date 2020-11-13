@@ -56,7 +56,7 @@ The Superfluid SDK was really easy to use and set up. One of the biggest pains w
 
 - Normally I can call functions which require approval (eg. the bid function), and submit them on-chain before the approval transaction is actually completed. This doesn't seem to work for SuperTokens.
 - When I do make an approval, later when I check the approved amount it always seems to be slightly less than the amount I actually approved. Weird (maybe something I am doing).
-- When deploying my serverless functions, I hit a size limit. Some of the dependencies I needed like `@truffle/contract` and `web3` were just too dang large. I ended up trying to rewrite the SF SDK to use `ethers.js`, which you can find here in the `js-sdk` package, but I gave up after a while and decided to self-host the app.
+- When deploying my serverless functions, I hit a size limit. Some of the dependencies I needed like `@truffle/contract` and `web3` were just too dang large. I ended up trying to rewrite the SF SDK to use `ethers.js`, which you can find here in the `js-sdk` package, but I gave up after a while and decided to self-host the app using the [tutorial](https://redwoodjs.com/cookbook/self-hosting-redwood).
 - For some reason we can't distribute tokens until at least one person has subscribed to the IDA. Not sure if this is a requirement, or we are doing something wrong.
 - Mixing database queries and web3 queries can get complicated, and slows down load times. I am hopeful that I can find a better way to do this, without having to rely on TheGraph infrastructure. I think redwoodjs is a very good candidate for making a simple feather-weight version of TheGraph.
 
