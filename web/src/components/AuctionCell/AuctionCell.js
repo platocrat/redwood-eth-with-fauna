@@ -7,6 +7,7 @@ export const QUERY = gql`
       name
       address
       description
+      contentHash
       createdAt
       winLength
       owner

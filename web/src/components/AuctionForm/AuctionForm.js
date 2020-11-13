@@ -55,6 +55,7 @@ const AuctionForm = (props) => {
         />
         <FieldError name="description" className="rw-field-error" />
 
+        
         <Label
           name="winLength"
           className="rw-label"
@@ -70,6 +71,23 @@ const AuctionForm = (props) => {
           validation={{ required: true }}
         />
         <FieldError name="winLength" className="rw-field-error" />
+
+        <Label
+          name="contentHash"
+          className="rw-label"
+          errorClassName="rw-label rw-label-error"
+        >
+          IPFS Content Identifier
+        </Label>
+        <TextField
+          name="contentHash"
+          defaultValue={props.auction?.contentHash}
+          className="rw-input"
+          errorClassName="rw-input rw-input-error"
+          validation={{ required: true }}
+        />
+        <FieldError name="contentHash" className="rw-field-error" />
+
 
         <div className="rw-button-group">
           <Submit disabled={props.loading} className="rw-button rw-button-blue">

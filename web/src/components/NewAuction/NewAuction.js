@@ -49,6 +49,7 @@ const NewAuction = () => {
             description: 'The coolest NFT in town',
             name: 'My NFT',
             winLength: 30,
+            contentHash: '(coming soon)'
           }}
         />
       </div>

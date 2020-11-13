@@ -6,6 +6,7 @@ export const schema = gql`
     name: String!
     winLength: Int!
     description: String
+    contentHash: String
     createdAt: DateTime!
     status: String!
     highBid: Int!
@@ -25,6 +26,7 @@ export const schema = gql`
     owner: String!
     winLength: Int!
     description: String!
+    contentHash: String!
     status: String
     highBid: Int
     generation: Int
