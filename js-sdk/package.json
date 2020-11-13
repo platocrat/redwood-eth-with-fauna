@@ -17,7 +17,8 @@
     "js-sdk/**/*.js"
   ],
   "dependencies": {
-    "@truffle/contract": "^4.2.23"
+    "@ethersproject/contracts": "^5.0.5",
+    "@ethersproject/providers": "^5.0.14"
   },
   "devDependencies": {
     "@decentral.ee/web3-helpers": "0.3.2",

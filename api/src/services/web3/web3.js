@@ -2,8 +2,6 @@ import { formatUnits } from '@ethersproject/units'
 import { InfuraProvider } from '@ethersproject/providers'
 import { Contract } from '@ethersproject/contracts'
 
-import Web3 from 'web3'
-
 import SuperfluidSDK from 'superfluid-finance-ethereum-contracts'
 
 import Emanator from 'emanator-contracts/build/contracts/Emanator.json'
@@ -70,9 +68,7 @@ export const web3User = async ({ address, auctionAddress }) => {
     const sf = new SuperfluidSDK.Framework({
       chainId: 5,
       version: process.env.RELEASE_VERSION || 'test',
-      web3Provider: new Web3.providers.HttpProvider(
-        `https://goerli.infura.io/v3/${process.env.INFURA_ENDPOINT_KEY}`
-      ),
+      web3Provider: walletlessProvider,
     })
     await sf.initialize()
     //

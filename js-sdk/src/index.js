@@ -1,4 +1,4 @@
-module.exports = {
-    getConfig: require("./getConfig"),
-    Framework: require("./Framework"),
-};
+import getConfig from './getConfig'
+import Framework from './Framework'
+
+export { Framework, getConfig }
