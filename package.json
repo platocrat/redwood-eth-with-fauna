@@ -4,8 +4,7 @@
     "packages": [
       "api",
       "web",
-      "contracts",
-      "js-sdk"
+      "contracts"
     ]
   },
   "scripts": {
