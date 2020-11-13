@@ -20,12 +20,14 @@ const HomePage = () => {
           <TextContainer>
             <h2><i>Perpetual distribution of NFT-linked content</i></h2>
             <br />
-            <h2>How Emanator works</h2>
-            <p>Creators mint NFTs that auction copies of themselves</p>
-            <p>Bidders must hold top position for specified win time to claim the NFT</p>
-            <p>Settled auctions automatically mint a child NFT for auction</p> 
-            <p>30% of auction revenue is shared among the previous winners via SuperFluid</p>
-            <p>Creator receives all the revenue from the Generation 1 auction and 70% from the progeny auctions</p>
+            <h3>How Emanator works</h3>
+            <ol type="1">
+            <li>Creators mint NFTs that auction copies of themselves</li>
+            <li>Bidders must hold top position for specified win time to claim the NFT</li>
+            <li>Settled auctions automatically mint a child NFT for auction</li> 
+            <li>30% of auction revenue is shared among the previous winners via <a href="https://superfluid.finance">SuperFluid</a></li>
+            <li>Creator receives all the revenue from the Generation 1 auction and 70% from the progeny auctions</li>
+            </ol>
           </TextContainer>
           <div className="rw-scaffold">
             <Flash timeout={1000} />
