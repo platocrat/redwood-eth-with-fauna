@@ -185,6 +185,11 @@ However, Vercel complained that my serverless function was too large by about 5m
 
 Unfortunately this didn't make much of a difference. Thanks to some helpful advice from the Redwood Discord, and some Github issue hunting, I learned of a tool to help [find the culprit](https://github.com/redwoodjs/redwood/issues/1196#issuecomment-723562940). I discovered that `truffle` was eating up a ton of space. I'm not sure how it was included in the build, despite being a development dependency. I removed truffle from devDependencies (err...ok?) but was still getting some `@truffle` dependencies due to `@openzeppelin/test-helpers`. Now pretty frustrated, I _blew away all devDependencies_ in the `contracts` package, deleted `yarn.lock` and prayed - "Oh mighty dependency gods, please bless me safe passage"!
 
+```
+yarn rw build api
+yarn zip-it-and-ship-it api/dist/functions/ zipped
+```
+
 I was now down to 62mb from ~72mb, which is still over the 50mb limit, but maybe Vercel builds/bundles things differently than the Netlify tool I was using? Lets hope so! While this is deploying, I'll start making a Netlify account, which has a 69.9mb limit...just in case.
 
 - Added back the `binaryTarget` in attempt to switch to netlify, but that increased the zipped size to 72mb
