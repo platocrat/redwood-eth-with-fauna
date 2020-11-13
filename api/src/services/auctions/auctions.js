@@ -16,16 +16,22 @@ export const auctions = async () => {
     )
 
     const auctions = await auctionsRaw.map(async (auction, i) => {
-      const contract = new Contract(
-        auction.address,
-        Emanator.abi,
-        walletlessProvider
-      )
-      const revenue = Number(formatUnits(await contract.getTotalRevenue(), 18))
-      return {
-        ...auction,
-        revenue,
-        generation: await contract.currentGeneration(),
+      try {
+        const contract = new Contract(
+          auction.address,
+          Emanator.abi,
+          walletlessProvider
+        )
+        const revenue = Number(
+          formatUnits(await contract.getTotalRevenue(), 18)
+        )
+        return {
+          ...auction,
+          revenue,
+          generation: await contract.currentGeneration(),
+        }
+      } catch {
+        return auction
       }
     })
     return auctions
