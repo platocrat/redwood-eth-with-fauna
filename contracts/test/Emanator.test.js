@@ -213,4 +213,25 @@ contract('Emanator', (accounts) => {
 
     // TODO : write logic to check the expected distribution split
   })
+
+  it('allows Bob to create a bidding flow', async () => {
+
+    await printRealtimeBalance('Auction Contract', app.address)
+    await printRealtimeBalance('Creator', creator)
+    await printRealtimeBalance('Bob', bob)
+
+    await web3tx(app.bid, `Account ${bob} bids 1 DAI per second`)(toWad(30), { from: bob })
+    console.log('---AFTER 6 SECONDS---')
+    time.increase(6)
+    await printRealtimeBalance('Auction Contract', app.address)
+    await printRealtimeBalance('Bob', bob)
+    console.log('---AFTER 25 SECONDS---')
+    time.increase(19)
+    await printRealtimeBalance('Auction Contract', app.address)
+    await printRealtimeBalance('Bob', bob)
+    console.log('---AFTER 30 SECONDS---')
+    time.increase(5)
+    await printRealtimeBalance('Auction Contract', app.address)
+    await printRealtimeBalance('Bob', bob)
+  })
 })
