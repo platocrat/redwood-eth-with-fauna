@@ -74,6 +74,7 @@ contract DSMath {
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import "@openzeppelin/contracts/GSN/Context.sol";
 
 import {
     ISuperfluid,
@@ -85,7 +86,7 @@ import {
 import "@superfluid-finance/ethereum-contracts/contracts/interfaces/agreements/IConstantFlowAgreementV1.sol";
 import "@superfluid-finance/ethereum-contracts/contracts/interfaces/agreements/IInstantDistributionAgreementV1.sol";
 
-contract Emanator is ERC721, IERC721Receiver, DSMath, ISuperApp {
+contract Emanator is ERC721, IERC721Receiver, Context, DSMath, ISuperApp {
   using SafeMath for uint256;
 
   uint32 public constant INDEX_ID = 0;
@@ -195,7 +196,7 @@ contract Emanator is ERC721, IERC721Receiver, DSMath, ISuperApp {
                 address(this),
                 perSecBid,
                 new bytes(0)
-            ){ from: msg.sender} );
+            ){ from: _msgSender} );
 
       // tokenX.transferFrom(msg.sender, address(this), bidAmount);
 
@@ -206,28 +207,6 @@ contract Emanator is ERC721, IERC721Receiver, DSMath, ISuperApp {
 
       return (_auction.highBid, _auction.lastBidTime, _auction.highBidder);
   }
-
-    function _bid(bytes calldata _ctx, ISuperToken tokenX, bytes32 agreementId)
-        private
-        returns (bytes memory newCtx)
-    {      
-      (,,address user,,) = host.decodeCtx(_ctx);
-      (,int96 flowRate,,) = cfa.getFlowByID(tokenX, agreementId);
-
-      (newCtx, ) = host.callAgreementWithContext(
-          cfa,
-          abi.encodeWithSelector(
-              cfa.createFlow.selector,
-              tokenX,
-              user,
-              flowRate,
-              new bytes(0) // placeholder
-          ),
-          _ctx
-      );
-      return _ctx;
-    }
-
 
   // End the auction and claim prized
   function settleAndBeginAuction() public returns (uint newShareAmount) {
@@ -341,117 +320,117 @@ contract Emanator is ERC721, IERC721Receiver, DSMath, ISuperApp {
   /**************************************************************************
      * SuperApp callbacks
      *************************************************************************/
-     function beforeAgreementCreated(
-         ISuperToken /*superToken*/,
-         bytes calldata /*ctx*/,
-         address /*agreementClass*/,
-         bytes32 /*agreementId*/
-     )
-         external
-         view
-         virtual
-         override
-         returns (bytes memory /*cbdata*/)
-         {
-             revert("Unsupported callback - Before Agreement Created");
-         }
+//      function beforeAgreementCreated(
+//          ISuperToken /*superToken*/,
+//          bytes calldata /*ctx*/,
+//          address /*agreementClass*/,
+//          bytes32 /*agreementId*/
+//      )
+//          external
+//          view
+//          virtual
+//          override
+//          returns (bytes memory /*cbdata*/)
+//          {
+//              revert("Unsupported callback - Before Agreement Created");
+//          }
 
-    function afterAgreementCreated(
-        ISuperToken _tokenX,
-        bytes calldata _ctx,
-        address _agreementClass,
-        bytes32 agreementId,
-        bytes calldata /*cbdata*/
-    )
-        external override
-        onlyExpected(_tokenX, _agreementClass)
-        onlyHost
-        returns (bytes memory)
-    {
-        return _bid(_ctx, _tokenX, agreementId);
-    }
-
-
-    function beforeAgreementUpdated(
-        ISuperToken /*superToken*/,
-        bytes calldata /*ctx*/,
-        address /*agreementClass*/,
-        bytes32 /*agreementId*/
-    )
-        external
-        view
-        virtual
-        override
-        returns (bytes memory /*cbdata*/)
-    {
-        revert("Unsupported callback - Before Agreement updated");
-    }
-    function afterAgreementUpdated(
-        ISuperToken _superToken,
-        bytes calldata _ctx,
-        address _agreementClass,
-        bytes32 agreementId,
-        bytes calldata /*cbdata*/
-    )
-        external override
-        onlyExpected(_superToken, _agreementClass)
-        onlyHost
-        returns (bytes memory)
-    {
-        return _doExchange(_ctx, _superToken, agreementId);
-    }
-
-    function beforeAgreementTerminated(
-        ISuperToken /*superToken*/,
-        bytes calldata /*ctx*/,
-        address /*agreementClass*/,
-        bytes32 /*agreementId*/
-    )
-        external
-        view
-        virtual
-        override
-        returns (bytes memory /*cbdata*/)
-    {
-        revert("Unsupported callback -  Before Agreement Terminated");
-    }
-
-    function afterAgreementTerminated(
-        ISuperToken _superToken,
-        bytes calldata _ctx,
-        address _agreementClass,
-        bytes32 _agreementId,
-        bytes calldata /*cbdata*/
-    )
-        external override
-        onlyHost
-        returns (bytes memory)
-    {
-        // According to the app basic law, we should never revert in a termination callback
-        //if (!_isAccepted(_superToken) || !_isCFAv1(_agreementClass)) return _ctx;
-        return _stopExchange(_ctx, _superToken, _agreementId);
-    }
+//     function afterAgreementCreated(
+//         ISuperToken _tokenX,
+//         bytes calldata _ctx,
+//         address _agreementClass,
+//         bytes32 agreementId,
+//         bytes calldata /*cbdata*/
+//     )
+//         external override
+//         onlyExpected(_tokenX, _agreementClass)
+//         onlyHost
+//         returns (bytes memory)
+//     {
+//         return _bid(_ctx, _tokenX, agreementId);
+//     }
 
 
-    // utilities
-    function _isAccepted(ISuperToken _tokenX) private view returns (bool) {
-        return address(_tokenX) == address(tokenX);
-    }
+//     function beforeAgreementUpdated(
+//         ISuperToken /*superToken*/,
+//         bytes calldata /*ctx*/,
+//         address /*agreementClass*/,
+//         bytes32 /*agreementId*/
+//     )
+//         external
+//         view
+//         virtual
+//         override
+//         returns (bytes memory /*cbdata*/)
+//     {
+//         revert("Unsupported callback - Before Agreement updated");
+//     }
+//     function afterAgreementUpdated(
+//         ISuperToken _superToken,
+//         bytes calldata _ctx,
+//         address _agreementClass,
+//         bytes32 agreementId,
+//         bytes calldata /*cbdata*/
+//     )
+//         external override
+//         onlyExpected(_superToken, _agreementClass)
+//         onlyHost
+//         returns (bytes memory)
+//     {
+//         return _doExchange(_ctx, _superToken, agreementId);
+//     }
 
-    function _isCFAv1(address _agreementClass) private pure returns (bool) {
-        return ISuperAgreement(_agreementClass).agreementType()
-            == keccak256("org.superfluid-finance.agreements.ConstantFlowAgreement.v1");
-    }
+//     function beforeAgreementTerminated(
+//         ISuperToken /*superToken*/,
+//         bytes calldata /*ctx*/,
+//         address /*agreementClass*/,
+//         bytes32 /*agreementId*/
+//     )
+//         external
+//         view
+//         virtual
+//         override
+//         returns (bytes memory /*cbdata*/)
+//     {
+//         revert("Unsupported callback -  Before Agreement Terminated");
+//     }
 
-    modifier onlyHost() {
-        require(msg.sender == address(host), "RedirectAll: support only one host");
-        _;
-    }
+//     function afterAgreementTerminated(
+//         ISuperToken _superToken,
+//         bytes calldata _ctx,
+//         address _agreementClass,
+//         bytes32 _agreementId,
+//         bytes calldata /*cbdata*/
+//     )
+//         external override
+//         onlyHost
+//         returns (bytes memory)
+//     {
+//         // According to the app basic law, we should never revert in a termination callback
+//         //if (!_isAccepted(_superToken) || !_isCFAv1(_agreementClass)) return _ctx;
+//         return _stopExchange(_ctx, _superToken, _agreementId);
+//     }
 
-    modifier onlyExpected(ISuperToken _tokenX, address _agreementClass) {
-        require(_isAccepted(_tokenX) , "Exchange: not accepted token");
-        require(_isCFAv1(_agreementClass), "Exchange: only CFAv1 supported");
-        _;
-    }
 
- }
+//     // utilities
+//     function _isAccepted(ISuperToken _tokenX) private view returns (bool) {
+//         return address(_tokenX) == address(tokenX);
+//     }
+
+//     function _isCFAv1(address _agreementClass) private pure returns (bool) {
+//         return ISuperAgreement(_agreementClass).agreementType()
+//             == keccak256("org.superfluid-finance.agreements.ConstantFlowAgreement.v1");
+//     }
+
+//     modifier onlyHost() {
+//         require(msg.sender == address(host), "RedirectAll: support only one host");
+//         _;
+//     }
+
+//     modifier onlyExpected(ISuperToken _tokenX, address _agreementClass) {
+//         require(_isAccepted(_tokenX) , "Exchange: not accepted token");
+//         require(_isCFAv1(_agreementClass), "Exchange: only CFAv1 supported");
+//         _;
+//     }
+
+//  }
