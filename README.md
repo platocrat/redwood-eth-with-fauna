@@ -1,4 +1,4 @@
-# redwood-eth
+# redwood-eth-with-fauna
 
 Repo for tutorial for how to build an Ethereum app using Redwood.js and FaunaDB
 
