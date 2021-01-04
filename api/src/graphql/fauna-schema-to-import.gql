@@ -42,6 +42,7 @@ input CreateAuctionInput {
   generation: Int
 }
 
+# Comment out to bypass Fauna `Import your GraphQL schema' error
 # type Mutation {
 #   createAuction(input: CreateAuctionInput!): Auction
 # }
