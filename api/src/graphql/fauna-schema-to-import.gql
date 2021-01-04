@@ -42,9 +42,9 @@ input CreateAuctionInput {
   generation: Int
 }
 
-type Mutation {
-  createAuction(input: CreateAuctionInput!): Auction
-}
+# type Mutation {
+#   createAuction(input: CreateAuctionInput!): Auction
+# }
 
 # ------ Bids ------
 type Bid {
