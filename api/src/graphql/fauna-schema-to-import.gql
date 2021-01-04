@@ -82,6 +82,7 @@ type Web3Auction {
 
 type Web3User {
   address: String!
+  auctionAddress: String!
   superTokenBalance: String!
   isSubscribed: Boolean!
 }
