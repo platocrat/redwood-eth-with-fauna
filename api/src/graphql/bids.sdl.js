@@ -6,7 +6,7 @@ export const schema = gql`
     auctionAddress: String!
   }
 
-  type Query {
+  type QueryBid {
     bids: [Bid!]!
   }
 
