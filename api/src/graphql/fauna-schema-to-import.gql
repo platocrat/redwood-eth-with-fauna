@@ -67,6 +67,7 @@ input UpdateBidInput {
 
 # ------ Web3 ------
 type Web3Auction {
+  address: String!
   highBidder: String!
   status: String!
   highBid: Int!
@@ -80,6 +81,7 @@ type Web3Auction {
 }
 
 type Web3User {
+  address: String!
   superTokenBalance: String!
   isSubscribed: Boolean!
 }
