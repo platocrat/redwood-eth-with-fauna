@@ -17,7 +17,7 @@ export const schema = gql`
     isSubscribed: Boolean!
   }
 
-  type Query {
+  type QueryWeb3 {
     web3Auction(address: String!): Web3Auction!
     web3User(address: String!, auctionAddress: String!): Web3User!
   }
