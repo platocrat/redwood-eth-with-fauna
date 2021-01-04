@@ -65,8 +65,8 @@ type Web3Auction {
   highBid: Int!
   currentGeneration: Int!
   auctionBalance: Int!
-  endTime: DateTime!
-  lastBidTime: DateTime!
+  endTime: Time!
+  lastBidTime: Time!
   pastAuctions: JSON!
   revenue: Int!
 }
