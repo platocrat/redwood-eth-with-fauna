@@ -1,0 +1,82 @@
+# ------ Auction schema ------
+type Auction {
+    id: Int!
+    owner: String!
+    address: String!
+    name: String!
+    winLength: Int!
+    description: String
+    contentHash: String
+    createdAt: Time!
+    status: String!
+    highBid: Int!
+    generation: Int!
+    revenue: Int!
+    bids: [Bid]!
+  }
+
+type QueryAuction {
+  auctions: [Auction!]!
+  auction(address: String!): Auction
+}
+
+input CreateAuctionInput {
+  address: String!
+  name: String!
+  owner: String!
+  winLength: Int!
+  description: String!
+  contentHash: String!
+  status: String
+  highBid: Int
+  generation: Int
+}
+
+type Mutation {
+  createAuction(input: CreateAuctionInput!): Auction
+}
+
+# ------ Bids ------
+type Bid {
+  id: Int!
+  amount: Int!
+  auction: Auction!
+  auctionAddress: String!
+}
+
+type QueryBid {
+  bids: [Bid!]!
+}
+
+input CreateBidInput {
+  amount: Int!
+  auctionAddress: String!
+}
+
+input UpdateBidInput {
+  amount: Int
+  auctionAddress: String
+}
+
+# ------ Web3 ------
+type Web3Auction {
+  highBidder: String!
+  status: String!
+  highBid: Int!
+  currentGeneration: Int!
+  auctionBalance: Int!
+  endTime: DateTime!
+  lastBidTime: DateTime!
+  pastAuctions: JSON!
+  revenue: Int!
+}
+
+type Web3User {
+  superTokenBalance: String!
+  isSubscribed: Boolean!
+}
+
+type QueryWeb3 {
+  web3Auction(address: String!): Web3Auction!
+  web3User(address: String!, auctionAddress: String!): Web3User!
+}

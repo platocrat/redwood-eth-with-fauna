@@ -1,6 +1,18 @@
-// See https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/constructor
-// for options.
+import { GraphQLClient } from 'graphql-request'
 
-import { PrismaClient } from '@prisma/client'
+export const request = async (query = {}) => {
+  const endpoint = 'https://graphql.fauna.com/graphql'
 
-export const db = new PrismaClient()
+  const graphQLClient = new GraphQLClient(endpoint, {
+    headers: {
+      authorization: 'Bearer ' + process.env.FAUNADB_SECRET
+    },
+  })
+
+  try {
+    return await graphQLClient.request(query)
+  } catch (error) {
+    console.log(error)
+    return error
+  }
+}
