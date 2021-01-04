@@ -15,7 +15,7 @@ export const schema = gql`
     bids: [Bid]!
   }
 
-  type QueryAuction {
+  type Query {
     auctions: [Auction!]!
     auction(address: String!): Auction
   }
