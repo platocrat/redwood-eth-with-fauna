@@ -12,12 +12,12 @@ export const auctions = async () => {
     // Get all Auctions
     // this currently returns with no errors
     const auctionsRaw = await client.query(
-      q.Paginate(q.Match(q.Ref('indexes/auction')))
+      q.Paginate(q.Match(q.Ref('indexes/auctions')))
     ).then(response => {
       // console.log("This is the response from client query", response)
 
-      const auctionRef = response.data
-      const getAllDataQuery = auctionRef.map(ref => {
+      const auctionsRef = response.data
+      const getAllDataQuery = auctionsRef.map(ref => {
         return q.Get(ref)
       })
 
@@ -28,16 +28,50 @@ export const auctions = async () => {
       error => console.error('Error: ', error.message)
     )
 
-    /** @dev double check that the returned output is an array */
-    // console.log("Queried auctions from faunadb client: ", auctionsRaw)
+    /** 
+     * @dev double check that the returned output is an array 
+     * console.log("Queried auctions as raw objects from faunadb client: ", auctionsRaw)
+     * console.log("First auction from queried list, returning its `{data: { input: }}` field: ", auctionsRaw[ 0 ].data.input)
+     * 
+     * Note: the data structure in the second `console.log()` is the one that we need.
+     */
+    // for (let i = 0; i < auctionsRaw.length; i++) {
+    //   console.log(
+    //     "Query of single auction from Fauna, returning its `{ data: { input: }}` field: ",
+    //     auctionsRaw[ i ].data.input
+    //   )
+    // }
+
+    let auctionsDataObjects = [],
+      id = 1
+
+    for (let i = 0; i < auctionsRaw.length; i++) {
+      auctionsDataObjects.push(auctionsRaw[ i ].data.input)
+    }
+
+    // Hacky way to add an `Auction.id` field
+    for (let i = 0; i < auctionsDataObjects.length; i++) {
+      auctionsDataObjects[ i ].id = id
+      id += 1
+    }
+
+    console.log("Full auction data objects: ", auctionsDataObjects)
+
+    /** 
+     * @dev a priori command below...
+     * const auctionsRaw = await db.auction.findMany()
+     */
 
     const walletlessProvider = new InfuraProvider(
       'goerli',
       process.env.INFURA_ENDPOINT_KEY
     )
 
-    const auctions = await auctionsRaw.map(async (auction, i) => {
+    const auctions = await auctionsDataObjects.map(async (auction, i) => {
       try {
+        // console.log("Auction address: ", auction.address)
+        // console.log("All auction data, expanded: ", ...auction)
+
         const contract = new Contract(
           auction.address,
           Emanator.abi,
@@ -66,21 +100,29 @@ export const auction = ({ address }) => {
     q.Paginate(q.Match(q.Index('auction'), `${address}`))
   )
 
-  // a priori command...
-  // return db.auction.findOne({ where: { address } })
+  /**
+   * @dev a priori command below...
+   * return db.auction.findOne({ where: { address } })
+   */
 }
 
 export const createAuction = ({ input }) => {
   return client.query(
     q.Create(q.Collection('Auction'), {
       data: {
+        /**
+         * @todo
+         // api | Error: Cannot return null for non-nullable field Auction.id.
+         */
         input
       }
     })
   )
 
-  // a priori command...
-  // return db.auction.create({ data: input })
+  /**
+   * @dev a priori command...
+   * return db.auction.create({ data: input })
+   */
 }
 
 export const Auction = {
@@ -91,7 +133,9 @@ export const Auction = {
     q.Lambda('bids', q.Get(q.Var('bids')))
   )
 
-  // a priori command...
-  // bids: (_obj, { root }) =>
-  //   db.auction.findOne({ where: { address: root.address } }).bids(),
+  /**
+   * @dev a priori command below...
+   * bids: (_obj, { root }) =>
+   * db.auction.findOne({ where: { address: root.address } }).bids(),
+   */
 }
