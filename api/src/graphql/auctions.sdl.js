@@ -7,7 +7,7 @@ export const schema = gql`
     winLength: Int!
     description: String
     contentHash: String
-    createdAt: Date!
+    createdAt: String!
     status: String!
     highBid: Int!
     generation: Int!

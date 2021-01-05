@@ -102,13 +102,11 @@ export const auction = ({ address }) => {
 let id = 1,
   time
 
-const getTime = async () => {
-  return time = client.query(q.ToTime(q.Now()))
-}
-
 export const createAuction = ({ input }) => {
-  let status = 'started',
-    highBid = 0
+  let now = new Date(0),
+    status = 'started',
+    highBid = 0,
+    dateTime = now.toISOString()
 
   return client.query(
     q.Create(q.Collection('Auction'), {
@@ -124,7 +122,7 @@ export const createAuction = ({ input }) => {
         winLength: input.winLength,
         description: input.description,
         contentHash: input.contentHash,
-        createdAt: getTime(),
+        createdAt: dateTime,
         status: status,
         highBid: highBid
       }
