@@ -1,4 +1,5 @@
 import { db } from 'src/lib/db'
+import { q, client } from 'src/lib/fauna-client'
 
 import Emanator from 'emanator-contracts/build/contracts/Emanator.json'
 
@@ -8,7 +9,26 @@ import { formatUnits } from '@ethersproject/units'
 
 export const auctions = async () => {
   try {
-    const auctionsRaw = await db.auction.findMany()
+    // Get all Auctions
+    // this currently returns with no errors
+    const auctionsRaw = await client.query(
+      q.Paginate(q.Match(q.Ref('indexes/auction')))
+    ).then(response => {
+      // console.log("This is the response from client query", response)
+
+      const auctionRef = response.data
+      const getAllDataQuery = auctionRef.map(ref => {
+        return q.Get(ref)
+      })
+
+      // console.log("All data queried from client faunadb query prior to returning", getAllDataQuery)
+
+      return client.query(getAllDataQuery).then(data => data)
+    }).catch(
+      error => console.error('Error: ', error.message)
+    )
+
+    // console.log("Queried auctions from faunadb client: ", auctionsRaw)
 
     const walletlessProvider = new InfuraProvider(
       'goerli',

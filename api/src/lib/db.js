@@ -1,7 +1,7 @@
 import { GraphQLClient } from 'graphql-request'
 
+const endpoint = 'https://graphql.fauna.com/graphql'
 export const request = async (query = {}) => {
-  const endpoint = 'https://graphql.fauna.com/graphql'
 
   const graphQLClient = new GraphQLClient(endpoint, {
     headers: {
