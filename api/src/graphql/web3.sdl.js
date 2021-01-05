@@ -9,7 +9,7 @@ export const schema = gql`
     lastBidTime: String!
     # Unfortunately, the Fauna GraphQL API does not support custom scalars.
     # Instead, we will just use a 'String!' type, for simplicity.
-    pastAuctions: String!
+    pastAuctions: Array!
     revenue: Int!
   }
 
