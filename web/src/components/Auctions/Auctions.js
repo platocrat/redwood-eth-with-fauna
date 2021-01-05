@@ -20,14 +20,14 @@ const jsonTruncate = (obj) => {
 
 const timeTag = (datetime) => {
   return (
-    <time dateTime={datetime} title={datetime}>
-      {new Date(datetime).toUTCString()}
+    <time dateTime={ datetime } title={ datetime }>
+      {new Date(datetime).toUTCString() }
     </time>
   )
 }
 
 const checkboxInputTag = (checked) => {
-  return <input type="checkbox" checked={checked} disabled />
+  return <input type="checkbox" checked={ checked } disabled />
 }
 
 const AuctionsList = ({ auctions }) => {
@@ -45,23 +45,23 @@ const AuctionsList = ({ auctions }) => {
           </tr>
         </thead>
         <tbody>
-          {auctions.map((auction) => (
-            <tr key={auction.id}>
+          { auctions.map((auction) => (
+            <tr key={ auction.id }>
               <td>
                 <Link
                   underline
-                  onClick={() =>
+                  onClick={ () =>
                     navigate(routes.auction({ address: auction.address }))
                   }
                 >
-                  {truncate(auction.name)}
+                  { truncate(auction.name) }
                 </Link>
               </td>
-              <td>{truncate(auction.generation)}</td>
-              <td>{truncate(auction.revenue)}</td>
-              <td>{timeTag(auction.createdAt)}</td>
+              <td>{ truncate(auction.generation) }</td>
+              <td>{ truncate(auction.revenue) }</td>
+              <td>{ timeTag(auction.createdAt) }</td>
             </tr>
-          ))}
+          )) }
         </tbody>
       </table>
     </div>

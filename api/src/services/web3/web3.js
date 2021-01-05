@@ -51,7 +51,7 @@ export const web3Auction = async ({ address }) => {
       lastBidTime: lastBidTimeFormatted,
       auctionBalance: Number(formatUnits(auctionBalance, 18)).toFixed(0),
       status,
-      pastAuctions,
+      // pastAuctions,
       revenue,
     }
   } catch (err) {
@@ -63,7 +63,7 @@ export const web3Auction = async ({ address }) => {
       lastBidTime: Date.now(),
       auctionBalance: 0,
       status: 'started',
-      pastAuctions: [],
+      // pastAuctions: [],
       revenue: 0,
     }
   }

@@ -23,9 +23,9 @@ export const QUERY = gql`
 export const Loading = () => <div>Loading...</div>
 
 export const Empty = () => {
-  return <div className="rw-text-center">{'No auctions yet. Create one!'}</div>
+  return <div className="rw-text-center">{ 'No auctions yet. Create one!' }</div>
 }
 
 export const Success = ({ auctions }) => {
-  return <Auctions auctions={auctions} />
+  return <Auctions auctions={ auctions } />
 }
