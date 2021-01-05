@@ -1,4 +1,4 @@
-import { db } from 'src/lib/db'
+// import { db } from 'src/lib/db'
 import { q, client } from 'src/lib/fauna-client'
 
 import Emanator from 'emanator-contracts/build/contracts/Emanator.json'
@@ -62,14 +62,36 @@ export const auctions = async () => {
 }
 
 export const auction = ({ address }) => {
-  return db.auction.findOne({ where: { address } })
+  return client.query(
+    q.Paginate(q.Match(q.Index('auction'), `${address}`))
+  )
+
+  // a priori command...
+  // return db.auction.findOne({ where: { address } })
 }
 
 export const createAuction = ({ input }) => {
-  return db.auction.create({ data: input })
+  return client.query(
+    q.Create(q.Collection('Auction'), {
+      data: {
+        input
+      }
+    })
+  )
+
+  // a priori command...
+  // return db.auction.create({ data: input })
 }
 
 export const Auction = {
-  bids: (_obj, { root }) =>
-    db.auction.findOne({ where: { address: root.address } }).bids(),
+  bids: (_obj, { root }) => client.query(
+    q.Paginate(q.Match(q.Index('auction'),
+      `${root.address}`
+    )),
+    q.Lambda('bids', q.Get(q.Var('bids')))
+  )
+
+  // a priori command...
+  // bids: (_obj, { root }) =>
+  //   db.auction.findOne({ where: { address: root.address } }).bids(),
 }
