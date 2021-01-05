@@ -10,7 +10,6 @@ import { formatUnits } from '@ethersproject/units'
 export const auctions = async () => {
   try {
     // Get all Auctions
-    // this currently returns with no errors
     const auctionsRaw = await client.query(
       q.Paginate(q.Match(q.Ref('indexes/auctions')))
     ).then(response => {
@@ -27,20 +26,6 @@ export const auctions = async () => {
     }).catch(
       error => console.error('Error: ', error.message)
     )
-
-    /** 
-     * @dev double check that the returned output is an array 
-     * console.log("Queried auctions as raw objects from faunadb client: ", auctionsRaw)
-     * console.log("First auction from queried list, returning its `{data: { input: }}` field: ", auctionsRaw[ 0 ].data.input)
-     * 
-     * Note: the data structure in the second `console.log()` is the one that we need.
-     */
-    // for (let i = 0; i < auctionsRaw.length; i++) {
-    //   console.log(
-    //     "Query of single auction from Fauna, returning its `{ data: { input: }}` field: ",
-    //     auctionsRaw[ i ].data.input
-    //   )
-    // }
 
     let auctionsDataObjects = []
 
@@ -103,17 +88,23 @@ let id = 1,
   time
 
 export const createAuction = ({ input }) => {
-  let now = new Date(0),
+  let now = new Date(),
     status = 'started',
     highBid = 0,
+    /**
+     * @dev Couldn't get Fauna's `Date` or `Time` GraphQL fields to work, so
+     * instead, we will simply use a `String!` and render this to the user.
+     */
     dateTime = now.toISOString()
 
   return client.query(
     q.Create(q.Collection('Auction'), {
       data: {
         /**
-         * @todo
-         // api | Error: Cannot return null for non-nullable field Auction.id.
+         * @dev This is an annoying error you will receive, and you can safely
+         * ignore it.
+         * 
+         * Error: Cannot return null for non-nullable field Auction.id.
          */
         id: id,
         address: input.address,
