@@ -42,17 +42,10 @@ export const auctions = async () => {
     //   )
     // }
 
-    let auctionsDataObjects = [],
-      id = 1
+    let auctionsDataObjects = []
 
     for (let i = 0; i < auctionsRaw.length; i++) {
-      auctionsDataObjects.push(auctionsRaw[ i ].data.input)
-    }
-
-    // Hacky way to add an `Auction.id` field
-    for (let i = 0; i < auctionsDataObjects.length; i++) {
-      auctionsDataObjects[ i ].id = id
-      id += 1
+      auctionsDataObjects.push(auctionsRaw[ i ].data)
     }
 
     console.log("Full auction data objects: ", auctionsDataObjects)
@@ -106,7 +99,17 @@ export const auction = ({ address }) => {
    */
 }
 
+let id = 1,
+  time
+
+const getTime = async () => {
+  return time = client.query(q.ToTime(q.Now()))
+}
+
 export const createAuction = ({ input }) => {
+  let status = 'started',
+    highBid = 0
+
   return client.query(
     q.Create(q.Collection('Auction'), {
       data: {
@@ -114,10 +117,21 @@ export const createAuction = ({ input }) => {
          * @todo
          // api | Error: Cannot return null for non-nullable field Auction.id.
          */
-        input
+        id: id,
+        address: input.address,
+        name: input.name,
+        owner: input.owner,
+        winLength: input.winLength,
+        description: input.description,
+        contentHash: input.contentHash,
+        createdAt: getTime(),
+        status: status,
+        highBid: highBid
       }
     })
   )
+
+  id += 1
 
   /**
    * @dev a priori command...

@@ -17,7 +17,7 @@ type Auction {
   winLength: Int!
   description: String
   contentHash: String
-  createdAt: Time!
+  createdAt: Date!
   status: String!
   highBid: Int!
   generation: Int!
@@ -74,8 +74,8 @@ type Web3Auction {
   highBid: Int!
   currentGeneration: Int!
   auctionBalance: Int!
-  endTime: Time!
-  lastBidTime: Time!
+  endTime: Date!
+  lastBidTime: Date!
   # Unfortunately, the Fauna GraphQL API does not support custom scalars
   # pastAuctions: JSON!
   revenue: Int!
