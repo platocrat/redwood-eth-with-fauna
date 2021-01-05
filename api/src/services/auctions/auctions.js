@@ -28,7 +28,7 @@ export const auctions = async () => {
       error => console.error('Error: ', error.message)
     )
 
-    // double check that the returned output is an array
+    /** @dev double check that the returned output is an array */
     // console.log("Queried auctions from faunadb client: ", auctionsRaw)
 
     const walletlessProvider = new InfuraProvider(
